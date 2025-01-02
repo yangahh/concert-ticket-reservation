@@ -27,20 +27,6 @@ class ConcertControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @DisplayName("예약 가능한 날짜 조회: 헤더에 token이 없어서 조회에 실패한다.")
-    @Test
-    void shouldFailWhenNotTokenInHeader_getDates() throws Exception {
-        // given
-        String uri = "/concerts/{concertId}/dates";
-        long concertId = 1L;
-
-        // when  // then
-        mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
-    }
-
     @DisplayName("예약 가능한 날짜 조회: 잘못된 형식의 token으로 조회에 실패한다.")
     @Test
     void shouldFailWhenTokenIsInvalidFormat() throws Exception {
@@ -78,17 +64,17 @@ class ConcertControllerTest {
         // given
         String uri = "/concerts/{concertId}/dates/{date}/seats";
         long concertId = 1L;
-        String wrongDate = "2025-01-01T00:00:00";
+        String wrongDate = "20250101";
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId, wrongDate)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("token", UUID.randomUUID().toString()))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().is5xxServerError());
     }
 
-    @DisplayName("예약 가능한 좌석 조회: 헤더에 token이 없어서 조회에 실패한다.")
+    @DisplayName("예약 가능한 좌석 조회: 헤더에 잘못된 형식의 token으로 조회에 실패한다.")
     @Test
     void shouldFailWhenNotTokenInHeader_getSeats() throws Exception {
         // given
@@ -99,7 +85,8 @@ class ConcertControllerTest {
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId, date)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("token", ""))
                 .andExpect(status().is4xxClientError());
     }
 

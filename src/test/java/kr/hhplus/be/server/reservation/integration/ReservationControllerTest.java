@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.reservation.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.hhplus.be.server.interfaces.api.concert.controller.ConcertController;
 import kr.hhplus.be.server.interfaces.api.reservation.controller.ReservationController;
 import kr.hhplus.be.server.interfaces.api.reservation.dto.ReservationRequest;
 import org.junit.jupiter.api.DisplayName;
