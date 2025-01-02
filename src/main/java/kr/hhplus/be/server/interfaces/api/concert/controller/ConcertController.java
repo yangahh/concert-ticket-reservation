@@ -23,18 +23,18 @@ import java.util.List;
 public class ConcertController {
     private final ConcertService concertService;
 
-    @GetMapping("/{concertId}/dates")
+    @GetMapping("/{concert-id}/dates")
     public ResponseEntity<ApiResponse<List<String>>> getAvailableDates(
-            @PathVariable("concertId") @NotNull Long concertId,
+            @PathVariable("concert-id") @NotNull Long concertId,
             @RequestHeader("token") @NotNull @Pattern(regexp = Patterns.UUID) String token) {
         List<String> availableDates = List.of("2025-01-01", "2025-01-02");
         ApiResponse<List<String>> response = ApiResponse.ok(availableDates);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{concertId}/dates/{date}/seats")
+    @GetMapping("/{concert-id}/dates/{date}/seats")
     public ResponseEntity<ApiResponse<List<SeatResponse>>> getAvailableSeats(
-            @PathVariable("concertId") @NotNull Long concertId,
+            @PathVariable("concert-id") @NotNull Long concertId,
             @PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @RequestHeader("token")  @NotNull @Pattern(regexp = Patterns.UUID) String token) {
 
