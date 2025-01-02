@@ -34,8 +34,11 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.projectlombok:lombok")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+	annotationProcessor("org.projectlombok:lombok")
 
-    // DB
+	// DB
 	runtimeOnly("com.mysql:mysql-connector-j")
 
     // Test
@@ -44,6 +47,7 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:mysql")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testAnnotationProcessor("org.projectlombok:lombok")
 }
 
 tasks.withType<Test> {
