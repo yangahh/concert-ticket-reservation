@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.interfaces.api.queuetoken.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.ApiResponse;
@@ -29,7 +30,7 @@ public class QueueTokenController {
 
     @GetMapping("/position")
     public ResponseEntity<ApiResponse<QueuePositionResponse>> getWaitingTokenPosition(
-            @RequestParam("token") @Pattern(regexp = Patterns.UUID) String token) {
+            @RequestParam("token") @NotNull @Pattern(regexp = Patterns.UUID) String token) {
         return ResponseEntity.ok(ApiResponse.ok(QueuePositionResponse.of(57L, true)));
     }
 }
