@@ -11,7 +11,6 @@
 ```bash
 docker-compose up -d
 ```
-
 ---
 ## 설계 및 문서 작성
 
@@ -19,3 +18,6 @@ docker-compose up -d
 ### 2. [요구사항 분석](https://github.com/yangahh/concert-ticket-reservation/wiki/2.-%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD-%EC%A0%95%EC%9D%98)
 ### 3. [Flow Chart](https://github.com/yangahh/concert-ticket-reservation/wiki/3.-UML-%E2%80%90-%ED%94%8C%EB%A1%9C%EC%9A%B0-%EC%B0%A8%ED%8A%B8)
 ### 4. [Sequence Diagram](https://github.com/yangahh/concert-ticket-reservation/wiki/4.-UML-%E2%80%90-%EC%8B%9C%ED%80%80%EC%8A%A4-%EB%8B%A4%EC%9D%B4%EC%96%B4%EA%B7%B8%EB%9E%A8)
+### 5. [API 명세서](https://app.swaggerhub.com/apis-docs/TOAUR6802/concert/1.0.0)
+### 6. [ERD 설계](https://github.com/yangahh/concert-ticket-reservation/wiki/6.-ERD-%EC%84%A4%EA%B3%84)
+### 7. [아키텍처 설계](https://github.com/yangahh/concert-ticket-reservation/wiki/7.-%EC%95%84%ED%82%A4%ED%85%8D%EC%B3%90-%EA%B5%AC%EC%A1%B0-%EC%84%A4%EA%B3%84)
