@@ -1,0 +1,582 @@
+openapi: 3.0.0
+info:
+  title: Concert Reservation API
+  version: 1.0.0
+  description: |
+    콘서트 예약 및 결제 서비스의 API 명세서입니다.
+
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/TOAUR6802/concert/1.0.0
+  - url: http://localhost:8080
+    description: local server
+
+paths:
+  /queue/token:
+    post:
+      summary: 대기열 토큰 발급
+      description: 콘서트 예약 페이지 진입 시 대기열 토큰(waiting token)을 발급합니다.
+      tags:
+        - Queue Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  example: 10
+              required:
+                - userId
+      responses:
+        '201':
+          description: 토큰 발급 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      statusCode:
+                        example: 201
+                      message:
+                        example: CREATED
+                      data:
+                        type: object
+                        properties:
+                          token:
+                            type: string
+                            format: uuid
+                            example: "157aadfa-96bb-4b1a-8127-d6e3dd31d72b"
+                          isActive:
+                            type: boolean
+                            example: false
+                            description: |
+                              true: 대기열을 통과 한 상태로, 예약 기능을 사용할 수 있는 토큰(=active token)
+                              false: 대기열 진입 시 발급되는 토큰(=waiting token). 대기 순서 순으로 active token이 될때까지 대기해야 한다.
+        '400':
+          description: 요청 실패
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+
+  /queue/position:
+    get:
+      summary: 대기 순번 조회
+      description: 대기열에서 사용자의 현재 위치(순번)를 조회합니다.
+      tags:
+        - Queue Token
+      parameters:
+        - name: token
+          in: query
+          description: waiting token uuid
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: 157aadfa-96bb-4b1a-8127-d6e3dd31d72b
+      responses:
+        '200':
+          description: 현재 대기 순번 반환
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          position:
+                            type: integer
+                            example: 123
+                          isActive:
+                            type: boolean
+                            example: false
+        '401':
+          description: 토큰 만료 또는 유효하지 않음
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: 401
+                message: "Invalid token"
+
+
+  /concerts/{concert-id}/dates:
+    get:
+      summary: 예약 가능한 날짜 목록 조회
+      description: 특정 콘서트의 예약 가능한 날짜 목록을 조회합니다.
+      tags:
+        - Concert
+      parameters:
+        - $ref: "#/components/parameters/offsetParam"
+        - $ref: "#/components/parameters/limitParam"
+        - name: concert-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+        - name: token
+          in: header
+          required: true
+          description: active token uuid
+          schema:
+            type: string
+            example: 157aadfa-96bb-4b1a-8127-d6e3dd31d72b
+
+      responses:
+        '200':
+          description: 예약 가능한 날짜 목록 반환
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/Pagination"
+                          - properties:
+                              items:
+                                items:
+                                  $ref: "#/components/schemas/ConcertScheduleResult"
+                        example:
+                          offset: 0
+                          limit: 10
+                          count: 3
+                          items:
+                            - concertId: 101
+                              concertScheduleId: 222
+                              concertDate: "2025-02-10 18:00:00"
+                            - concertId: 101
+                              concertScheduleId: 223
+                              concertDate: "2025-02-11 18:00:00"
+                            - concertId: 101
+                              concertScheduleId: 224
+                              concertDate: "2025-02-12 18:00:00"
+
+        '401':
+          description: 토큰 만료 또는 유효하지 않음
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: 401
+                message: "Invalid token"
+
+  /concerts/{concert-id}/dates/{date}/seats:
+    get:
+      summary: 날짜별 예약 가능한 좌석 목록 조회
+      description: 특정 날짜에 예약 가능한 좌석 목록을 조회합니다.
+      tags:
+        - Concert
+      parameters:
+        - $ref: "#/components/parameters/offsetParam"
+        - $ref: "#/components/parameters/limitParam"
+        - name: concert-id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 123
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2025-02-01"
+        - name: token
+          in: header
+          required: true
+          schema:
+            type: string
+            example: 157aadfa-96bb-4b1a-8127-d6e3dd31d72b
+
+      responses:
+        '200':
+          description: 예약 가능한 좌석 목록 반환
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/Pagination"
+                          - properties:
+                              items:
+                                items:
+                                  $ref: "#/components/schemas/ConcertSeatResult"
+                        example:
+                          offset: 0
+                          limit: 3
+                          count: 50
+                          items:
+                            - seatId: 1
+                              seatNo: A1
+                              isAvailable: true
+                            - seatId: 2
+                              seatNo: A2
+                              isAvailable: false
+                            - seatId: 3
+                              seatNo: A3
+                              isAvailable: true
+        '401':
+          description: 토큰 만료 또는 유효하지 않음
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: 401
+                message: "Invalid token"
+
+  /reservations:
+    post:
+      summary: 좌석 예약 요청
+      description: 선택한 좌석을 임시 예약합니다.
+      tags:
+        - Reservation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  example: 10
+                seatId:
+                  type: integer
+                  example: 501
+      responses:
+        '200':
+          description: 좌석 임시 예약 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ReservationResult"
+        '409':
+          description: 좌석이 이미 예약됨
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: 409
+                message: "Already reserved"
+        '401':
+          description: 토큰 만료 또는 유효하지 않음
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: 401
+                message: "Invalid token"
+
+  /payments:
+    post:
+      summary: 좌석 결제 요청
+      description: 임시로 배정된 좌석을 결제하고 예약을 확정합니다.
+      tags:
+        - Payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reservationId:
+                  type: integer
+                  example: 1001
+      responses:
+        '200':
+          description: 결제 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/PaymentResult"
+        '422':
+          description: 포인트 부족으로 인한 결제 실패
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: 422
+                message: "Insufficient points"
+        '410':
+          description: 임시 배정 시간 만료로 인한 결제 실패
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: 410
+                message: "Expired temporary reservation"
+
+  /points:
+    post:
+      summary: 포인트 충전
+      description: 사용자가 포인트를 충전합니다.
+      tags:
+        - Point
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  example: 10
+                amount:
+                  type: integer
+                  example: 50000
+      responses:
+        '200':
+          description: 포인트 충전 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/PointBalanceResult"
+        '400':
+          description: 충전 실패
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      summary: 포인트 잔액 조회
+      description: 사용자의 포인트 잔액을 조회합니다.
+      tags:
+        - Point
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          example: 10
+      responses:
+        '200':
+          description: 포인트 잔액 반환
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/PointBalanceResult"
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: Bad request
+      required:
+        - code
+        - message
+
+    ApiResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "ok"
+        data:
+          type: object
+
+    Pagination:
+      type: object
+      properties:
+        offset:
+          type: integer
+        limit:
+          type: integer
+        count:
+          type: integer
+          minimum: 0
+          description: 총 아이템 개수
+        items:
+          type: array
+          items:
+            type: object
+
+    ConcertScheduleResult:
+      type: object
+      properties:
+        concertId:
+          type: integer
+          example: 101
+        concertScheduleId:
+          type: string
+          example: 222
+        concertDate:
+          type: string
+          format: datetime
+          description: 공연 날짜 및 시간
+          example: "2025-02-10 18:00:00"
+
+    ConcertSeatResult:
+      type: object
+      properties:
+        seatId:
+          type: integer
+          example: 99
+        seatNo:
+          type: string
+          example: A1
+        isAvailable:
+          type: boolean
+          example: true
+
+    ReservationResult:
+      type: object
+      properties:
+        reservationId:
+          type: integer
+          example: 1001
+        userId:
+          type: integer
+          example: 10
+        concertId:
+          type: integer
+          example: 101
+        concertScheduleId:
+          type: integer
+          example: 222
+        concertDate:
+          type: string
+          format: datetime
+          description: 공연 날짜 및 시간
+          example: "2025-02-10 18:00:00"
+        seatId:
+          type: integer
+          example: 501
+        seatNo:
+          type: string
+          example: A1
+        status:
+          type: string
+          description: |
+            예약 상태
+            예약 완료시: PENDING_PAYMENT
+            결제 완료시: CONFIRMED
+          example: "PENDING_PAYMENT"
+        price:
+          type: integer
+          description: 결제 가격
+          example: 50000
+        reservedAt:
+          type: string
+          format: datetime
+          description: 임시 예약 시점
+          example: "2025-01-01 00:00:00"
+        tempReservationExpiredAt:
+          type: string
+          format: datetime
+          description: 임시 예약 만료 시점
+          example: "2025-01-01 00:05:00"
+        confirmedAt:
+          type: string
+          format: datetime
+          description: 결제 완료 시점
+          example: null
+
+    PaymentResult:
+      allOf:
+        - $ref: "#/components/schemas/ReservationResult"
+        - type: object
+          properties:
+            status:
+              type: string
+              description: |
+                예약 상태
+                예약 완료시: PENDING_PAYMENT
+                결제 완료시: CONFIRMED
+              example: "CONFIRMED"
+            confirmedAt:
+              type: string
+              format: datetime
+              description: 결제 완료 시점
+              example: "2025-01-01 00:03:00"
+
+    PointBalanceResult:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 10
+        balance:
+          type: integer
+          example: 100000
+
+  parameters:
+    offsetParam:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+
+    limitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
