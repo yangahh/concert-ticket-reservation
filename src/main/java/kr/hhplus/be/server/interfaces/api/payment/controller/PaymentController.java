@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.interfaces.api.payment.controller;
 
 import jakarta.validation.Valid;
-import kr.hhplus.be.server.interfaces.api.common.dto.response.ApiResponse;
+import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.payment.dto.PaymentRequest;
 import kr.hhplus.be.server.interfaces.api.payment.dto.PaymentResponse;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @RequestMapping("/payments")
 public class PaymentController {
     @PostMapping
-    public ResponseEntity<ApiResponse<PaymentResponse>> processPayment(
+    public ResponseEntity<BaseResponse<PaymentResponse>> processPayment(
             @RequestBody @Valid PaymentRequest request) {
 
         PaymentResponse res = PaymentResponse.builder()
@@ -30,6 +30,6 @@ public class PaymentController {
                         .price(50000)
                         .confirmedAt(LocalDateTime.now())
                         .build();
-        return ResponseEntity.ok(ApiResponse.ok(res));
+        return ResponseEntity.ok(BaseResponse.ok(res));
     }
 }

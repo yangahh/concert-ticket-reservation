@@ -4,7 +4,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
-import kr.hhplus.be.server.interfaces.api.common.dto.response.ApiResponse;
+import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
+import kr.hhplus.be.server.interfaces.api.common.dto.response.ErrorResponse;
 import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueuePositionResponse;
 import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueueTokenRequest;
 import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueueTokenResponse;
@@ -24,13 +25,13 @@ public class QueueTokenController {
     private final QueueTokenService queueTokenService;
 
     @PostMapping("/token")
-    public ResponseEntity<ApiResponse<QueueTokenResponse>> issueWaitingToken(@RequestBody @Valid QueueTokenRequest request) {
-        return ResponseEntity.ok(ApiResponse.created(QueueTokenResponse.of(UUID.randomUUID().toString(), false)));
+    public ResponseEntity<BaseResponse<QueueTokenResponse>> issueWaitingToken(@RequestBody @Valid QueueTokenRequest request) {
+        return ResponseEntity.ok(BaseResponse.created(QueueTokenResponse.of(UUID.randomUUID().toString(), false)));
     }
 
     @GetMapping("/position")
-    public ResponseEntity<ApiResponse<QueuePositionResponse>> getWaitingTokenPosition(
+    public ResponseEntity<BaseResponse<QueuePositionResponse>> getWaitingTokenPosition(
             @RequestParam("token") @NotNull @Pattern(regexp = Patterns.UUID) String token) {
-        return ResponseEntity.ok(ApiResponse.ok(QueuePositionResponse.of(57L, true)));
+        return ResponseEntity.ok(BaseResponse.ok(QueuePositionResponse.of(57L, true)));
     }
 }

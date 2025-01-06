@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
-import kr.hhplus.be.server.interfaces.api.common.dto.response.ApiResponse;
+import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.reservation.dto.ReservationRequest;
 import kr.hhplus.be.server.interfaces.api.reservation.dto.ReservationResponse;
 import kr.hhplus.be.server.utils.regexp.Patterns;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class ReservationController {
     @PostMapping
-    public ResponseEntity<ApiResponse<ReservationResponse>> reserveSeat(
+    public ResponseEntity<BaseResponse<ReservationResponse>> reserveSeat(
             @RequestBody @Valid ReservationRequest request,
             @RequestHeader("token") @NotNull @Pattern(regexp = Patterns.UUID) String token) {
 
@@ -34,6 +34,6 @@ public class ReservationController {
                 .reservedAt("2025-01-01 00:00:00")
                 .tempReservationExpiredAt("2025-01-01 00:05:00")
                 .build();
-        return ResponseEntity.ok(ApiResponse.ok(reservation));
+        return ResponseEntity.ok(BaseResponse.ok(reservation));
     }
 }
