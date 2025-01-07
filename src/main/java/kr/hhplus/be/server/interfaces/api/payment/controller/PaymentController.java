@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
+import kr.hhplus.be.server.interfaces.api.payment.controller.apidocs.PaymentApiDocs;
 import kr.hhplus.be.server.interfaces.api.payment.dto.PaymentRequest;
 import kr.hhplus.be.server.interfaces.api.payment.dto.PaymentResponse;
 import kr.hhplus.be.server.utils.regexp.Patterns;
@@ -18,7 +19,8 @@ import static kr.hhplus.be.server.interfaces.api.common.exception.message.Except
 @RestController
 @RequestMapping("/payments")
 @Validated
-public class PaymentController {
+public class PaymentController implements PaymentApiDocs {
+
     @PostMapping
     public ResponseEntity<BaseResponse<PaymentResponse>> processPayment(
             @RequestBody @Valid PaymentRequest request,

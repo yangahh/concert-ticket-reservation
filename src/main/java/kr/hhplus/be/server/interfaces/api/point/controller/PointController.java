@@ -3,6 +3,7 @@ package kr.hhplus.be.server.interfaces.api.point.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
+import kr.hhplus.be.server.interfaces.api.point.controller.apidocs.PointApiDocs;
 import kr.hhplus.be.server.interfaces.api.point.dto.PointRequest;
 import kr.hhplus.be.server.interfaces.api.point.dto.PointResponse;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/points")
 @Validated
-public class PointController {
+public class PointController implements PointApiDocs {
+
     @PostMapping
     public ResponseEntity<BaseResponse<PointResponse>> chargePoints(@RequestBody @Valid PointRequest request) {
         PointResponse response = PointResponse.builder()

@@ -21,6 +21,21 @@ spring:
       hibernate.timezone.default_storage: NORMALIZE_UTC
       hibernate.jdbc.time_zone: UTC
 
+springdoc:
+#  packages-to-scan: kr.hhplus.be.server  # 문서화할 패키지를 지정
+#  paths-to-match: /**   # 문서화할 경로를 지정. /**는 모든 경로를 의미
+  swagger-ui:
+    path: /swagger-ui.html  # Swagger UI 페이지의 경로를 설정
+
+  api-docs:
+    path: /api-docs  # API 문서(JSON)가 노출되는 경로. api-docs/yaml 경로로 yaml 파일 제공
+  cache:
+    disabled: true  # Swagger 문서의 캐싱을 사용하지 않도록 설정 (기본값: false)
+
+  # 기본적으로 사용할 요청 및 응답의 미디어 타입을 설정
+  default-produces-media-type: application/json;charset=UTF-8
+  default-consumes-media-type: application/json;charset=UTF-8
+
 ---
 spring.config.activate.on-profile: local, test
 

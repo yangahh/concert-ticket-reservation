@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.interfaces.api.common.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -8,8 +9,13 @@ import org.springframework.http.HttpStatus;
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BaseResponse<T> {
+    @Schema(description = "HTTP 상태 코드", example = "200")
     private final int statusCode;
+
+    @Schema(description = "응답 메시지", example = "OK")
     private final String message;
+
+    @Schema(description = "응답 데이터")
     private final T data;
 
     @Builder

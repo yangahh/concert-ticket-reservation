@@ -52,7 +52,7 @@ paths:
                             type: string
                             format: uuid
                             example: "157aadfa-96bb-4b1a-8127-d6e3dd31d72b"
-                          isActive:
+                          active:
                             type: boolean
                             example: false
                             description: |
@@ -97,11 +97,11 @@ paths:
                           position:
                             type: integer
                             example: 123
-                          isActive:
+                          active:
                             type: boolean
                             example: false
         '401':
-          description: 토큰 만료 또는 유효하지 않음
+          description: 잘못된 토큰
           content:
             application/json:
               schema:
@@ -109,7 +109,7 @@ paths:
                   - $ref: "#/components/schemas/ErrorResponse"
               example:
                 code: 401
-                message: "Invalid token"
+                message: "잘못된 형식의 토큰값입니다."
 
 
   /concerts/{concert-id}/dates:
@@ -231,13 +231,13 @@ paths:
                           items:
                             - seatId: 1
                               seatNo: A1
-                              isAvailable: true
+                              available: true
                             - seatId: 2
                               seatNo: A2
-                              isAvailable: false
+                              available: false
                             - seatId: 3
                               seatNo: A3
-                              isAvailable: true
+                              available: true
         '401':
           description: 토큰 만료 또는 유효하지 않음
           content:
@@ -497,7 +497,7 @@ components:
         seatNo:
           type: string
           example: A1
-        isAvailable:
+        available:
           type: boolean
           example: true
 

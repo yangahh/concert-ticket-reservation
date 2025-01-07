@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
+import kr.hhplus.be.server.interfaces.api.queuetoken.controller.apidocs.QueueTokenApiDocs;
 import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueuePositionResponse;
 import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueueTokenRequest;
 import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueueTokenResponse;
@@ -22,14 +23,16 @@ import static kr.hhplus.be.server.interfaces.api.common.exception.message.Except
 @RequestMapping("/queue")
 @RequiredArgsConstructor
 @Validated
-public class QueueTokenController {
+public class QueueTokenController implements QueueTokenApiDocs {
     private final QueueTokenService queueTokenService;
 
+    @Override
     @PostMapping("/token")
     public ResponseEntity<BaseResponse<QueueTokenResponse>> issueWaitingToken(@RequestBody @Valid QueueTokenRequest request) {
         return new ResponseEntity<>(BaseResponse.created(QueueTokenResponse.of(UUID.randomUUID().toString(), false)), HttpStatus.CREATED);
     }
 
+    @Override
     @GetMapping("/position")
     public ResponseEntity<BaseResponse<QueuePositionResponse>> getWaitingTokenPosition(
             @RequestParam("token") @Pattern(regexp = Patterns.UUID, message = INVALID_TOKEN_FORMAT) String token) {
