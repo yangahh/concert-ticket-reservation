@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentRequest {
-    @NotNull(message = "Reservation ID cannot be null")
+    @NotNull(message = "Reservation Id cannot be null")
     @Positive
-    private long reservationId;
+    private Long reservationId;
 }

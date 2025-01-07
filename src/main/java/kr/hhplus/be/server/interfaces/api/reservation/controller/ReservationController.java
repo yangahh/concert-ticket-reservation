@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import static kr.hhplus.be.server.interfaces.api.common.exception.message.ExceptionMessage.INVALID_TOKEN_FORMAT;
+
 @RestController
 @RequestMapping("/reservations")
 @Validated
@@ -19,7 +21,7 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<BaseResponse<ReservationResponse>> reserveSeat(
             @RequestBody @Valid ReservationRequest request,
-            @RequestHeader("token") @NotNull @Pattern(regexp = Patterns.UUID) String token) {
+            @RequestHeader("token") @Pattern(regexp = Patterns.UUID, message = INVALID_TOKEN_FORMAT) String token) {
 
         ReservationResponse reservation = ReservationResponse.builder()
                 .reservationId(1001L)

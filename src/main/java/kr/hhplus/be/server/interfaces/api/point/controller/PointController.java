@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.interfaces.api.point.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.point.dto.PointRequest;
@@ -24,7 +23,7 @@ public class PointController {
     }
 
     @GetMapping
-    public ResponseEntity<BaseResponse<PointResponse>> getBalance(@RequestParam("user_id") @NotNull @Positive Long userId) {
+    public ResponseEntity<BaseResponse<PointResponse>> getBalance(@RequestParam("user_id") @Positive Long userId) {
         PointResponse response = PointResponse.builder()
                 .userId(1L)
                 .balance(50000L)

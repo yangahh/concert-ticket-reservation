@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 public class PointRequest {
     @NotNull
     @Positive
-    private long userId;
+    private Long userId;
 
     @NotNull
     @Positive
-    private long amount;
+    private Long amount;
 }

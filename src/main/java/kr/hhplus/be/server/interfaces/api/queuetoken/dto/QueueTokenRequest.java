@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QueueTokenRequest {
-    @NotNull
+    @NotNull(message = "userId는 필수값입니다.")
     @Positive
-    private long userId;
+    private Long userId;
 }

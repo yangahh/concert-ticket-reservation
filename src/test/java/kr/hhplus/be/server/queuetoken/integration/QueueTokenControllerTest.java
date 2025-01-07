@@ -54,7 +54,7 @@ class QueueTokenControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userId)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @DisplayName("대기 순번 조회: 잘못된 형식의 token(uuid)으로 조회에 실패한다.")

@@ -159,13 +159,13 @@ paths:
                           items:
                             - concertId: 101
                               concertScheduleId: 222
-                              concertDate: "2025-02-10 18:00:00"
+                              concertDateTime: "2025-02-10 18:00:00"
                             - concertId: 101
                               concertScheduleId: 223
-                              concertDate: "2025-02-11 18:00:00"
+                              concertDateTime: "2025-02-11 18:00:00"
                             - concertId: 101
                               concertScheduleId: 224
-                              concertDate: "2025-02-12 18:00:00"
+                              concertDateTime: "2025-02-12 18:00:00"
 
         '401':
           description: 토큰 만료 또는 유효하지 않음
@@ -255,6 +255,14 @@ paths:
       description: 선택한 좌석을 임시 예약합니다.
       tags:
         - Reservation
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: active token uuid
+          schema:
+            type: string
+            example: 157aadfa-96bb-4b1a-8127-d6e3dd31d72b
       requestBody:
         required: true
         content:
@@ -307,6 +315,14 @@ paths:
       description: 임시로 배정된 좌석을 결제하고 예약을 확정합니다.
       tags:
         - Payment
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: active token uuid
+          schema:
+            type: string
+            example: 157aadfa-96bb-4b1a-8127-d6e3dd31d72b
       requestBody:
         required: true
         content:
@@ -466,7 +482,7 @@ components:
         concertScheduleId:
           type: string
           example: 222
-        concertDate:
+        concertDateTime:
           type: string
           format: datetime
           description: 공연 날짜 및 시간
@@ -500,7 +516,7 @@ components:
         concertScheduleId:
           type: integer
           example: 222
-        concertDate:
+        concertDateTime:
           type: string
           format: datetime
           description: 공연 날짜 및 시간
