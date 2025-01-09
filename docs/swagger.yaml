@@ -29,8 +29,12 @@ paths:
                 userId:
                   type: integer
                   example: 10
+                concertId:
+                  type: integer
+                  example: 101
               required:
                 - userId
+                - concertId
       responses:
         '201':
           description: 토큰 발급 성공
