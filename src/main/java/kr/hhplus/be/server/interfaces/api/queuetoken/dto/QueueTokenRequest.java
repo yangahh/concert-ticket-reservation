@@ -15,4 +15,9 @@ public class QueueTokenRequest {
     @NotNull(message = "userId는 필수값입니다.")
     @Positive
     private Long userId;
+
+    @Schema(description = "콘서트 ID", example = "101")
+    @NotNull(message = "concertId는 필수값입니다.")
+    @Positive
+    private Long concertId;
 }
