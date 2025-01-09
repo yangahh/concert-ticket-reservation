@@ -8,13 +8,13 @@ CREATE TABLE `users` (
 --
 
 CREATE TABLE `queue_token` (
-                         `id` bigint PRIMARY KEY AUTO_INCREMENT,
-                         `token_uuid` binary(16) UNIQUE NOT NULL,
-                         `user_id` bigint NOT NULL,     -- FK를 걸지 않음
-                         `concert_id` bigint NOT NULL,  -- FK를 걸지 않음
-                         `is_active` boolean NOT NULL DEFAULT false,
-                         `expired_at` timestamp NOT NULL,
-                         `created_at` timestamp DEFAULT CURRENT_TIMESTAMP
+                               `id` bigint PRIMARY KEY AUTO_INCREMENT,
+                               `token_uuid` binary(16) UNIQUE NOT NULL,
+                               `user_id` bigint NOT NULL,     -- FK를 걸지 않음
+                               `concert_id` bigint NOT NULL,  -- FK를 걸지 않음
+                               `is_active` boolean NOT NULL DEFAULT false,
+                               `expired_at` timestamp NOT NULL,
+                               `created_at` timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_queue_token_user_id ON queue_token(user_id);

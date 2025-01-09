@@ -32,6 +32,8 @@ public class ConcertController implements ConcertApiDocs {
     @GetMapping("/{concert-id}/dates")
     public ResponseEntity<BaseResponse<PaginationData<ConcertScheduleDateResponse>>> getAvailableDates(
             @PathVariable("concert-id") Long concertId,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "limit", defaultValue = "10") int limit,
             @RequestHeader("token") @Pattern(regexp = Patterns.UUID, message = INVALID_TOKEN_FORMAT) String token) {
 
         List<ConcertScheduleDateResponse> concertDates = List.of(
@@ -47,6 +49,8 @@ public class ConcertController implements ConcertApiDocs {
     public ResponseEntity<BaseResponse<PaginationData<SeatResponse>>> getAvailableSeats(
             @PathVariable("concert-id") Long concertId,
             @PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "limit", defaultValue = "50") int limit,
             @RequestHeader("token") @Pattern(regexp = Patterns.UUID, message = INVALID_TOKEN_FORMAT) String token) {
 
         List<SeatResponse> availableSeats = List.of(

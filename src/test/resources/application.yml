@@ -6,20 +6,21 @@ spring:
 
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    url: jdbc:tc:mysql:8.3:///test_container_db
+    url: jdbc:tc:mysql:8.3:///test
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
 #    defer-datasource-initialization: true  # DataSource 초기화를 미루는 설정
     properties:
+      hibernate.jdbc.time_zone: UTC
       hibernate:
         show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
         default_batch_fetch_size: 100
     open-in-view: false
-#  sql:
-#    init:
-#      mode: always
-#      schema-locations: classpath:sql/schema.sql
-#      data-locations: classpath:sql/data.sql
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql

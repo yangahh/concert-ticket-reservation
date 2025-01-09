@@ -2,7 +2,6 @@ package kr.hhplus.be.server.interfaces.api.concert.dto;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.hhplus.be.server.domain.concert.vo.SeatStatus;
 import lombok.Builder;
 import lombok.Getter;
 
