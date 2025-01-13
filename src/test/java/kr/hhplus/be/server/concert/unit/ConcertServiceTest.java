@@ -9,6 +9,7 @@ import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
 import kr.hhplus.be.server.domain.concert.repository.ConcertRepository;
 import kr.hhplus.be.server.domain.concert.service.ConcertService;
+import kr.hhplus.be.server.utils.time.TimeProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -35,6 +37,9 @@ class ConcertServiceTest {
 
     @Mock
     private ConcertRepository concertRepository;
+
+    @Mock
+    private TimeProvider timeProvider;
 
     @DisplayName("날짜 조회: 존재하지 않는 콘서트 id로 조회하면 예외가 발생한다.")
     @Test
@@ -75,7 +80,7 @@ class ConcertServiceTest {
         given(concertRepository.findConcertById(concertId)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> sut.getSeatsByConcertIdAndEventDate(1L, LocalDateTime.now().plusDays(1), Optional.empty(), Optional.empty()))
+        assertThatThrownBy(() -> sut.getSeatsByConcertIdAndEventDate(1L, LocalDate.now().plusDays(1), Optional.empty(), Optional.empty()))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Concert not found");
     }
@@ -84,32 +89,36 @@ class ConcertServiceTest {
     @Test
     void shouldThrowUnprocessableEntityExceptionWhenEventDateIsPast() {
         // given
-        LocalDateTime eventDate = LocalDateTime.now().minusDays(1);
+        given(timeProvider.now()).willReturn(LocalDateTime.now());
+
+        LocalDate searchDate = LocalDate.now().minusDays(1);
         Concert concert = Concert.create("test");
         given(concertRepository.findConcertById(anyLong())).willReturn(Optional.of(concert));
 
         // when & then
-        assertThatThrownBy(() -> sut.getSeatsByConcertIdAndEventDate(1L, eventDate, Optional.empty(), Optional.empty()))
+        assertThatThrownBy(() -> sut.getSeatsByConcertIdAndEventDate(1L, searchDate, Optional.empty(), Optional.empty()))
                 .isInstanceOf(UnprocessableEntityException.class)
                 .hasMessageContaining("is past");
     }
 
     @Test
-    @DisplayName("콘서트 좌석 조회 시, 0건 조회 테스트")
+    @DisplayName("콘서트 좌석 조회 시, 결과가 없으면 Page 객체가 비어있어야 한다.")
     void testGetSeatsByConcertIdAndEventDateWithNoResults() {
         // given
+        given(timeProvider.now()).willReturn(LocalDateTime.now());
+
         Long concertId = 1L;
-        LocalDateTime eventDate = LocalDateTime.now().plusDays(1);
+        LocalDate searchDate = LocalDate.now().plusDays(1);
         int offset = 0;
         int limit = 10;
-        Page<Seat> mockPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(offset / limit, limit), 0);
+        Page<Seat> mockPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(offset / limit, limit), 0); // 결과가 0건인 Page 객체 생성
 
         Concert concert = Concert.create("test");
         given(concertRepository.findConcertById(concertId)).willReturn(Optional.of(concert));
-        given(concertRepository.findSeatsByConcertSchedule(concertId, eventDate, offset, limit)).willReturn(mockPage);
+        given(concertRepository.findSeatsByConcertSchedule(concertId, searchDate, offset, limit)).willReturn(mockPage);
 
         // when
-        ConcertSeatsResult result = sut.getSeatsByConcertIdAndEventDate(concertId, eventDate, Optional.of(offset), Optional.of(limit));
+        ConcertSeatsResult result = sut.getSeatsByConcertIdAndEventDate(concertId, searchDate, Optional.of(offset), Optional.of(limit));
 
         // then
         assertThat(result.seats()).isEmpty();

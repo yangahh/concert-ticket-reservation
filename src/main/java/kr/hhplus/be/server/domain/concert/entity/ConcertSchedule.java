@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 
@@ -24,7 +25,7 @@ public class ConcertSchedule {
     private Concert concert;
 
     @NotNull
-    @Column(name = "event_date", nullable = false)
+    @Column(name = "event_date", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime eventDate;
 
     @Column(name = "total_seat_count", nullable = false)

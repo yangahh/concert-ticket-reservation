@@ -22,7 +22,6 @@ public interface QueueTokenJpaRepository extends JpaRepository<QueueToken, Long>
     @Modifying
     void deleteByExpiredAtBefore(LocalDateTime datetime);
 
-    @Query("SELECT COUNT(q) FROM QueueToken q WHERE q.isActive = :isActive")
     int countByIsActive(boolean isActive);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -33,16 +32,19 @@ public interface QueueTokenJpaRepository extends JpaRepository<QueueToken, Long>
     @Query("UPDATE QueueToken qt SET qt.isActive = true WHERE qt.id IN :ids")
     void updateOldestWaitingTokensToActive(@Param("ids") List<Long> ids);
 
-    @Query("SELECT COUNT(qt) " +
-            "FROM QueueToken qt " +
-            "WHERE qt.concertId = :concertId " +
-            "AND qt.createdAt < :referenceCreatedAt " +
-            "AND qt.expiredAt > :now " +
-            "AND qt.isActive = false")
-    int countWaitingTokensBeforeRefTime(@Param("concertId") Long concertId,
-                           @Param("referenceCreatedAt") LocalDateTime referenceCreatedAt,
-                           @Param("now") LocalDateTime now);
+//    @Query("SELECT COUNT(qt) " +
+//            "FROM QueueToken qt " +
+//            "WHERE qt.concertId = :concertId " +
+//            "AND qt.createdAt < :referenceCreatedAt " +
+//            "AND qt.expiredAt > :now " +
+//            "AND qt.isActive = false")
+//    int countWaitingTokensBeforeRefTime(Long concertId, LocalDateTime referenceCreatedAt, LocalDateTime now);
 
+    int countByConcertIdAndCreatedAtBeforeAndExpiredAtAfterAndIsActive(
+        Long concertId,
+        LocalDateTime referenceCreatedAt,
+        LocalDateTime now,
+        boolean isActive);
 
 }
 

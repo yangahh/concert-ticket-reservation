@@ -12,8 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface ConcertScheduleJpaRepository extends JpaRepository<ConcertSchedule, Long> {
-    Optional<ConcertSchedule> findById(Long id);
-
     @EntityGraph(attributePaths = {"concert"}, type = EntityGraph.EntityGraphType.FETCH)
     @Query("SELECT cs FROM ConcertSchedule cs WHERE cs.concert.id = :concertId")
     Page<ConcertSchedule> findAllByConcertId(Long concertId, Pageable pageable);

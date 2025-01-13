@@ -2,6 +2,7 @@ package kr.hhplus.be.server.infrastructure.queuetoken.repository;
 
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
 import kr.hhplus.be.server.domain.queuetoken.repository.QueueTokenRepository;
+import kr.hhplus.be.server.utils.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class QueueTokenRepositoryImpl implements QueueTokenRepository {
     private final QueueTokenJpaRepository jpaRepository;
+    private final TimeProvider timeProvider;
 
     @Override
     public QueueToken save(QueueToken queueToken) {
@@ -28,12 +30,11 @@ public class QueueTokenRepositoryImpl implements QueueTokenRepository {
 
     @Override
     public void deleteExpiredTokens() {
-        jpaRepository.deleteByExpiredAtBefore(LocalDateTime.now());
+        jpaRepository.deleteByExpiredAtBefore(timeProvider.now());
     }
 
     @Override
     public int countActiveTokens() {
-//        return jpaRepository.countByIsActiveTrue();
         return jpaRepository.countByIsActive(true);
     }
 
@@ -49,6 +50,7 @@ public class QueueTokenRepositoryImpl implements QueueTokenRepository {
 
     @Override
     public int countWaitingTokensAhead(Long concertId, LocalDateTime referenceCreatedAt) {
-        return jpaRepository.countWaitingTokensBeforeRefTime(concertId, referenceCreatedAt, LocalDateTime.now());
+        return jpaRepository.countByConcertIdAndCreatedAtBeforeAndExpiredAtAfterAndIsActive(
+            concertId, referenceCreatedAt, timeProvider.now(), false);
     }
 }

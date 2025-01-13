@@ -1,18 +1,22 @@
 package kr.hhplus.be.server.queuetoken.unit;
 
 import jakarta.persistence.EntityNotFoundException;
+import kr.hhplus.be.server.config.FixedClockConfig;
 import kr.hhplus.be.server.domain.queuetoken.dto.QueueTokenPositionResult;
 import kr.hhplus.be.server.domain.queuetoken.dto.QueueTokenResult;
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
 import kr.hhplus.be.server.domain.queuetoken.repository.QueueTokenRepository;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
+import kr.hhplus.be.server.utils.time.TimeProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.annotation.Import;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,13 +36,17 @@ class QueueTokenServiceTest {
     @Mock
     private QueueTokenRepository queueTokenRepository;
 
+    @Mock
+    private TimeProvider timeProvider;
+
     @DisplayName("토큰 발급: 사용자 ID와 콘서트 ID를 입력받아 비활성상태의 토큰을 정상적으로 발급한다.")
     @Test
     void issueWaitingTokenSuccessTest() {
         // given
         long userId = 1L;
         long concertId = 100L;
-        QueueToken newToken = QueueToken.createWaitingToken(userId, concertId);
+        given(timeProvider.now()).willReturn(LocalDateTime.now());
+        QueueToken newToken = QueueToken.createWaitingToken(userId, concertId, timeProvider);
         given(queueTokenRepository.save(any(QueueToken.class))).willReturn(newToken);
 
         // when
@@ -70,7 +78,9 @@ class QueueTokenServiceTest {
     @Test
     void getWaitingTokenPositionWithActiveTokenTest() {
         // given
-        QueueToken queueToken = QueueToken.createWaitingToken(1L, 100L);
+        given(timeProvider.now()).willReturn(LocalDateTime.now());
+
+        QueueToken queueToken = QueueToken.createWaitingToken(1L, 100L, timeProvider);
         UUID tokenUuid = queueToken.getTokenUuid();
         queueToken.activate();
         given(queueTokenRepository.findByTokenUuid(tokenUuid)).willReturn(Optional.of(queueToken));
@@ -87,8 +97,10 @@ class QueueTokenServiceTest {
     @Test
     void getWaitingTokenPositionAndRemainingTimeSuccessTest() {
         // given
+        given(timeProvider.now()).willReturn(LocalDateTime.now());
+
         UUID tokenUuid = UUID.randomUUID();
-        QueueToken queueToken = QueueToken.createWaitingToken(1L, 100L);
+        QueueToken queueToken = QueueToken.createWaitingToken(1L, 100L, timeProvider);
         given(queueTokenRepository.findByTokenUuid(tokenUuid)).willReturn(Optional.of(queueToken));
         given(queueTokenRepository.countWaitingTokensAhead(queueToken.getConcertId(), queueToken.getCreatedAt())).willReturn(99);
 
@@ -147,8 +159,10 @@ class QueueTokenServiceTest {
     @Test
     void shoudReturnFalseWhenValidateWithWaitingToken() {
         // given
+        given(timeProvider.now()).willReturn(LocalDateTime.now());
+
         UUID tokenUuid = UUID.randomUUID();
-        QueueToken waitingToken = QueueToken.createWaitingToken(1L, 100L);
+        QueueToken waitingToken = QueueToken.createWaitingToken(1L, 100L, timeProvider);
         given(queueTokenRepository.findByTokenUuid(tokenUuid)).willReturn(Optional.of(waitingToken));
 
         // when
@@ -162,7 +176,9 @@ class QueueTokenServiceTest {
     @Test
     void validateTokenSuccessTest() {
         // given
-        QueueToken queueToken = QueueToken.createWaitingToken(1L, 100L);
+        given(timeProvider.now()).willReturn(LocalDateTime.now());
+
+        QueueToken queueToken = QueueToken.createWaitingToken(1L, 100L, timeProvider);
         UUID tokenUuid = queueToken.getTokenUuid();
         queueToken.activate();
         given(queueTokenRepository.findByTokenUuid(tokenUuid)).willReturn(Optional.of(queueToken));

@@ -5,6 +5,7 @@ import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
 import org.springframework.data.domain.Page;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -17,5 +18,5 @@ public interface ConcertRepository {
 
     Page<ConcertSchedule> findConcertSchedulesByConcertId(Long concertId, int offset, int limit);
 
-    Page<Seat> findSeatsByConcertSchedule(Long concertId, LocalDateTime concertDateTime, int offset, int limit);
+    Page<Seat> findSeatsByConcertSchedule(Long concertId, LocalDate searchDate, int offset, int limit);
 }

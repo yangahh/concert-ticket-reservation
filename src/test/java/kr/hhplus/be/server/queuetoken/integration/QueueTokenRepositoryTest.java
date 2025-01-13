@@ -3,6 +3,7 @@ package kr.hhplus.be.server.queuetoken.integration;
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
 import kr.hhplus.be.server.domain.queuetoken.repository.QueueTokenRepository;
 import kr.hhplus.be.server.infrastructure.queuetoken.repository.QueueTokenJpaRepository;
+import kr.hhplus.be.server.utils.time.TimeProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,13 +27,18 @@ class QueueTokenRepositoryTest {
     @Autowired
     private QueueTokenRepository queueTokenRepository;
 
+    @Autowired
+    private TimeProvider timeProvider;
+
     long concertId = 101L;
 
     @BeforeEach
-    void setUp() {
-        QueueToken token1 = QueueToken.createWaitingToken(1L, concertId);
-        QueueToken token2 = QueueToken.createWaitingToken(2L, concertId);
-        QueueToken token3 = QueueToken.createWaitingToken(3L, concertId);
+    void setUp() throws InterruptedException {
+        QueueToken token1 = QueueToken.createWaitingToken(1L, concertId, timeProvider);
+        Thread.sleep(1); // 1ms 지연
+        QueueToken token2 = QueueToken.createWaitingToken(2L, concertId, timeProvider);
+        Thread.sleep(1); // 1ms 지연
+        QueueToken token3 = QueueToken.createWaitingToken(3L, concertId, timeProvider);
 
         queueTokenJpaRepository.save(token1);
         queueTokenJpaRepository.save(token2);
@@ -48,7 +54,7 @@ class QueueTokenRepositoryTest {
     @DisplayName("QueueToken을 저장하면 DB에 정상적으로 저장된다.")
     void save_shouldPersistQueueToken() {
         // given
-        QueueToken token = QueueToken.createWaitingToken(4L, concertId);
+        QueueToken token = QueueToken.createWaitingToken(4L, concertId, timeProvider);
 
         // when
         QueueToken savedToken = queueTokenRepository.save(token);

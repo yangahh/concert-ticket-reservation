@@ -2,6 +2,7 @@ package kr.hhplus.be.server.domain.queuetoken.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import kr.hhplus.be.server.utils.time.TimeProvider;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,11 +40,11 @@ public class QueueToken {
     private boolean isActive;
 
     @NotNull
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP(6)")
     private LocalDateTime createdAt;
 
     @NotNull
-    @Column(name = "expired_at", nullable = false)
+    @Column(name = "expired_at", updatable = false, columnDefinition = "TIMESTAMP(6)")
     private LocalDateTime expiredAt;
 
     @Builder
@@ -56,8 +57,8 @@ public class QueueToken {
         this.expiredAt = expiredAt;
     }
 
-    public static QueueToken createWaitingToken(Long userId, Long concertId) {
-        LocalDateTime now = LocalDateTime.now();
+    public static QueueToken createWaitingToken(Long userId, Long concertId, TimeProvider timeProvider) {
+        LocalDateTime now = timeProvider.now();
         return QueueToken.builder()
                 .tokenUuid(UUID.randomUUID())
                 .userId(userId)
@@ -74,7 +75,11 @@ public class QueueToken {
         }
     }
 
-    public boolean isValid() {
-        return isActive && LocalDateTime.now().isBefore(expiredAt);
+    public boolean isExpired(TimeProvider timeProvider) {
+        return timeProvider.now().isAfter(expiredAt);
+    }
+
+    public boolean isValid(TimeProvider timeProvider) {
+        return isActive && !isExpired(timeProvider);
     }
 }

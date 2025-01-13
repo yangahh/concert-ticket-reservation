@@ -21,7 +21,7 @@ class ConcertControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @ MockitoBean
     private ConcertService concertService;
 
     @Autowired

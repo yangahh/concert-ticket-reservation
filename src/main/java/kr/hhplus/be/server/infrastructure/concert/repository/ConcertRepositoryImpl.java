@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.Optional;
 
 @Component
@@ -41,8 +41,12 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     }
 
     @Override
-    public Page<Seat> findSeatsByConcertSchedule(Long concertId, LocalDateTime concertDateTime, int offset, int limit) {
+    public Page<Seat> findSeatsByConcertSchedule(Long concertId, LocalDate searchDate, int offset, int limit) {
+
+        LocalDateTime startDateTime = searchDate.atStartOfDay();
+        LocalDateTime endDateTime = searchDate.atTime(LocalTime.MAX);
+
         Pageable pageable = Pageable.ofSize(limit).withPage(offset/limit);
-        return seatJpaRepository.findAllByConcertIdAndEventDate(concertId, concertDateTime, pageable);
+        return seatJpaRepository.findAllByConcertIdAndEventDate(concertId, startDateTime, endDateTime, pageable);
     }
 }

@@ -6,16 +6,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Repository
 public interface SeatJpaRepository extends JpaRepository<Seat, Long> {
-    Optional<Seat> findById(Long id);
 
     @EntityGraph(attributePaths = {"concertSchedule"}, type = EntityGraph.EntityGraphType.FETCH)
-    @Query("SELECT s FROM Seat s WHERE s.concertSchedule.concert.id = :concertId AND s.concertSchedule.eventDate = :eventDate")
-    Page<Seat> findAllByConcertIdAndEventDate(Long concertId, LocalDateTime eventDate, Pageable pageable);
+    @Query("SELECT s FROM Seat s " +
+        "JOIN s.concertSchedule cs " +
+        "JOIN cs.concert c " +
+        "WHERE c.id = :concertId " +
+        "AND cs.eventDate BETWEEN :startDateTime AND :endDateTime")
+    Page<Seat> findAllByConcertIdAndEventDate(Long concertId, LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
 }

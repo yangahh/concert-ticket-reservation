@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
+import kr.hhplus.be.server.domain.queuetoken.exception.InvalidToken;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,12 @@ import java.util.Arrays;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(value = InvalidToken.class)
+    public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidToken e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorResponse.of(HttpStatus.UNAUTHORIZED.value(), e.getMessage()));
+    }
 
     @ExceptionHandler(value= UnprocessableEntityException.class)
     public ResponseEntity<ErrorResponse> handleUnprocessableEntityException(UnprocessableEntityException e) {

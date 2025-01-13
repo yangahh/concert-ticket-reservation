@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,13 +84,14 @@ class ConcertRepositoryTest {
         Long concertId = 1L;
         int offset = 0;
         int limit = 10;
+        // data.sql 기준으로 3개의 일정
 
         // when
         Page<ConcertSchedule> schedules = concertRepository.findConcertSchedulesByConcertId(concertId, offset, limit);
 
         // then
         assertThat(schedules).isNotEmpty();
-        assertThat(schedules.getContent()).hasSizeLessThanOrEqualTo(10); // data.sql 기준으로 3개의 일정
+        assertThat(schedules.getContent()).hasSizeLessThanOrEqualTo(10);
     }
 
     @Test
@@ -98,15 +99,16 @@ class ConcertRepositoryTest {
     void findSeatsByConcertSchedule_shouldReturnSeats() {
         // given
         Long concertId = 1L;
-        LocalDateTime concertDateTime = LocalDateTime.of(2025, 1, 15, 19, 0);
+        LocalDate searchDate = LocalDate.of(2025, 1, 15);
         int offset = 0;
         int limit = 50;
+        // data.sql 기준으로 2025/01/15에 100개의 좌석이 존재
 
         // when
-        Page<Seat> seats = concertRepository.findSeatsByConcertSchedule(concertId, concertDateTime, offset, limit);
+        Page<Seat> seats = concertRepository.findSeatsByConcertSchedule(concertId, searchDate, offset, limit);
 
         // then
-        assertThat(seats).isNotEmpty();
+        assertThat(seats.getTotalElements()).isEqualTo(100);
         assertThat(seats.getContent()).hasSizeLessThanOrEqualTo(50);
     }
 }
