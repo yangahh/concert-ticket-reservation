@@ -11,21 +11,48 @@ spring:
       connection-timeout: 10000
       max-lifetime: 60000
     driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    open-in-view: false
-    generate-ddl: false
-    show-sql: false
-    hibernate:
-      ddl-auto: none
-    properties:
-      hibernate.timezone.default_storage: NORMALIZE_UTC
-      hibernate.jdbc.time_zone: UTC
-
----
-spring.config.activate.on-profile: local, test
-
-spring:
-  datasource:
     url: jdbc:mysql://localhost:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC
     username: application
     password: application
+  jpa:
+    open-in-view: false
+    generate-ddl: false
+#    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        timezone.default_storage: NORMALIZE_UTC
+#        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        default_batch_fetch_size: 100
+        jdbc:
+          time_zone: UTC
+          batch_size: 50
+logging:
+  level:
+    p6spy: info
+
+springdoc:
+#  packages-to-scan: kr.hhplus.be.server  # 문서화할 패키지를 지정
+#  paths-to-match: /**   # 문서화할 경로를 지정. /**는 모든 경로를 의미
+  swagger-ui:
+    path: /swagger-ui.html  # Swagger UI 페이지의 경로를 설정
+
+  api-docs:
+    path: /api-docs  # API 문서(JSON)가 노출되는 경로. api-docs/yaml 경로로 yaml 파일 제공
+  cache:
+    disabled: true  # Swagger 문서의 캐싱을 사용하지 않도록 설정 (기본값: false)
+
+  # 기본적으로 사용할 요청 및 응답의 미디어 타입을 설정
+  default-produces-media-type: application/json;charset=UTF-8
+  default-consumes-media-type: application/json;charset=UTF-8
+
+#---
+#spring.config.activate.on-profile: local, test
+#
+#spring:
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC
+#    username: application
+#    password: application

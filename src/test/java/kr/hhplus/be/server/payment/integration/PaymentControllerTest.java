@@ -7,9 +7,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -26,13 +29,29 @@ class PaymentControllerTest {
     void shouldFailWhenReservationIdIsNull() throws Exception {
         // given
         String uri = "/payments";
-        String request = "{\"reservationId\": null}";
+        PaymentRequest request = new PaymentRequest(null);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.post(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .content(request))
+                        .content(objectMapper.writeValueAsString(request))
+                        .header("token", UUID.randomUUID().toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("결제 요청: 대기열 토큰이 없는 경우 결제에 실패한다.")
+    @Test
+    void shouldFailWhenTokenIsNull() throws Exception {
+        // given
+        String uri = "/payments";
+        PaymentRequest request = new PaymentRequest(1L);
+
+        // when  // then
+        mockMvc.perform(MockMvcRequestBuilders.post(uri)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -47,7 +66,8 @@ class PaymentControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(request))
+                        .header("token", UUID.randomUUID().toString()))
                 .andExpect(status().isOk());
     }
 }

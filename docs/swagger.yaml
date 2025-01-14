@@ -29,8 +29,12 @@ paths:
                 userId:
                   type: integer
                   example: 10
+                concertId:
+                  type: integer
+                  example: 101
               required:
                 - userId
+                - concertId
       responses:
         '201':
           description: 토큰 발급 성공
@@ -52,7 +56,7 @@ paths:
                             type: string
                             format: uuid
                             example: "157aadfa-96bb-4b1a-8127-d6e3dd31d72b"
-                          isActive:
+                          active:
                             type: boolean
                             example: false
                             description: |
@@ -97,11 +101,11 @@ paths:
                           position:
                             type: integer
                             example: 123
-                          isActive:
+                          active:
                             type: boolean
                             example: false
         '401':
-          description: 토큰 만료 또는 유효하지 않음
+          description: 잘못된 토큰
           content:
             application/json:
               schema:
@@ -109,7 +113,7 @@ paths:
                   - $ref: "#/components/schemas/ErrorResponse"
               example:
                 code: 401
-                message: "Invalid token"
+                message: "잘못된 형식의 토큰값입니다."
 
 
   /concerts/{concert-id}/dates:
@@ -159,13 +163,13 @@ paths:
                           items:
                             - concertId: 101
                               concertScheduleId: 222
-                              concertDate: "2025-02-10 18:00:00"
+                              concertDateTime: "2025-02-10 18:00:00"
                             - concertId: 101
                               concertScheduleId: 223
-                              concertDate: "2025-02-11 18:00:00"
+                              concertDateTime: "2025-02-11 18:00:00"
                             - concertId: 101
                               concertScheduleId: 224
-                              concertDate: "2025-02-12 18:00:00"
+                              concertDateTime: "2025-02-12 18:00:00"
 
         '401':
           description: 토큰 만료 또는 유효하지 않음
@@ -231,13 +235,13 @@ paths:
                           items:
                             - seatId: 1
                               seatNo: A1
-                              isAvailable: true
+                              available: true
                             - seatId: 2
                               seatNo: A2
-                              isAvailable: false
+                              available: false
                             - seatId: 3
                               seatNo: A3
-                              isAvailable: true
+                              available: true
         '401':
           description: 토큰 만료 또는 유효하지 않음
           content:
@@ -255,6 +259,14 @@ paths:
       description: 선택한 좌석을 임시 예약합니다.
       tags:
         - Reservation
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: active token uuid
+          schema:
+            type: string
+            example: 157aadfa-96bb-4b1a-8127-d6e3dd31d72b
       requestBody:
         required: true
         content:
@@ -307,6 +319,14 @@ paths:
       description: 임시로 배정된 좌석을 결제하고 예약을 확정합니다.
       tags:
         - Payment
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: active token uuid
+          schema:
+            type: string
+            example: 157aadfa-96bb-4b1a-8127-d6e3dd31d72b
       requestBody:
         required: true
         content:
@@ -466,7 +486,7 @@ components:
         concertScheduleId:
           type: string
           example: 222
-        concertDate:
+        concertDateTime:
           type: string
           format: datetime
           description: 공연 날짜 및 시간
@@ -481,7 +501,7 @@ components:
         seatNo:
           type: string
           example: A1
-        isAvailable:
+        available:
           type: boolean
           example: true
 
@@ -500,7 +520,7 @@ components:
         concertScheduleId:
           type: integer
           example: 222
-        concertDate:
+        concertDateTime:
           type: string
           format: datetime
           description: 공연 날짜 및 시간

@@ -21,7 +21,7 @@ class ConcertControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @ MockitoBean
     private ConcertService concertService;
 
     @Autowired
@@ -71,7 +71,7 @@ class ConcertControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("token", UUID.randomUUID().toString()))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().is4xxClientError());
     }
 
     @DisplayName("예약 가능한 좌석 조회: 헤더에 잘못된 형식의 token으로 조회에 실패한다.")

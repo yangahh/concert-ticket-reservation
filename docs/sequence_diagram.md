@@ -33,15 +33,17 @@ sequenceDiagram
 ```
 
 
-### active 토큰 변환 스케줄러 (1분마다 실행)
+### active 토큰 변환 스케줄러 (1초마다 실행)
 ```mermaid
 sequenceDiagram
     participant sch as Scheduler: active 토큰 발급
     participant token as Module: 토큰 모듈
     participant db as DB
 
-    sch ->> token: 1분마다 waiting 토큰을 active 토큰으로<br> 전환하는 스케줄러가 실행
-    token ->>+ db: active 토큰 개수 조회
+    sch ->> token: 1초마다 waiting 토큰을 active 토큰으로<br> 전환하는 스케줄러가 실행
+    token ->>+ db: 대기열에서 만료된 토큰 삭제
+    db -->>- token: 삭제 완료
+    token ->>+ db: 현재 대기열에 존재하는 active 토큰 개수 조회
     db -->>- token: active 토큰 개수 반환
     token ->>+ token: n := active 빈 자리 계산 (30 - active 개수)
     
@@ -52,21 +54,6 @@ sequenceDiagram
       db -->>- token: 업데이트 완료
     end
     token -->> sch: 종료
-```
-
-### 만료된 토큰을 처리하는 스케줄러 (5분마다 실행)
-```mermaid
-sequenceDiagram
-    participant sch as Scheduler: 만료된 토큰 처리
-    participant token as Module: 토큰 모듈
-    participant db as DB
-
-    sch ->>+ token: 5분마다 만료된 토큰을<br> 삭제 처리하는 스케줄러가 실행
-    token ->>+ db: 대기열에서 만료된 토큰 조회
-    db -->>- token: 만료된 토큰 목록 반환
-    token ->>+ db: 만료된 토큰 삭제
-    db -->>- token: 삭제 완료
-    token -->>- sch: 종료
 ```
 
 
