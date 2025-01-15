@@ -64,7 +64,7 @@ CREATE TABLE `reservation` (
     `seat_id` bigint NOT NULL,
     `status` ENUM('PENDING_PAYMENT', 'CONFIRMED', 'CANCELED') NOT NULL DEFAULT 'PENDING_PAYMENT',
     `payment_price` integer NOT NULL,
-    `temp_reservation_expired_at` timestamp NOT NULL,
+    `temp_reservation_expired_at` timestamp(6) NOT NULL,
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -98,6 +98,6 @@ CREATE TABLE `point_history` (
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-ALTER TABLE `point_history` ADD FOREIGN KEY (`ref_id`) REFERENCES `reservation` (`id`);
+CREATE INDEX idx_point_history_ref_id ON point_history(ref_id);
 ALTER TABLE `point_history` ADD FOREIGN KEY (`point_id`) REFERENCES `point` (`id`);
 ALTER TABLE `point_history` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);

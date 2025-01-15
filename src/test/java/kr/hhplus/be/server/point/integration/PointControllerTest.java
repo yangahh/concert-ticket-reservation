@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.point.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.hhplus.be.server.domain.point.dto.PointResult;
+import kr.hhplus.be.server.domain.point.service.PointService;
 import kr.hhplus.be.server.interfaces.api.point.controller.PointController;
 import kr.hhplus.be.server.interfaces.api.point.dto.PointRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -8,9 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = PointController.class)
@@ -20,6 +24,9 @@ public class PointControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private PointService pointService;
 
     @DisplayName("포인트 충전: user id가 null일 경우 포인트 충전에 실패한다.")
     @Test
@@ -41,7 +48,12 @@ public class PointControllerTest {
     void shouldSuccessWhenChargePoints() throws Exception {
         // given
         String uri = "/points";
-        PointRequest request = new PointRequest(1L, 10000L);
+        PointRequest request = new PointRequest(1L, 10000);
+        PointResult mockResult = PointResult.builder()
+            .userId(1L)
+            .balance(10000)
+            .build();
+        given(pointService.chargePoint(request.getUserId(), request.getAmount())).willReturn(mockResult);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.post(uri)
@@ -70,6 +82,11 @@ public class PointControllerTest {
     void shouldSuccessWhenGetBalance() throws Exception {
         // given
         String uri = "/points";
+        PointResult mockResult = PointResult.builder()
+            .userId(1L)
+            .balance(10000)
+            .build();
+        given(pointService.getUserPoint(1L)).willReturn(mockResult);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.get(uri)

@@ -19,7 +19,13 @@ public class User extends BaseEntity {
     private String username;
 
     @Builder
-    private User(String username) {
+    User(String username) {
         this.username = username;
+    }
+
+    public static User create(String username) {
+        return User.builder()
+                .username(username)
+                .build();
     }
 }

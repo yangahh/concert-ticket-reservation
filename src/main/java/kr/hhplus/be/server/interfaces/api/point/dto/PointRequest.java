@@ -19,5 +19,5 @@ public class PointRequest {
     @Schema(description = "충전할 포인트 금액", example = "5000")
     @NotNull
     @Positive
-    private Long amount;
+    private Integer amount;
 }
