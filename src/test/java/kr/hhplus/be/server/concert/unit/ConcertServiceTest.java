@@ -3,6 +3,7 @@ package kr.hhplus.be.server.concert.unit;
 import jakarta.persistence.EntityNotFoundException;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSchedulesResult;
+import kr.hhplus.be.server.domain.concert.dto.ConcertSeatResult;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSeatsResult;
 import kr.hhplus.be.server.domain.concert.entity.Concert;
 import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -29,6 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 @ExtendWith(MockitoExtension.class)
 class ConcertServiceTest {
@@ -122,5 +126,59 @@ class ConcertServiceTest {
 
         // then
         assertThat(result.seats()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("예약을 위해 좌석 조회 시, 존재하지 않는 좌석 ID로 조회하면 예외가 발생한다.")
+    void shouldThrowEntityNotFoundExceptionWhenNotExistingSeatId() {
+        // given
+        given(concertRepository.findSeatByIdForUpdate(anyLong())).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> sut.reserveSeat(1L, LocalDateTime.now()))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Seat not found");
+    }
+
+
+    @Test
+    @DisplayName("예약을 위해 좌석 조회 시, 좌석이 이미 예약되어 있으면 예외가 발생한다.")
+    void shouldThrowEntityNotFoundExceptionWhenSeatIsAlreadyReserved() {
+        // given
+        Concert concert = Concert.create("test");
+        ConcertSchedule concertSchedule = ConcertSchedule.create(concert, LocalDateTime.now(), 1);
+        Seat seat = Seat.create(concertSchedule, "A1", false, 10000, LocalDateTime.now().plusMinutes(5));
+        given(concertRepository.findSeatByIdForUpdate(1L)).willReturn(Optional.of(seat));
+
+        // when & then
+        assertThatThrownBy(() -> sut.reserveSeat(1L, LocalDateTime.now()))
+                .isInstanceOf(UnprocessableEntityException.class)
+                .hasMessage("Seat is already reserved");
+    }
+
+    @Test
+    @DisplayName("예약을 위해 좌석 조회 시, 좌석이 예약 가능하면 좌석의 isAvailable이 false로 변경된다.")
+    void shouldReturnTrueWhenSeatIsAvailable() {
+        // given
+        LocalDateTime now = LocalDateTime.now();
+        Concert concert = Concert.create("concert1");
+        ConcertSchedule concertSchedule = ConcertSchedule.create(concert, LocalDateTime.of(2025, 3, 10, 18, 0, 0), 50);
+
+        Seat seat = Seat.create(concertSchedule, "A1", true, 10000, now.plusMinutes(5));
+        Seat spySeat = Mockito.spy(seat);
+        ConcertSchedule spyConcertSchedule = spy(concertSchedule);
+
+        doReturn(100L).when(spySeat).getId();
+        doReturn(10L).when(spyConcertSchedule).getId();
+        doReturn(spyConcertSchedule).when(spySeat).getConcertSchedule();
+
+        given(concertRepository.findSeatByIdForUpdate(1L)).willReturn(Optional.of(spySeat));
+        given(concertRepository.saveSeat(spySeat)).willReturn(spySeat);
+
+        // when
+        ConcertSeatResult result = sut.reserveSeat(1L, now);
+
+        // then
+        assertThat(result.isAvailable()).isFalse();
     }
 }

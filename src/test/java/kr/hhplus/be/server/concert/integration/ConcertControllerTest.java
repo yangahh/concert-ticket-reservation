@@ -2,6 +2,7 @@ package kr.hhplus.be.server.concert.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.domain.concert.service.ConcertService;
+import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.interfaces.api.concert.controller.ConcertController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ConcertController.class)
@@ -21,11 +24,15 @@ class ConcertControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @ MockitoBean
+    @MockitoBean
     private ConcertService concertService;
+
+    @MockitoBean
+    private QueueTokenService queueTokenService;
 
     @Autowired
     private ObjectMapper objectMapper;
+
 
     @DisplayName("예약 가능한 날짜 조회: 잘못된 형식의 token으로 조회에 실패한다.")
     @Test
@@ -49,6 +56,7 @@ class ConcertControllerTest {
         // given
         String uri = "/concerts/{concertId}/dates";
         long concertId = 1L;
+        given(queueTokenService.isTokenValid(any(UUID.class))).willReturn(true);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId)
@@ -97,6 +105,7 @@ class ConcertControllerTest {
         String uri = "/concerts/{concertId}/dates/{date}/seats";
         long concertId = 1L;
         String date = "2025-01-01";
+        given(queueTokenService.isTokenValid(any(UUID.class))).willReturn(true);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId, date)

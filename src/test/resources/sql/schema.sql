@@ -50,6 +50,7 @@ CREATE TABLE `seat` (
     `seat_no` varchar(255) NOT NULL,
     `is_available` boolean NOT NULL DEFAULT true,
     `price` integer NOT NULL,
+    `temp_reservation_expired_at` timestamp(6),
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -65,6 +66,7 @@ CREATE TABLE `reservation` (
     `status` ENUM('PENDING_PAYMENT', 'CONFIRMED', 'CANCELED') NOT NULL DEFAULT 'PENDING_PAYMENT',
     `payment_price` integer NOT NULL,
     `temp_reservation_expired_at` timestamp(6) NOT NULL,
+    `confirmed_at` timestamp(6),
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

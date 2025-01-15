@@ -14,7 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +73,7 @@ class ConcertRepositoryTest {
         Long seatId = 1L;
 
         // when
-        Optional<Seat> seat = concertRepository.findSeatById(seatId);
+        Optional<Seat> seat = concertRepository.findSeatByIdForUpdate(seatId);
 
         // then
         assertThat(seat).isPresent();

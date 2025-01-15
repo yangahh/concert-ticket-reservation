@@ -53,4 +53,9 @@ public class QueueTokenRepositoryImpl implements QueueTokenRepository {
         return jpaRepository.countByConcertIdAndCreatedAtBeforeAndExpiredAtAfterAndIsActive(
             concertId, referenceCreatedAt, timeProvider.now(), false);
     }
+
+    @Override
+    public void deleteByUuid(UUID tokenUuid) {
+        jpaRepository.deleteByTokenUuid(tokenUuid);
+    }
 }
