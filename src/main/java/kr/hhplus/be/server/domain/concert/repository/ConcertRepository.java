@@ -6,7 +6,6 @@ import kr.hhplus.be.server.domain.concert.entity.Seat;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface ConcertRepository {

@@ -9,7 +9,6 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class CustomCachingRequestWrapper extends HttpServletRequestWrapper {
     /* ContentCachingRequestWrapper는 request body를 request 객체에 복사해주는 메소드가 별도로 존재하지 않기 때문에 Wrapper 클래스를 직접 구현 */
