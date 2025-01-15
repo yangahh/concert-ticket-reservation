@@ -8,17 +8,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.ErrorResponse;
 import kr.hhplus.be.server.interfaces.api.reservation.dto.ReservationRequest;
 import kr.hhplus.be.server.interfaces.api.reservation.dto.ReservationResponse;
-import kr.hhplus.be.server.utils.regexp.Patterns;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-
-import static kr.hhplus.be.server.interfaces.api.common.exception.message.ExceptionMessage.INVALID_TOKEN_FORMAT;
 
 @Tag(name = "Reservation")
 public interface ReservationApiDocs {
@@ -30,5 +26,5 @@ public interface ReservationApiDocs {
     @ApiResponse(responseCode = "409", description = "이미 예약된 좌석일 경우", content = @Content(schema = @Schema(implementation = ErrorResponse.class, example = "{\"statusCode\":409,\"message\":\"이미 예약된 좌석입니다.\"}")))
     ResponseEntity<BaseResponse<ReservationResponse>> reserveSeat(
             @RequestBody @Valid ReservationRequest request,
-            @RequestHeader("token") @Pattern(regexp = Patterns.UUID, message = INVALID_TOKEN_FORMAT) String token);
+            @RequestHeader("X-Queue-Token") String token);
 }

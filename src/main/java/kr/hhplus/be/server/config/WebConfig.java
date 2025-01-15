@@ -19,7 +19,6 @@ public class WebConfig implements WebMvcConfigurer {
             .addPathPatterns("/**");
 
         registry.addInterceptor(queueTokenValidationInterceptor)
-            .addPathPatterns("/**")
-            .excludePathPatterns("/queue/**", "/points/**");
+            .addPathPatterns("/reservations/**", "/payments/**", "/concerts/**");
     }
 }

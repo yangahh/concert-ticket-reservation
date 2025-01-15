@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.interfaces.api.concert.controller;
 
-import jakarta.validation.constraints.Pattern;
 import kr.hhplus.be.server.domain.concert.service.ConcertService;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.PaginationData;
@@ -8,7 +7,6 @@ import kr.hhplus.be.server.interfaces.api.common.dto.response.PaginationResponse
 import kr.hhplus.be.server.interfaces.api.concert.controller.apidocs.ConcertApiDocs;
 import kr.hhplus.be.server.interfaces.api.concert.dto.ConcertScheduleDateResponse;
 import kr.hhplus.be.server.interfaces.api.concert.dto.SeatResponse;
-import kr.hhplus.be.server.utils.regexp.Patterns;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static kr.hhplus.be.server.interfaces.api.common.exception.message.ExceptionMessage.INVALID_TOKEN_FORMAT;
 
 @RestController
 @RequestMapping("/concerts")
@@ -34,7 +30,7 @@ public class ConcertController implements ConcertApiDocs {
             @PathVariable("concert-id") Long concertId,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "limit", defaultValue = "10") int limit,
-            @RequestHeader("token") @Pattern(regexp = Patterns.UUID, message = INVALID_TOKEN_FORMAT) String token) {
+            @RequestHeader("X-Queue-Token") String token) {
 
         List<ConcertScheduleDateResponse> concertDates = List.of(
                 ConcertScheduleDateResponse.of(1L, 1L, LocalDateTime.of(2025, 1, 1, 18, 0, 0)),
@@ -51,7 +47,7 @@ public class ConcertController implements ConcertApiDocs {
             @PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "limit", defaultValue = "50") int limit,
-            @RequestHeader("token") @Pattern(regexp = Patterns.UUID, message = INVALID_TOKEN_FORMAT) String token) {
+            @RequestHeader("X-Queue-Token") String token) {
 
         List<SeatResponse> availableSeats = List.of(
                 SeatResponse.of(1L, "A1", true),

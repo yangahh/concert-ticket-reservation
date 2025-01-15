@@ -39,7 +39,7 @@ class ConcertControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("token", wrongToken))
+                        .header("X-Queue-Token", wrongToken))
                 .andExpect(status().is4xxClientError());
     }
 
@@ -54,7 +54,7 @@ class ConcertControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("token", UUID.randomUUID().toString()))
+                        .header("X-Queue-Token", UUID.randomUUID().toString()))
                 .andExpect(status().isOk());
     }
 
@@ -70,7 +70,7 @@ class ConcertControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId, wrongDate)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("token", UUID.randomUUID().toString()))
+                        .header("X-Queue-Token", UUID.randomUUID().toString()))
                 .andExpect(status().is4xxClientError());
     }
 
@@ -86,7 +86,7 @@ class ConcertControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId, date)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("token", ""))
+                        .header("X-Queue-Token", ""))
                 .andExpect(status().is4xxClientError());
     }
 
@@ -102,7 +102,7 @@ class ConcertControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId, date)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("token", UUID.randomUUID().toString()))
+                        .header("X-Queue-Token", UUID.randomUUID().toString()))
                 .andExpect(status().isOk());
     }
 }

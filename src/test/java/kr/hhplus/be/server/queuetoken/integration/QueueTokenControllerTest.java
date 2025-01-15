@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.queuetoken.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.hhplus.be.server.domain.queuetoken.dto.QueueTokenPositionResult;
+import kr.hhplus.be.server.domain.queuetoken.dto.QueueTokenResult;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.interfaces.api.queuetoken.controller.QueueTokenController;
 import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueueTokenRequest;
@@ -15,6 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.UUID;
 
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = QueueTokenController.class)
@@ -64,6 +67,13 @@ public class QueueTokenControllerTest {
         // given
         String uri = "/queue/token";
         QueueTokenRequest request = new QueueTokenRequest(1L, 100L);
+        QueueTokenResult mockResult = QueueTokenResult.builder()
+                .tokenUuid(UUID.randomUUID())
+                .userId(1L)
+                .concertId(100L)
+                .isActive(false)
+                .build();
+        given(queueTokenService.issueWaitingToken(1L, 100L)).willReturn(mockResult);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.post(uri)
@@ -91,11 +101,20 @@ public class QueueTokenControllerTest {
     void shouldGetPositionWhenTokenIsValidUUID() throws Exception {
         // given
         String uri = "/queue/position";
-        String validToken = UUID.randomUUID().toString();
+        UUID validToken = UUID.randomUUID();
+
+        QueueTokenPositionResult mockResult = QueueTokenPositionResult.builder()
+                .tokenUuid(validToken)
+                .userId(1L)
+                .concertId(100L)
+                .position(1)
+                .remainingSeconds(1)
+                .build();
+        given(queueTokenService.getWaitingTokenPositionAndRemainingTime(validToken)).willReturn(mockResult);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.get(uri)
-                .param("token", validToken))
+                .param("token", validToken.toString()))
             .andExpect(status().isOk());
     }
 }
