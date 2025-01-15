@@ -32,6 +32,8 @@ spring:
 logging:
   level:
     p6spy: info
+    root: INFO
+    org.springframework: INFO
 
 springdoc:
 #  packages-to-scan: kr.hhplus.be.server  # 문서화할 패키지를 지정
