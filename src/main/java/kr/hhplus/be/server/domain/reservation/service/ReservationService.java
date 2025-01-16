@@ -26,6 +26,8 @@ public class ReservationService {
     public List<Long> cancelExpiredTempReservations(LocalDateTime now) {
         List<Long> expiredReservationSeatIds = reservationRepository.findExpiredReservationSeatIds(now);
         reservationRepository.updateExpiredTempReservationsToCanceled(now);
+
+
         return expiredReservationSeatIds;
     }
 

@@ -4,12 +4,11 @@ import kr.hhplus.be.server.domain.concert.dto.ConcertScheduleResult;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSeatResult;
 import kr.hhplus.be.server.domain.reservation.entity.Reservation;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
-import lombok.AccessLevel;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-@Builder(access = AccessLevel.PRIVATE)
+@Builder
 public record ReservationResult(
         long reservationId,
         long userId,

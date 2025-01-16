@@ -1,6 +1,9 @@
 package kr.hhplus.be.server.interfaces.api.reservation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kr.hhplus.be.server.domain.concert.dto.ConcertScheduleResult;
+import kr.hhplus.be.server.domain.concert.dto.ConcertSeatResult;
+import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,4 +39,23 @@ public class ReservationResponse {
 
     @Schema(description = "예약 확정 일시", example = "null")
     private LocalDateTime confirmedAt;
+
+    public static ReservationResponse fromDomainDto(ReservationResult dto) {
+        ConcertSeatResult seat = dto.concertSeatResult();
+        ConcertScheduleResult schedule = dto.concertScheduleResult();
+        return ReservationResponse.builder()
+                .reservationId(dto.reservationId())
+                .userId(dto.userId())
+                .concertId(schedule.concertId())
+                .concertScheduleId(schedule.concertScheduleId())
+                .seatId(seat.seatId())
+                .seatNo(seat.seatNo())
+                .price(dto.price())
+                .concertDateTime(schedule.eventDateTime())
+                .status(dto.status())
+                .reservedAt(dto.reservedAt())
+                .tempReservationExpiredAt(dto.tempReservationExpiredAt())
+                .confirmedAt(dto.confirmedAt())
+                .build();
+    }
 }

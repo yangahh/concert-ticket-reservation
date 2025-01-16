@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class ActivateTokenScheduler {
     private final QueueTokenService queueTokenService;
 
-    @Scheduled(fixedRate = 1000)  // 1초마다 실행
+    @Scheduled(fixedDelay = 3000)  // 이전 실행이 끝나고 3초 후 실행
     public void execute() {
         queueTokenService.activateTokens();
         log.info("ActivateTokenScheduler is running at {}", LocalDateTime.now());

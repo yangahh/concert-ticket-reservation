@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CanceledTempReservationScheduler {
+public class CancelExpiredTempReservationScheduler {
     private final ReservationService reservationService;
     private final ConcertService seatService;
     private final TimeProvider timeProvider;
@@ -26,6 +26,6 @@ public class CanceledTempReservationScheduler {
         LocalDateTime now = timeProvider.now();
         List<Long> expiredSeatIds = reservationService.cancelExpiredTempReservations(now);
         seatService.releaseSeats(expiredSeatIds);
-        log.info("CanceledTempReservationScheduler is running at {}", now);
+        log.info("CancelExpiredTempReservationScheduler is running at {}", now);
     }
 }

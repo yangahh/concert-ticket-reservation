@@ -2,7 +2,6 @@ package kr.hhplus.be.server.concert.integration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.hhplus.be.server.domain.concert.service.ConcertService;
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.infrastructure.queuetoken.repository.QueueTokenJpaRepository;
@@ -11,22 +10,20 @@ import kr.hhplus.be.server.interfaces.api.common.dto.response.PaginationData;
 import kr.hhplus.be.server.interfaces.api.concert.dto.ConcertScheduleDateResponse;
 import kr.hhplus.be.server.interfaces.api.concert.dto.SeatResponse;
 import kr.hhplus.be.server.utils.time.TimeProvider;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -57,6 +54,11 @@ public class ConcertIntegrationTest {
         token = QueueToken.createWaitingToken(userId, concertId, timeProvider);
         token.activate();
         token = queueTokenJpaRepository.save(token);
+    }
+
+    @AfterEach
+    void tearDown() {
+        queueTokenJpaRepository.delete(token);
     }
 
     @DisplayName("concertID로 해당 콘서트의 날짜 목록을 조회 성공 통합 테스트")
