@@ -14,10 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,10 +99,10 @@ class ConcertRepositoryTest {
     void findSeatsByConcertSchedule_shouldReturnSeats() {
         // given
         Long concertId = 1L;
-        LocalDate searchDate = LocalDate.of(2025, 1, 15);
+        LocalDate searchDate = LocalDate.of(2025, 3, 30);
         int offset = 0;
         int limit = 50;
-        // data.sql 기준으로 2025/01/15에 100개의 좌석이 존재
+        // data.sql 기준으로 2025/03/30에 100개의 좌석이 존재
 
         // when
         Page<Seat> seats = concertRepository.findSeatsByConcertSchedule(concertId, searchDate, offset, limit);

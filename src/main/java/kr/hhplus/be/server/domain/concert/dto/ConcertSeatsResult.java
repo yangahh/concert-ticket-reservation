@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 public record ConcertSeatsResult(
         List<ConcertSeatResult> seats,
-        int total,
+        long total,
         int offset,
         int limit
 ) {
@@ -19,7 +19,7 @@ public record ConcertSeatsResult(
                 .toList();
         return ConcertSeatsResult.builder()
                 .seats(seats)
-                .total((int) pageData.getTotalElements())
+                .total(pageData.getTotalElements())
                 .offset(pageData.getNumber() * pageData.getSize())
                 .limit(pageData.getSize())
                 .build();

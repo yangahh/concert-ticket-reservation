@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.interfaces.api.concert.controller;
 
+import kr.hhplus.be.server.domain.concert.dto.ConcertSchedulesResult;
+import kr.hhplus.be.server.domain.concert.dto.ConcertSeatsResult;
 import kr.hhplus.be.server.domain.concert.service.ConcertService;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.PaginationData;
@@ -14,8 +16,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/concerts")
@@ -32,12 +34,11 @@ public class ConcertController implements ConcertApiDocs {
             @RequestParam(value = "limit", defaultValue = "10") int limit,
             @RequestHeader("X-Queue-Token") String token) {
 
-        List<ConcertScheduleDateResponse> concertDates = List.of(
-                ConcertScheduleDateResponse.of(1L, 1L, LocalDateTime.of(2025, 1, 1, 18, 0, 0)),
-                ConcertScheduleDateResponse.of(1L, 2L, LocalDateTime.of(2025, 1, 2, 18, 0, 0))
-        );
-
-        return ResponseEntity.ok(PaginationResponse.of(concertDates, 0, 10, 2L));
+        ConcertSchedulesResult result = concertService.getConcertSchedules(concertId, Optional.of(offset), Optional.of(limit));
+        List<ConcertScheduleDateResponse> res = result.concertSchedules().stream()
+                .map(ConcertScheduleDateResponse::fromDomainDto)
+                .toList();
+        return ResponseEntity.ok(PaginationResponse.of(res, result.offset(), result.limit(), result.total()));
     }
 
     @Override
@@ -49,12 +50,11 @@ public class ConcertController implements ConcertApiDocs {
             @RequestParam(value = "limit", defaultValue = "50") int limit,
             @RequestHeader("X-Queue-Token") String token) {
 
-        List<SeatResponse> availableSeats = List.of(
-                SeatResponse.of(1L, "A1", true),
-                SeatResponse.of(2L, "A2", false),
-                SeatResponse.of(3L, "A3", true)
-        );
+        ConcertSeatsResult result = concertService.getSeatsByConcertIdAndEventDate(concertId, date, Optional.of(offset), Optional.of(limit));
+        List<SeatResponse> res = result.seats().stream()
+                .map(SeatResponse::fromDomainDto)
+                .toList();
 
-        return ResponseEntity.ok(PaginationResponse.of(availableSeats, 0, 50, 50L));
+        return ResponseEntity.ok(PaginationResponse.of(res, result.offset(), result.limit(), result.total()));
     }
 }

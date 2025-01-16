@@ -8,9 +8,9 @@ INSERT INTO `concert` (`id`, `title`, `created_at`, `updated_at`) VALUES
 
 -- Insert into concert_schedule
 INSERT INTO `concert_schedule` (`id`, `concert_id`, `event_date`, `total_seat_count`, `created_at`, `updated_at`) VALUES
-(1, 1, '2025-01-15 03:00:00', 50, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(2, 1, '2025-01-15 11:00:00', 50, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(3, 1, '2025-01-17 11:00:00', 50, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(1, 1, '2025-03-30 03:00:00', 50, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 1, '2025-03-30 11:00:00', 50, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 1, '2025-03-31 11:00:00', 50, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Insert into seat for concert_schedule_id = 1
 INSERT INTO `seat` (`id`, `concert_schedule_id`, `seat_no`, `is_available`, `price`, `temp_reservation_expired_at` ,`created_at`, `updated_at`) VALUES
