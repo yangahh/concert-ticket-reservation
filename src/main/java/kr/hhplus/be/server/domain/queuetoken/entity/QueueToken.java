@@ -3,10 +3,7 @@ package kr.hhplus.be.server.domain.queuetoken.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kr.hhplus.be.server.utils.time.TimeProvider;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -48,7 +45,7 @@ public class QueueToken {
     private LocalDateTime expiredAt;
 
     @Builder
-    private QueueToken(UUID tokenUuid, Long userId, Long concertId, boolean isActive, LocalDateTime createdAt, LocalDateTime expiredAt) {
+    QueueToken(UUID tokenUuid, Long userId, Long concertId, boolean isActive, LocalDateTime createdAt, LocalDateTime expiredAt) {
         this.tokenUuid = tokenUuid;
         this.userId = userId;
         this.concertId = concertId;

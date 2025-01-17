@@ -18,7 +18,7 @@ public class Concert extends BaseEntity {
     private String title;
 
     @Builder
-    private Concert(String title) {
+    Concert(String title) {
         this.title = title;
     }
 

@@ -31,7 +31,7 @@ public class ConcertSchedule {
     private Integer totalSeatCount = 0;
 
     @Builder
-    private ConcertSchedule(Concert concert, LocalDateTime eventDate, Integer totalSeatCount) {
+    ConcertSchedule(Concert concert, LocalDateTime eventDate, Integer totalSeatCount) {
         this.concert = concert;
         this.eventDate = eventDate;
         this.totalSeatCount = totalSeatCount;
