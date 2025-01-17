@@ -26,4 +26,6 @@ public interface ConcertRepository {
 
     void updateSeatsToAvailableByIds(List<Long> seatIds);
 
+    void updateSeatToAvailableById(Long seatId);
+
 }

@@ -67,4 +67,9 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     public void updateSeatsToAvailableByIds(List<Long> seatIds) {
         seatJpaRepository.updateByIdsToAvailable(seatIds);
     }
+
+    @Override
+    public void updateSeatToAvailableById(Long seatId) {
+        seatJpaRepository.updateToAvailableById(seatId);
+    }
 }

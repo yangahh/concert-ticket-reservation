@@ -31,4 +31,10 @@ public interface SeatJpaRepository extends JpaRepository<Seat, Long> {
         "SET s.isAvailable = true, s.tempReservationExpiredAt = null " +
         "WHERE s.id IN :seatIds")
     void updateByIdsToAvailable(List<Long> seatIds);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Seat s " +
+        "SET s.isAvailable = true, s.tempReservationExpiredAt = null " +
+        "WHERE s.id = :seatId")
+    void updateToAvailableById(Long seatId);
 }

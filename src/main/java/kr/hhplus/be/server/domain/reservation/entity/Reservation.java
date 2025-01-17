@@ -74,6 +74,10 @@ public class Reservation extends BaseEntity {
         this.confirmedAt = confirmedAt;
     }
 
+    public void cancel() {
+        this.status = ReservationStatus.CANCELED;
+    }
+
     public boolean isTempReservationExpired(LocalDateTime now) {
         if (status != ReservationStatus.PENDING_PAYMENT) {
             throw new UnprocessableEntityException("The reservation is not a temporary reservation");

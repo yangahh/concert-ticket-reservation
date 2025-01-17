@@ -62,4 +62,18 @@ public class ReservationService {
         Reservation saved = reservationRepository.save(reservation);
         return ReservationResult.fromEntity(saved);
     }
+
+    @Transactional
+    public void cancelReservation(Long reservationId) {
+        Reservation reservation = getReservation(reservationId);
+        reservation.cancel();
+        reservationRepository.save(reservation);
+    }
+
+    @Transactional(readOnly = true)
+    public Long getSeatIdByReservationId(Long reservationId) {
+        Reservation reservation = getReservation(reservationId);
+        return reservation.getSeat().getId();
+    }
+
 }

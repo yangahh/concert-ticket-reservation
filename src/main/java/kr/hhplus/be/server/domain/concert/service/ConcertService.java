@@ -66,6 +66,11 @@ public class ConcertService {
     }
 
     @Transactional
+    public void releaseSeat(Long seatId) {
+        concertRepository.updateSeatToAvailableById(seatId);
+    }
+
+    @Transactional
     public ConcertSeatResult reserveSeat(Long seatId, LocalDateTime now) {
         Seat seat = concertRepository.findSeatByIdForUpdate(seatId)
             .orElseThrow(() -> new EntityNotFoundException("Seat not found"));
