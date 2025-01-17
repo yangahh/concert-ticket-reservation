@@ -1,7 +1,12 @@
 package kr.hhplus.be.server.payment.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.hhplus.be.server.application.payment.usecase.PaymentUseCase;
+import kr.hhplus.be.server.domain.concert.dto.ConcertScheduleResult;
+import kr.hhplus.be.server.domain.concert.dto.ConcertSeatResult;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
+import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
+import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
 import kr.hhplus.be.server.interfaces.api.payment.controller.PaymentController;
 import kr.hhplus.be.server.interfaces.api.payment.dto.PaymentRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +19,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +36,9 @@ class PaymentControllerTest {
 
     @MockitoBean
     private QueueTokenService queueTokenService;
+
+    @MockitoBean
+    private PaymentUseCase paymentUseCase;
 
     @BeforeEach
     void setUp() {
@@ -91,13 +100,35 @@ class PaymentControllerTest {
         // given
         String uri = "/payments";
         PaymentRequest request = new PaymentRequest(1L);
+        UUID token = UUID.randomUUID();
+        given(queueTokenService.isTokenValid(token)).willReturn(true);
+        ConcertScheduleResult mockSchedule = ConcertScheduleResult.builder()
+            .concertId(1L)
+            .concertScheduleId(1L)
+            .build();
+        ConcertSeatResult mockSeat = ConcertSeatResult.builder()
+            .concertScheduleId(1L)
+            .isAvailable(false)
+            .build();
+        ReservationResult mockResult = ReservationResult.builder()
+            .reservationId(1L)
+            .userId(1L)
+            .price(1000)
+            .status(ReservationStatus.CONFIRMED)
+            .reservedAt(LocalDateTime.now())
+            .tempReservationExpiredAt(LocalDateTime.now().plusMinutes(5))
+            .confirmedAt(LocalDateTime.now())
+            .concertScheduleResult(mockSchedule)
+            .concertSeatResult(mockSeat)
+            .build();
+        given(paymentUseCase.payForReservation(1L, token)).willReturn(mockResult);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.post(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header("X-Queue-Token", UUID.randomUUID().toString()))
+                        .header("X-Queue-Token", token.toString()))
                 .andExpect(status().isOk());
     }
 }
