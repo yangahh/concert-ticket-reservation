@@ -1,3 +1,13 @@
+drop table if exists point_history;
+drop table if exists point;
+drop table if exists reservation;
+drop table if exists seat;
+drop table if exists concert_schedule;
+drop table if exists concert;
+drop table if exists queue_token;
+drop table if exists users;
+
+
 CREATE TABLE `users` (
     `id` bigint PRIMARY KEY AUTO_INCREMENT,
     `username` varchar(255) NOT NULL,
