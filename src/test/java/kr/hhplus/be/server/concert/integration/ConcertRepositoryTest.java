@@ -7,6 +7,8 @@ import kr.hhplus.be.server.domain.concert.repository.ConcertRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.ConcertJpaRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.ConcertScheduleJpaRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.SeatJpaRepository;
+import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

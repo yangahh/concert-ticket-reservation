@@ -2,7 +2,6 @@ package kr.hhplus.be.server.queuetoken.integration;
 
 import kr.hhplus.be.server.application.queuetoken.scheduler.ActivateTokenScheduler;
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
-import kr.hhplus.be.server.testfactory.domain.queuetoken.entity.QueueTokenFactory;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.infrastructure.queuetoken.repository.QueueTokenJpaRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -35,7 +34,9 @@ public class ActivateTokenSchedulerTest {
 
         // 유효한 토큰 30개(5개는 만료, 25개는 유효)
         for (int i = 0; i < 5; i++) {
-            QueueToken token = QueueTokenFactory.builder(1L, 1L)
+            QueueToken token = QueueToken.builder()
+                .userId(1L)
+                .concertId(1L)
                 .tokenUuid(UUID.randomUUID())
                 .isActive(true)
                 .createdAt(LocalDateTime.now().minusMinutes(10))
@@ -44,7 +45,9 @@ public class ActivateTokenSchedulerTest {
             tokens.add(token);
         }
         for (int i = 0; i < QueueTokenService.ACTIVE_TOKEN_MAX_COUNT - 5; i++) {
-            QueueToken token = QueueTokenFactory.builder(1L, 1L)
+            QueueToken token = QueueToken.builder()
+                .userId(1L)
+                .concertId(1L)
                 .tokenUuid(UUID.randomUUID())
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
@@ -54,7 +57,9 @@ public class ActivateTokenSchedulerTest {
         }
         // waiting 상태의 토큰 10개
         for (int i = 0; i < 10; i++) {
-            QueueToken token = QueueTokenFactory.builder(1L, 1L)
+            QueueToken token = QueueToken.builder()
+                .userId(1L)
+                .concertId(1L)
                 .tokenUuid(UUID.randomUUID())
                 .isActive(false)
                 .createdAt(LocalDateTime.now())

@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.queuetoken.integration;
 
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
-import kr.hhplus.be.server.testfactory.domain.queuetoken.entity.QueueTokenFactory;
 import kr.hhplus.be.server.domain.queuetoken.repository.QueueTokenRepository;
 import kr.hhplus.be.server.infrastructure.queuetoken.repository.QueueTokenJpaRepository;
 import kr.hhplus.be.server.utils.time.TimeProvider;
@@ -85,7 +84,9 @@ class QueueTokenRepositoryTest {
     @DisplayName("expiredAt이 현재 시간보다 이전인 토큰을 삭제한다.")
     void deleteExpiredTokens_shouldRemoveExpiredTokens() {
         // given
-        QueueToken token = QueueTokenFactory.builder(4L, concertId)
+        QueueToken token = QueueToken.builder()
+            .userId(4L)
+            .concertId(concertId)
             .tokenUuid(UUID.randomUUID())
             .isActive(false)
             .createdAt(LocalDateTime.now().minusMinutes(10))

@@ -3,6 +3,7 @@ package kr.hhplus.be.server.point.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.domain.point.dto.PointResult;
 import kr.hhplus.be.server.domain.point.service.PointService;
+import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
 import kr.hhplus.be.server.interfaces.api.point.controller.PointController;
 import kr.hhplus.be.server.interfaces.api.point.dto.PointRequest;
 import org.junit.jupiter.api.DisplayName;

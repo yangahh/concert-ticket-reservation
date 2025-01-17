@@ -45,7 +45,7 @@ public class QueueToken {
     private LocalDateTime expiredAt;
 
     @Builder
-    QueueToken(UUID tokenUuid, Long userId, Long concertId, boolean isActive, LocalDateTime createdAt, LocalDateTime expiredAt) {
+    private QueueToken(UUID tokenUuid, Long userId, Long concertId, boolean isActive, LocalDateTime createdAt, LocalDateTime expiredAt) {
         this.tokenUuid = tokenUuid;
         this.userId = userId;
         this.concertId = concertId;
