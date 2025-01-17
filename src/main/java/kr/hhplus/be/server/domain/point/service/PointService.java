@@ -9,9 +9,11 @@ import kr.hhplus.be.server.domain.point.vo.TransactionType;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PointService {
@@ -36,6 +38,7 @@ public class PointService {
         Point updated = pointRepository.savePoint(userPoint);
 
         recordPointHistory(updated, amount, TransactionType.CHARGE, null);
+        log.info("Point charged. userId: {}, amount: {}", userId, amount);
         return PointResult.fromEntity(updated);
     }
 
@@ -46,6 +49,7 @@ public class PointService {
         Point updated = pointRepository.savePoint(userPoint);
 
         recordPointHistory(updated, amount, TransactionType.USE, refReservationId);
+        log.info("Point used. userId: {}, amount: {}, refReservationId: {}", userId, amount, refReservationId);
         return PointResult.fromEntity(updated);
     }
 

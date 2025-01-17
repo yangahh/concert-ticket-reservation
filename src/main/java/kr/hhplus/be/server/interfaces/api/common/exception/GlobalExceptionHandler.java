@@ -28,24 +28,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = InvalidToken.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleInvalidToken(InvalidToken e) {
+        log.warn(Arrays.toString(e.getStackTrace()));
         return ErrorResponse.of(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
     }
 
     @ExceptionHandler(value= UnprocessableEntityException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ErrorResponse handleUnprocessableEntityException(UnprocessableEntityException e) {
+        log.warn(Arrays.toString(e.getStackTrace()));
         return ErrorResponse.of(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage());
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e) {
+        log.warn(Arrays.toString(e.getStackTrace()));
         return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), e.getMessage());
     }
 
     @ExceptionHandler(IllegalStateException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleIllegalStateException(IllegalStateException e) {
+        log.warn(Arrays.toString(e.getStackTrace()));
         return ErrorResponse.of(HttpStatus.CONFLICT.value(), e.getMessage());
     }
 
@@ -53,6 +57,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(BindException e) {
+        log.warn(Arrays.toString(e.getStackTrace()));
         return ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), e.getBindingResult());
     }
 
@@ -60,6 +65,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
+        log.warn(Arrays.toString(e.getStackTrace()));
         return ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
@@ -67,6 +73,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalArgumentException(IllegalArgumentException e) {
+        log.warn(Arrays.toString(e.getStackTrace()));
         return ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
@@ -74,6 +81,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = MissingRequestValueException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingRequestValueException(MissingRequestValueException e) {
+        log.warn(Arrays.toString(e.getStackTrace()));
         return ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
@@ -84,12 +92,14 @@ public class GlobalExceptionHandler {
         String paramName = e.getName();
         String requiredType = e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : "unknown";
         String message = "[" + paramName + "] 파라미터의 형식이 올바르지 않습니다. " + requiredType + " 타입으로 입력해주세요.";
+        log.warn(Arrays.toString(e.getStackTrace()));
         return ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), message);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNoResourceFoundException(NoResourceFoundException e) {
+        log.warn(Arrays.toString(e.getStackTrace()));
         return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), e.getMessage());
     }
 

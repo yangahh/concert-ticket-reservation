@@ -8,12 +8,14 @@ import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.service.ReservationService;
 import kr.hhplus.be.server.utils.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class PaymentUseCase {
@@ -32,6 +34,7 @@ public class PaymentUseCase {
             Long seatId = reservationService.getSeatIdByReservationId(reservationId);
             concertSeatService.releaseSeat(seatId);
             reservationService.cancelReservation(reservationId);
+            log.warn("Temp reservation expired. reservationId: {}", reservationId);
 
             throw new UnprocessableEntityException("Temp reservation expired");
         }
