@@ -83,7 +83,7 @@ public class CancelExpiredTempReservationSchedulerTest {
 
     }
 
-    @DisplayName("임시 예약 만료 시간이 지난 예약 데이터와 해당 좌석 ")
+    @DisplayName("임시 예약 만료 시간이 지난 예약의 상태를 변경하고 해당 좌석을 예약 가능한 상태로 변경한다.")
     @Test
     void Test() {
         // when
