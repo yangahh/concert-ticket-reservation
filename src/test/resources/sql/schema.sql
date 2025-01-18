@@ -1,3 +1,13 @@
+drop table if exists point_history;
+drop table if exists point;
+drop table if exists reservation;
+drop table if exists seat;
+drop table if exists concert_schedule;
+drop table if exists concert;
+drop table if exists queue_token;
+drop table if exists users;
+
+
 CREATE TABLE `users` (
     `id` bigint PRIMARY KEY AUTO_INCREMENT,
     `username` varchar(255) NOT NULL,
@@ -50,6 +60,7 @@ CREATE TABLE `seat` (
     `seat_no` varchar(255) NOT NULL,
     `is_available` boolean NOT NULL DEFAULT true,
     `price` integer NOT NULL,
+    `temp_reservation_expired_at` timestamp(6),
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -64,7 +75,8 @@ CREATE TABLE `reservation` (
     `seat_id` bigint NOT NULL,
     `status` ENUM('PENDING_PAYMENT', 'CONFIRMED', 'CANCELED') NOT NULL DEFAULT 'PENDING_PAYMENT',
     `payment_price` integer NOT NULL,
-    `temp_reservation_expired_at` timestamp NOT NULL,
+    `temp_reservation_expired_at` timestamp(6) NOT NULL,
+    `confirmed_at` timestamp(6),
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -98,6 +110,6 @@ CREATE TABLE `point_history` (
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-ALTER TABLE `point_history` ADD FOREIGN KEY (`ref_id`) REFERENCES `reservation` (`id`);
+CREATE INDEX idx_point_history_ref_id ON point_history(ref_id);
 ALTER TABLE `point_history` ADD FOREIGN KEY (`point_id`) REFERENCES `point` (`id`);
 ALTER TABLE `point_history` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);

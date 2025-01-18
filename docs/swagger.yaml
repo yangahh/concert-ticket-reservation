@@ -131,7 +131,7 @@ paths:
           schema:
             type: integer
             example: 123
-        - name: token
+        - name: X-Queue-Token
           in: header
           required: true
           description: active token uuid
@@ -204,7 +204,7 @@ paths:
             type: string
             format: date
           example: "2025-02-01"
-        - name: token
+        - name: X-Queue-Token
           in: header
           required: true
           schema:
@@ -260,7 +260,7 @@ paths:
       tags:
         - Reservation
       parameters:
-        - name: token
+        - name: X-Queue-Token
           in: header
           required: true
           description: active token uuid
@@ -320,7 +320,7 @@ paths:
       tags:
         - Payment
       parameters:
-        - name: token
+        - name: X-Queue-Token
           in: header
           required: true
           description: active token uuid

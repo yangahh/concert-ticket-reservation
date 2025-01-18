@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 public record ConcertSchedulesResult(
         List<ConcertScheduleResult> concertSchedules,
-        int total,
+        long total,
         int offset,
         int limit
 ) {
@@ -19,7 +19,7 @@ public record ConcertSchedulesResult(
                 .toList();
         return ConcertSchedulesResult.builder()
                 .concertSchedules(concertSchedules)
-                .total((int) pageData.getTotalElements())
+                .total(pageData.getTotalElements())
                 .offset(pageData.getNumber() * pageData.getSize())
                 .limit(pageData.getSize())
                 .build();

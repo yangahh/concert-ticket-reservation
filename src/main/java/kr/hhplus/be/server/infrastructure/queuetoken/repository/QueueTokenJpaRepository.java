@@ -19,7 +19,7 @@ import java.util.UUID;
 public interface QueueTokenJpaRepository extends JpaRepository<QueueToken, Long> {
     Optional<QueueToken> findByTokenUuid(UUID tokenUuid);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     void deleteByExpiredAtBefore(LocalDateTime datetime);
 
     int countByIsActive(boolean isActive);
@@ -32,19 +32,12 @@ public interface QueueTokenJpaRepository extends JpaRepository<QueueToken, Long>
     @Query("UPDATE QueueToken qt SET qt.isActive = true WHERE qt.id IN :ids")
     void updateOldestWaitingTokensToActive(@Param("ids") List<Long> ids);
 
-//    @Query("SELECT COUNT(qt) " +
-//            "FROM QueueToken qt " +
-//            "WHERE qt.concertId = :concertId " +
-//            "AND qt.createdAt < :referenceCreatedAt " +
-//            "AND qt.expiredAt > :now " +
-//            "AND qt.isActive = false")
-//    int countWaitingTokensBeforeRefTime(Long concertId, LocalDateTime referenceCreatedAt, LocalDateTime now);
-
     int countByConcertIdAndCreatedAtBeforeAndExpiredAtAfterAndIsActive(
         Long concertId,
         LocalDateTime referenceCreatedAt,
         LocalDateTime now,
         boolean isActive);
 
+    void deleteByTokenUuid(UUID tokenUuid);
 }
 

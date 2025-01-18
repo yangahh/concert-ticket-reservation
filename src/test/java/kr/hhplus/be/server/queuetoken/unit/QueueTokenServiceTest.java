@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.queuetoken.unit;
 
 import jakarta.persistence.EntityNotFoundException;
-import kr.hhplus.be.server.config.FixedClockConfig;
 import kr.hhplus.be.server.domain.queuetoken.dto.QueueTokenPositionResult;
 import kr.hhplus.be.server.domain.queuetoken.dto.QueueTokenResult;
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.annotation.Import;
 
 import java.time.LocalDateTime;
 import java.util.List;

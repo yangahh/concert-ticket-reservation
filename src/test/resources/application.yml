@@ -8,8 +8,8 @@ spring:
     url: jdbc:tc:mysql:8.3:///test?characterEncoding=UTF-8&serverTimezone=UTC
   jpa:
     hibernate:
-      ddl-auto: none
-#    defer-datasource-initialization: true  # DataSource 초기화를 미루는 설정
+      ddl-auto: create
+    defer-datasource-initialization: true  # DataSource 초기화를 hibernate가 실행된 후로 미루는 설정
     properties:
       hibernate:
         jdbc.time_zone: UTC
@@ -22,7 +22,7 @@ spring:
   sql:
     init:
       mode: always
-      schema-locations: classpath:sql/schema.sql
+#      schema-locations: classpath:sql/schema.sql
       data-locations: classpath:sql/data.sql
 
 clock.fixed_time: 2025-01-01T00:00:00Z

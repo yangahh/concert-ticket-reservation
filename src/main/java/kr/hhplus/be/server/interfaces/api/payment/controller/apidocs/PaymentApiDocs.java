@@ -9,17 +9,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.ErrorResponse;
 import kr.hhplus.be.server.interfaces.api.payment.dto.PaymentRequest;
 import kr.hhplus.be.server.interfaces.api.payment.dto.PaymentResponse;
-import kr.hhplus.be.server.utils.regexp.Patterns;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-
-import static kr.hhplus.be.server.interfaces.api.common.exception.message.ExceptionMessage.INVALID_TOKEN_FORMAT;
 
 @Tag(name = "Payment")
 public interface PaymentApiDocs {
@@ -33,5 +29,5 @@ public interface PaymentApiDocs {
     })
     ResponseEntity<BaseResponse<PaymentResponse>> processPayment(
             @RequestBody @Valid PaymentRequest request,
-            @RequestHeader("token") @Pattern(regexp = Patterns.UUID, message = INVALID_TOKEN_FORMAT) String token);
+            @RequestHeader("X-Queue-Token") String token);
 }

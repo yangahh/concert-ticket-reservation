@@ -81,4 +81,10 @@ public class QueueTokenService {
     public boolean isTokenValid(UUID tokenUuid) {
         return getQueueToken(tokenUuid).isValid(timeProvider);
     }
+
+    @Transactional
+    public void deleteToken(UUID tokenUuid) {
+        QueueToken queueToken = getQueueToken(tokenUuid);
+        queueTokenRepository.deleteByUuid(queueToken.getTokenUuid());
+    }
 }

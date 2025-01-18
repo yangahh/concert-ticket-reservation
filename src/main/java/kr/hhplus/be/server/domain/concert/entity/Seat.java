@@ -3,9 +3,13 @@ package kr.hhplus.be.server.domain.concert.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kr.hhplus.be.server.domain.common.entity.BaseEntity;
+import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -32,4 +36,45 @@ public class Seat extends BaseEntity  {
     @NotNull
     @Column(nullable = false)
     private Integer price;
+
+    @Column(name = "temp_reservation_expired_at", columnDefinition = "TIMESTAMP(6)")
+    private LocalDateTime tempReservationExpiredAt;
+
+    @Builder
+    Seat(ConcertSchedule concertSchedule, String seatNo, Boolean isAvailable, Integer price, LocalDateTime tempReservationExpiredAt) {
+        this.concertSchedule = concertSchedule;
+        this.seatNo = seatNo;
+        this.isAvailable = isAvailable;
+        this.price = price;
+        this.tempReservationExpiredAt = tempReservationExpiredAt;
+    }
+
+    public static Seat create(ConcertSchedule concertSchedule, String seatNo, boolean isAvailable, Integer price, LocalDateTime tempReservationExpiredAt) {
+        return Seat.builder()
+                .concertSchedule(concertSchedule)
+                .seatNo(seatNo)
+                .isAvailable(isAvailable)
+                .price(price)
+                .tempReservationExpiredAt(tempReservationExpiredAt)
+                .build();
+    }
+
+    public boolean isAvailableNow(LocalDateTime now) {
+        if (this.tempReservationExpiredAt != null && this.tempReservationExpiredAt.isBefore(now)) {
+            this.isAvailable = true;
+            this.tempReservationExpiredAt = null;
+            return true;
+        }
+
+        return this.isAvailable;
+    }
+
+    public void reserve(LocalDateTime now) {
+        if (!this.isAvailableNow(now)) {
+            throw new UnprocessableEntityException("Seat is already reserved");
+        }
+
+        this.isAvailable = false;
+        this.tempReservationExpiredAt = now.plusMinutes(5);
+    }
 }

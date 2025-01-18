@@ -9,13 +9,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.Pattern;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.ErrorResponse;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.PaginationData;
 import kr.hhplus.be.server.interfaces.api.concert.dto.ConcertScheduleDateResponse;
 import kr.hhplus.be.server.interfaces.api.concert.dto.SeatResponse;
-import kr.hhplus.be.server.utils.regexp.Patterns;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-
-import static kr.hhplus.be.server.interfaces.api.common.exception.message.ExceptionMessage.INVALID_TOKEN_FORMAT;
 
 @Tag(name = "Concert")
 public interface ConcertApiDocs {
@@ -45,7 +41,7 @@ public interface ConcertApiDocs {
             @PathVariable("concert-id") Long concertId,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "limit", defaultValue = "10") int limit,
-            @RequestHeader("token") @Pattern(regexp = Patterns.UUID, message = INVALID_TOKEN_FORMAT) String token);
+            @RequestHeader("X-Queue-Token") String token);
 
 
     @Operation(summary = "특정 날짜의 좌석 조회", description = "특정 콘서트의 특정 날짜의 좌석을 조회합니다.")
@@ -66,5 +62,5 @@ public interface ConcertApiDocs {
             @PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "limit", defaultValue = "50") int limit,
-            @RequestHeader("token") @Pattern(regexp = Patterns.UUID, message = INVALID_TOKEN_FORMAT) String token);
+            @RequestHeader("X-Queue-Token") String token);
 }

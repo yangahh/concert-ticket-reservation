@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.interfaces.api.point.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kr.hhplus.be.server.domain.point.dto.PointResult;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,5 +12,12 @@ public class PointResponse {
     private long userId;
 
     @Schema(description = "포인트 잔액", example = "105000" )
-    private Long balance;
+    private Integer balance;
+
+    public static PointResponse fromDomainDto(PointResult dto) {
+        return PointResponse.builder()
+                .userId(dto.userId())
+                .balance(dto.balance())
+                .build();
+    }
 }

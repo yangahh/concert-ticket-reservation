@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -84,13 +85,13 @@ class QueueTokenRepositoryTest {
     void deleteExpiredTokens_shouldRemoveExpiredTokens() {
         // given
         QueueToken token = QueueToken.builder()
-                .tokenUuid(java.util.UUID.randomUUID())
-                .userId(4L)
-                .concertId(concertId)
-                .isActive(false)
-                .createdAt(LocalDateTime.now().minusMinutes(10))
-                .expiredAt(LocalDateTime.now().minusMinutes(5))
-                .build();
+            .userId(4L)
+            .concertId(concertId)
+            .tokenUuid(UUID.randomUUID())
+            .isActive(false)
+            .createdAt(LocalDateTime.now().minusMinutes(10))
+            .expiredAt(LocalDateTime.now().minusMinutes(5))
+            .build();
         queueTokenJpaRepository.save(token);
 
         // when

@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.concert.service;
 import jakarta.persistence.EntityNotFoundException;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSchedulesResult;
+import kr.hhplus.be.server.domain.concert.dto.ConcertSeatResult;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSeatsResult;
 import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -57,4 +60,23 @@ public class ConcertService {
         }
     }
 
+    @Transactional
+    public void releaseSeats(List<Long> seatIds) {
+        concertRepository.updateSeatsToAvailableByIds(seatIds);
+    }
+
+    @Transactional
+    public void releaseSeat(Long seatId) {
+        concertRepository.updateSeatToAvailableById(seatId);
+    }
+
+    @Transactional
+    public ConcertSeatResult reserveSeat(Long seatId, LocalDateTime now) {
+        Seat seat = concertRepository.findSeatByIdForUpdate(seatId)
+            .orElseThrow(() -> new EntityNotFoundException("Seat not found"));
+
+        seat.reserve(now);
+        Seat reservedSeat = concertRepository.saveSeat(seat);
+        return ConcertSeatResult.fromEntity(reservedSeat);
+    }
 }

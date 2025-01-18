@@ -21,4 +21,6 @@ public interface QueueTokenRepository {
     void updateOldestWaitingTokensToActive(List<Long> ids);
 
     int countWaitingTokensAhead(Long concertId, LocalDateTime referenceCreatedAt);
+
+    void deleteByUuid(UUID tokenUuid);
 }

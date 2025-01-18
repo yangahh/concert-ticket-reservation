@@ -9,7 +9,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -27,6 +30,11 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     @Override
     public Optional<ConcertSchedule> findConcertScheduleById(Long concertScheduleId) {
         return concertScheduleJpaRepository.findById(concertScheduleId);
+    }
+
+    @Override
+    public Optional<Seat> findSeatByIdForUpdate(Long seatId) {
+        return seatJpaRepository.findByIdWithLock(seatId);
     }
 
     @Override
@@ -48,5 +56,20 @@ public class ConcertRepositoryImpl implements ConcertRepository {
 
         Pageable pageable = Pageable.ofSize(limit).withPage(offset/limit);
         return seatJpaRepository.findAllByConcertIdAndEventDate(concertId, startDateTime, endDateTime, pageable);
+    }
+
+    @Override
+    public Seat saveSeat(Seat seat) {
+        return seatJpaRepository.save(seat);
+    }
+
+    @Override
+    public void updateSeatsToAvailableByIds(List<Long> seatIds) {
+        seatJpaRepository.updateByIdsToAvailable(seatIds);
+    }
+
+    @Override
+    public void updateSeatToAvailableById(Long seatId) {
+        seatJpaRepository.updateToAvailableById(seatId);
     }
 }

@@ -133,14 +133,14 @@ sequenceDiagram
     end
 ```
 
-### 임시 예약이 만료된 것을 처리하는 스케줄러 (1분마다 실행)
+### 임시 예약이 만료된 것을 처리하는 스케줄러 (10초마다 실행)
 ```mermaid
 sequenceDiagram
     participant sch as Scheduler: 임시예약 만료 처리
     participant re as Module: 예약 모듈
     participant db as DB
 
-    sch ->> re: 1분마다 5분 이내에 결제되지 않은 예약을<br> 취소 처리하는 스케줄러 실행
+    sch ->> re: 10초마다 5분 이내에 결제되지 않은 예약을<br> 취소 처리하는 스케줄러 실행
     re ->>+ db: 만료된 임시 예약 조회 (현재 시간 기준)
     db -->>- re: 만료된 예약 목록 반환
 

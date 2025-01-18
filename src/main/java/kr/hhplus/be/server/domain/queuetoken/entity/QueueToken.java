@@ -3,10 +3,7 @@ package kr.hhplus.be.server.domain.queuetoken.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kr.hhplus.be.server.utils.time.TimeProvider;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

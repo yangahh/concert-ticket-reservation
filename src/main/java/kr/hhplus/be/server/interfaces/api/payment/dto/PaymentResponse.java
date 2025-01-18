@@ -1,6 +1,9 @@
 package kr.hhplus.be.server.interfaces.api.payment.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kr.hhplus.be.server.domain.concert.dto.ConcertScheduleResult;
+import kr.hhplus.be.server.domain.concert.dto.ConcertSeatResult;
+import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,4 +39,24 @@ public class PaymentResponse {
 
     @Schema(description = "결제 완료 일시", example = "2025-01-01T17:53:00")
     private LocalDateTime confirmedAt;
+
+    public static PaymentResponse fromDomainDto(ReservationResult dto) {
+        ConcertScheduleResult concertSchedule = dto.concertScheduleResult();
+        ConcertSeatResult concertSeat = dto.concertSeatResult();
+
+        return PaymentResponse.builder()
+                .reservationId(dto.reservationId())
+                .userId(dto.userId())
+                .concertId(concertSchedule.concertId())
+                .concertScheduleId(concertSchedule.concertScheduleId())
+                .seatId(concertSeat.seatId())
+                .seatNo(concertSeat.seatNo())
+                .price(dto.price())
+                .concertDateTime(concertSchedule.eventDateTime())
+                .status(dto.status())
+                .reservedAt(dto.reservedAt())
+                .tempReservationExpiredAt(dto.tempReservationExpiredAt())
+                .confirmedAt(dto.confirmedAt())
+                .build();
+    }
 }

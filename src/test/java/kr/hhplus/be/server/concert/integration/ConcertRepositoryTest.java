@@ -7,6 +7,8 @@ import kr.hhplus.be.server.domain.concert.repository.ConcertRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.ConcertJpaRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.ConcertScheduleJpaRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.SeatJpaRepository;
+import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +72,7 @@ class ConcertRepositoryTest {
         Long seatId = 1L;
 
         // when
-        Optional<Seat> seat = concertRepository.findSeatById(seatId);
+        Optional<Seat> seat = concertRepository.findSeatByIdForUpdate(seatId);
 
         // then
         assertThat(seat).isPresent();
@@ -99,10 +101,10 @@ class ConcertRepositoryTest {
     void findSeatsByConcertSchedule_shouldReturnSeats() {
         // given
         Long concertId = 1L;
-        LocalDate searchDate = LocalDate.of(2025, 1, 15);
+        LocalDate searchDate = LocalDate.of(2025, 3, 30);
         int offset = 0;
         int limit = 50;
-        // data.sql 기준으로 2025/01/15에 100개의 좌석이 존재
+        // data.sql 기준으로 2025/03/30에 100개의 좌석이 존재
 
         // when
         Page<Seat> seats = concertRepository.findSeatsByConcertSchedule(concertId, searchDate, offset, limit);

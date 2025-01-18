@@ -2,11 +2,11 @@ package kr.hhplus.be.server.domain.concert.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import kr.hhplus.be.server.domain.common.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "concert_schedule")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ConcertSchedule {
+public class ConcertSchedule extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,7 +32,7 @@ public class ConcertSchedule {
     private Integer totalSeatCount = 0;
 
     @Builder
-    private ConcertSchedule(Concert concert, LocalDateTime eventDate, Integer totalSeatCount) {
+    ConcertSchedule(Concert concert, LocalDateTime eventDate, Integer totalSeatCount) {
         this.concert = concert;
         this.eventDate = eventDate;
         this.totalSeatCount = totalSeatCount;
