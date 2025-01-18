@@ -51,7 +51,7 @@ public class ConcertService {
 
     private void checkConcert(Long concertId) {
         concertRepository.findConcertById(concertId)
-                .orElseThrow(() -> new EntityNotFoundException("Concert not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Concert not found (id = " + concertId + ")"));
     }
 
     private void validateConcertDateTime(LocalDate searchDate) {
@@ -73,7 +73,7 @@ public class ConcertService {
     @Transactional
     public ConcertSeatResult reserveSeat(Long seatId, LocalDateTime now) {
         Seat seat = concertRepository.findSeatByIdForUpdate(seatId)
-            .orElseThrow(() -> new EntityNotFoundException("Seat not found"));
+            .orElseThrow(() -> new EntityNotFoundException("Seat not found (id = " + seatId + ")"));
 
         seat.reserve(now);
         Seat reservedSeat = concertRepository.saveSeat(seat);

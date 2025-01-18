@@ -71,7 +71,7 @@ public class Seat extends BaseEntity  {
 
     public void reserve(LocalDateTime now) {
         if (!this.isAvailableNow(now)) {
-            throw new UnprocessableEntityException("Seat is already reserved");
+            throw new UnprocessableEntityException("Seat is already reserved (id = " + this.id + ")");
         }
 
         this.isAvailable = false;

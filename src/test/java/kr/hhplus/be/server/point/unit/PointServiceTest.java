@@ -44,7 +44,7 @@ class PointServiceTest {
         // when  // then
         assertThatThrownBy(() -> sut.getUserPoint(1L))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("User not found");
+                .hasMessageContaining("User not found");
     }
 
     @DisplayName("포인트 조회: 포인트 데이터가 없는 유저일 경우에는 초기화된 포인트를 반환한다.")
@@ -138,7 +138,7 @@ class PointServiceTest {
         // when // then
         assertThatThrownBy(() -> sut.usePoint(userId, amount, null))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Point not found");
+                .hasMessageContaining("Point not found");
     }
 
     @DisplayName("포인트 사용: 포인트를 사용하려는 금액보다 가지고 있는 포인트가 적을 경우에는 예외가 발생한다.")

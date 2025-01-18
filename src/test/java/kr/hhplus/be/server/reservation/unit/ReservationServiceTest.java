@@ -52,7 +52,7 @@ public class ReservationServiceTest {
         // when & then
         assertThatThrownBy(() -> sut.makeTempReservation(1L, 1L, LocalDateTime.now()))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("User not found");
+                .hasMessageContaining("User not found");
     }
 
     @DisplayName("임시 예약 요청 시, 존재하지 않는 seatId로 요청하면 예외가 발생한다.")
@@ -66,7 +66,7 @@ public class ReservationServiceTest {
         // when & then
         assertThatThrownBy(() -> sut.makeTempReservation(1L, 1L, LocalDateTime.now()))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Seat not found");
+                .hasMessageContaining("Seat not found");
     }
 
     @DisplayName("정상적으로 임시 예약 요청을 하면 ReservationResult를 반환한다.")
@@ -152,7 +152,7 @@ public class ReservationServiceTest {
         // when & then
         assertThatThrownBy(() -> sut.confirmReservation(reservationId, now))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Reservation not found");
+                .hasMessageContaining("Reservation not found");
         verify(reservationRepository).findByIdForUpdate(reservationId);
     }
 

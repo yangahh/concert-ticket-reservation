@@ -49,7 +49,7 @@ public class QueueTokenService {
 
     private QueueToken getQueueToken(UUID tokenUuid) {
         return queueTokenRepository.findByTokenUuid(tokenUuid)
-                .orElseThrow(() -> new EntityNotFoundException("Token is not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Token is not found (id = " + tokenUuid + ")"));
     }
 
     private int calculateWaitingPosition(QueueToken queueToken) {

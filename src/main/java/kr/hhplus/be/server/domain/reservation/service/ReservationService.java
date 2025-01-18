@@ -33,9 +33,9 @@ public class ReservationService {
     @Transactional
     public ReservationResult makeTempReservation(Long userId, Long seatId, LocalDateTime tempReservationExpiredAt) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+            .orElseThrow(() -> new EntityNotFoundException("User not found (id = " + userId + ")"));
         Seat seat = concertRepository.findSeatById(seatId)
-            .orElseThrow(() -> new EntityNotFoundException("Seat not found"));
+            .orElseThrow(() -> new EntityNotFoundException("Seat not found (id = " + seatId + ")"));
 
         Reservation reservation = Reservation.tempReserve(user, seat, tempReservationExpiredAt);
         Reservation saved = reservationRepository.save(reservation);
@@ -44,7 +44,7 @@ public class ReservationService {
 
     private Reservation getReservation(Long reservationId) {
         return reservationRepository.findByIdForUpdate(reservationId)
-            .orElseThrow(() -> new EntityNotFoundException("Reservation not found"));
+            .orElseThrow(() -> new EntityNotFoundException("Reservation not found (id = " + reservationId + ")"));
     }
 
     @Transactional(readOnly = true)
@@ -56,7 +56,7 @@ public class ReservationService {
     @Transactional
     public ReservationResult confirmReservation(Long reservationId, LocalDateTime now) {
         Reservation reservation = reservationRepository.findByIdForUpdate(reservationId)
-            .orElseThrow(() -> new EntityNotFoundException("Reservation not found"));
+            .orElseThrow(() -> new EntityNotFoundException("Reservation not found (id = " + reservationId + ")"));
         reservation.confirm(now);
         Reservation saved = reservationRepository.save(reservation);
         return ReservationResult.fromEntity(saved);

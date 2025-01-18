@@ -54,7 +54,7 @@ class ConcertServiceTest {
         // when // then
         assertThatThrownBy(() -> sut.getConcertSchedules(1L, Optional.empty(), Optional.empty()))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Concert not found");
+                .hasMessageContaining("Concert not found");
     }
 
     @Test
@@ -86,7 +86,7 @@ class ConcertServiceTest {
         // when & then
         assertThatThrownBy(() -> sut.getSeatsByConcertIdAndEventDate(1L, LocalDate.now().plusDays(1), Optional.empty(), Optional.empty()))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Concert not found");
+                .hasMessageContaining("Concert not found");
     }
 
     @DisplayName("콘서트 좌석 조회 시, 조회하려는 날짜가 현재 시간보다 이전이면 예외가 발생한다")
@@ -137,7 +137,7 @@ class ConcertServiceTest {
         // when & then
         assertThatThrownBy(() -> sut.reserveSeat(1L, LocalDateTime.now()))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Seat not found");
+                .hasMessageContaining("Seat not found");
     }
 
 
@@ -153,7 +153,7 @@ class ConcertServiceTest {
         // when & then
         assertThatThrownBy(() -> sut.reserveSeat(1L, LocalDateTime.now()))
                 .isInstanceOf(UnprocessableEntityException.class)
-                .hasMessage("Seat is already reserved");
+                .hasMessageContaining("Seat is already reserved");
     }
 
     @Test

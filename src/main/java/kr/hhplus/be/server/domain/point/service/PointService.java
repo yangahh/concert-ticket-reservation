@@ -27,7 +27,7 @@ public class PointService {
     }
 
     private Point initializePoint(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found (id = " + userId + ")"));
         return Point.create(user);
     }
 
@@ -44,7 +44,7 @@ public class PointService {
 
     @Transactional
     public PointResult usePoint(Long userId, int amount, Long refReservationId) {
-        Point userPoint = pointRepository.findByUserId(userId).orElseThrow(() -> new EntityNotFoundException("Point not found"));
+        Point userPoint = pointRepository.findByUserId(userId).orElseThrow(() -> new EntityNotFoundException("User Point not found (userId = " + userId + ")"));
         userPoint.minus(amount);
         Point updated = pointRepository.savePoint(userPoint);
 
