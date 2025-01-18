@@ -2,6 +2,7 @@ package kr.hhplus.be.server.domain.concert.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import kr.hhplus.be.server.domain.common.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "concert_schedule")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ConcertSchedule {
+public class ConcertSchedule extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
