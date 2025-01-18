@@ -12,17 +12,13 @@ public class ErrorResponse {
     private final int statusCode;
     private final String message;
 
-    @Builder
     ErrorResponse(int statusCode, String message) {
         this.statusCode = statusCode;
         this.message = message;
     }
 
     public static ErrorResponse of(int statusCode, String message) {
-        return ErrorResponse.builder()
-                .statusCode(statusCode)
-                .message(message)
-                .build();
+        return new ErrorResponse(statusCode, message);
     }
 
     public static ErrorResponse of(int statusCode, BindingResult bindingResult) {
@@ -40,9 +36,6 @@ public class ErrorResponse {
             sb.append("] ");
             sb.append(fieldError.getDefaultMessage());
         }
-        return ErrorResponse.builder()
-                .statusCode(statusCode)
-                .message(sb.toString())
-                .build();
+        return new ErrorResponse(statusCode, sb.toString());
     }
 }

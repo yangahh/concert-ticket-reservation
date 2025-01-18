@@ -3,7 +3,6 @@ package kr.hhplus.be.server.domain.user.entity;
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.entity.BaseEntity;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,14 +17,11 @@ public class User extends BaseEntity {
 
     private String username;
 
-    @Builder
     User(String username) {
         this.username = username;
     }
 
     public static User create(String username) {
-        return User.builder()
-                .username(username)
-                .build();
+        return new User(username);
     }
 }

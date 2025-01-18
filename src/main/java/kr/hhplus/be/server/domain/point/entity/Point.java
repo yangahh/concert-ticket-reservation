@@ -5,7 +5,6 @@ import kr.hhplus.be.server.domain.common.entity.BaseEntity;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.user.entity.User;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,17 +23,13 @@ public class Point extends BaseEntity {
     @Column(name = "balance", nullable = false)
     private Integer balance;
 
-    @Builder
     Point(User user, int balance) {
         this.user = user;
         this.balance = balance;
     }
 
     public static Point create(User user) {
-        return Point.builder()
-                .user(user)
-                .balance(0)
-                .build();
+        return new Point(user, 0);
     }
 
     public void plus(int amount) {

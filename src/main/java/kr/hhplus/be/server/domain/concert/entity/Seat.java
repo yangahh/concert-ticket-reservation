@@ -40,7 +40,7 @@ public class Seat extends BaseEntity  {
     @Column(name = "temp_reservation_expired_at", columnDefinition = "TIMESTAMP(6)")
     private LocalDateTime tempReservationExpiredAt;
 
-    @Builder
+    @Builder(access = AccessLevel.PROTECTED)
     Seat(ConcertSchedule concertSchedule, String seatNo, Boolean isAvailable, Integer price, LocalDateTime tempReservationExpiredAt) {
         this.concertSchedule = concertSchedule;
         this.seatNo = seatNo;

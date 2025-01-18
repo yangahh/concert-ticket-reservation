@@ -49,7 +49,7 @@ public class Reservation extends BaseEntity {
     @Column(name = "confirmed_at", columnDefinition = "TIMESTAMP(6)")
     private LocalDateTime confirmedAt;
 
-    @Builder
+    @Builder(access = AccessLevel.PROTECTED)
     Reservation(User user, Seat seat, ReservationStatus status, int paymentPrice, LocalDateTime tempReservationExpiredAt, LocalDateTime confirmedAt) {
         this.user = user;
         this.seat = seat;

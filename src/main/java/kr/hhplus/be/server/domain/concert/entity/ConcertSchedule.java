@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kr.hhplus.be.server.domain.common.entity.BaseEntity;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -31,7 +30,6 @@ public class ConcertSchedule extends BaseEntity {
     @Column(name = "total_seat_count", nullable = false)
     private Integer totalSeatCount = 0;
 
-    @Builder
     ConcertSchedule(Concert concert, LocalDateTime eventDate, Integer totalSeatCount) {
         this.concert = concert;
         this.eventDate = eventDate;
@@ -39,10 +37,6 @@ public class ConcertSchedule extends BaseEntity {
     }
 
     public static ConcertSchedule create(Concert concert, LocalDateTime eventDate, Integer totalSeatCount) {
-        return ConcertSchedule.builder()
-                .concert(concert)
-                .eventDate(eventDate)
-                .totalSeatCount(totalSeatCount)
-                .build();
+        return new ConcertSchedule(concert, eventDate, totalSeatCount);
     }
 }

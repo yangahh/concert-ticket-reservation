@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.queuetoken.integration;
 
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
+import kr.hhplus.be.server.domain.queuetoken.entity.QueueTokenFactory;
 import kr.hhplus.be.server.domain.queuetoken.repository.QueueTokenRepository;
 import kr.hhplus.be.server.infrastructure.queuetoken.repository.QueueTokenJpaRepository;
 import kr.hhplus.be.server.utils.time.TimeProvider;
@@ -12,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -84,14 +88,8 @@ class QueueTokenRepositoryTest {
     @DisplayName("expiredAt이 현재 시간보다 이전인 토큰을 삭제한다.")
     void deleteExpiredTokens_shouldRemoveExpiredTokens() {
         // given
-        QueueToken token = QueueToken.builder()
-            .userId(4L)
-            .concertId(concertId)
-            .tokenUuid(UUID.randomUUID())
-            .isActive(false)
-            .createdAt(LocalDateTime.now().minusMinutes(10))
-            .expiredAt(LocalDateTime.now().minusMinutes(5))
-            .build();
+        Clock mockClock = Clock.fixed(Instant.parse("2025-01-01T00:00:00Z"), ZoneId.systemDefault());
+        QueueToken token = QueueTokenFactory.createMock(UUID.randomUUID(), 4L, concertId, false, mockClock);
         queueTokenJpaRepository.save(token);
 
         // when

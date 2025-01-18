@@ -44,8 +44,8 @@ public class QueueToken {
     @Column(name = "expired_at", updatable = false, columnDefinition = "TIMESTAMP(6)")
     private LocalDateTime expiredAt;
 
-    @Builder
-    private QueueToken(UUID tokenUuid, Long userId, Long concertId, boolean isActive, LocalDateTime createdAt, LocalDateTime expiredAt) {
+    @Builder(access = AccessLevel.PROTECTED)
+    QueueToken(UUID tokenUuid, Long userId, Long concertId, boolean isActive, LocalDateTime createdAt, LocalDateTime expiredAt) {
         this.tokenUuid = tokenUuid;
         this.userId = userId;
         this.concertId = concertId;
