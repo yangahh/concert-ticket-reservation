@@ -10,6 +10,7 @@ import kr.hhplus.be.server.domain.queuetoken.exception.InvalidToken;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestValueException;
@@ -53,6 +54,7 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(HttpStatus.CONFLICT.value(), e.getMessage());
     }
 
+    // Request body의 각 필드 값에 대한 유효성 검사 실패 시 발생하는 예외
     @ApiResponse(responseCode = "400", description = "BAD_REQUEST", content = @Content(schema = @Schema(implementation = ErrorResponse.class, example = "{\"statusCode\":400,\"message\":\"BAD_REQUEST error message\"}")))
     @ExceptionHandler({BindException.class, MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -61,6 +63,16 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), e.getBindingResult());
     }
 
+    // Request body가 누락되거나 잘못된 json을 보내는 경우에 발생하는 예외
+    @ApiResponse(responseCode = "400", description = "BAD_REQUEST", content = @Content(schema = @Schema(implementation = ErrorResponse.class, example = "{\"statusCode\":400,\"message\":\"BAD_REQUEST error message\"}")))
+    @ExceptionHandler(value = HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        log.warn(Arrays.toString(e.getStackTrace()));
+        return ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), "Request Body가 올바르지 않습니다.");
+    }
+
+    // Bean Validation에서 걸리는 예외
     @ApiResponse(responseCode = "400", description = "BAD_REQUEST", content = @Content(schema = @Schema(implementation = ErrorResponse.class, example = "{\"statusCode\":400,\"message\":\"BAD_REQUEST error message\"}")))
     @ExceptionHandler(value = ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -77,6 +89,7 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
+    // Request Parameter가 누락된 경우에 발생하는 예외
     @ApiResponse(responseCode = "400", description = "BAD_REQUEST", content = @Content(schema = @Schema(implementation = ErrorResponse.class, example = "{\"statusCode\":400,\"message\":\"BAD_REQUEST error message\"}")))
     @ExceptionHandler(value = MissingRequestValueException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -85,6 +98,7 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
+    // Request Parameter의 타입이 잘못된 경우에 발생하는 예외
     @ApiResponse(responseCode = "400", description = "BAD_REQUEST", content = @Content(schema = @Schema(implementation = ErrorResponse.class, example = "{\"statusCode\":400,\"message\":\"Parameter Type Error\"}")))
     @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
