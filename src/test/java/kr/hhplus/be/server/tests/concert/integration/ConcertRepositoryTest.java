@@ -7,13 +7,12 @@ import kr.hhplus.be.server.domain.concert.repository.ConcertRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.ConcertJpaRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.ConcertScheduleJpaRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.SeatJpaRepository;
-import org.junit.After;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -23,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Transactional
+@Sql("/sql/concert_data.sql")
 class ConcertRepositoryTest {
 
     @Autowired
@@ -86,7 +86,7 @@ class ConcertRepositoryTest {
         Long concertId = 1L;
         int offset = 0;
         int limit = 10;
-        // data.sql 기준으로 3개의 일정
+        // concert_data.sql 기준으로 3개의 일정
 
         // when
         Page<ConcertSchedule> schedules = concertRepository.findConcertSchedulesByConcertId(concertId, offset, limit);
@@ -104,7 +104,7 @@ class ConcertRepositoryTest {
         LocalDate searchDate = LocalDate.of(2025, 3, 30);
         int offset = 0;
         int limit = 50;
-        // data.sql 기준으로 2025/03/30에 100개의 좌석이 존재
+        // concert_data.sql 기준으로 2025/03/30에 100개의 좌석이 존재
 
         // when
         Page<Seat> seats = concertRepository.findSeatsByConcertSchedule(concertId, searchDate, offset, limit);
