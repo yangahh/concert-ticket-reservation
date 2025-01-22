@@ -5,25 +5,26 @@ import kr.hhplus.be.server.domain.point.repository.PointRepository;
 import kr.hhplus.be.server.domain.point.service.PointService;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
+import kr.hhplus.be.server.infrastructure.point.repository.PointHistoryJpaRepository;
 import kr.hhplus.be.server.infrastructure.point.repository.PointJpaRepository;
 import kr.hhplus.be.server.infrastructure.user.repository.UserJpaRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Transactional
 public class PointChargeConcurrencyTest {
     @Autowired
     PointService pointService;
@@ -40,6 +41,9 @@ public class PointChargeConcurrencyTest {
     @Autowired
     PointJpaRepository pointJpaRepository;
 
+    @Autowired
+    PointHistoryJpaRepository pointHistoryJpaRepository;
+
     Long userId;
     Long pointId;
 
@@ -51,26 +55,35 @@ public class PointChargeConcurrencyTest {
         pointId = point.getId();
     }
 
-    @DisplayName("포인트가 0인 사용자가 10,000 포인트 충전을 동시에 10번 충전을 요청할 때, 10,000 포인트만 충전되어야 한다.")
+    @AfterEach
+    void tearDown() {
+        pointHistoryJpaRepository.deleteAll();
+        pointJpaRepository.deleteAll();
+        userJpaRepository.deleteAll();
+    }
+
+    @DisplayName("포인트가 0인 사용자가 10,000 포인트 충전을 동시에 10번 충전을 요청할 때, 10번의 요청이 모두 처리되어야 한다.")
     @Test
-    void Test() throws InterruptedException {
+    void concurrencyTest() throws InterruptedException {
         // given
         int threadCount = 10;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
-        List<Boolean> results = new ArrayList<>(threadCount);
+        AtomicInteger successCnt = new AtomicInteger();
+        AtomicInteger failCnt = new AtomicInteger();
         List<Exception> exceptions = new ArrayList<>();
+        int chargeAmount = 10_000;
 
         // when
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    pointService.chargePoint(userId, 10_000);
-                    results.add(true);
+                    pointService.chargePoint(userId, chargeAmount);
+                    successCnt.getAndIncrement();
 
                 } catch (Exception e) {
-                    results.add(false);
+                    failCnt.getAndIncrement();
                     exceptions.add(e);
                 } finally {
                     latch.countDown();
@@ -81,14 +94,11 @@ public class PointChargeConcurrencyTest {
         executorService.shutdown();
 
         // then
-        long successCnt = results.stream().filter(Boolean::booleanValue).count();
-        long failCnt = results.stream().filter(result -> !result).count();
-        assertThat(successCnt).isEqualTo(1);
-        assertThat(failCnt).isEqualTo(threadCount - 1);
+        assertThat(successCnt.get()).isEqualTo(10);
+        assertThat(failCnt.get()).isEqualTo(0);
 
         Point point = pointJpaRepository.findById(pointId).get();
-        assertThat(point.getBalance()).isEqualTo(10_000);
-
+        assertThat(point.getBalance()).isEqualTo(chargeAmount * 10);
 
     }
 }
