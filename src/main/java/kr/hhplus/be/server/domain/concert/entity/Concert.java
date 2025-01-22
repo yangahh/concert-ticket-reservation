@@ -16,6 +16,11 @@ public class Concert extends BaseEntity {
 
     private String title;
 
+    Concert(Long id, String title) {
+        this.id = id;
+        this.title = title;
+    }
+
     Concert(String title) {
         this.title = title;
     }
