@@ -40,7 +40,17 @@ public class Seat extends BaseEntity  {
     @Column(name = "temp_reservation_expired_at", columnDefinition = "TIMESTAMP(6)")
     private LocalDateTime tempReservationExpiredAt;
 
-    @Builder(access = AccessLevel.PROTECTED)
+    @Builder(access = AccessLevel.PACKAGE)
+    Seat(Long id, ConcertSchedule concertSchedule, String seatNo, Boolean isAvailable, Integer price, LocalDateTime tempReservationExpiredAt) {
+        this.id = id;
+        this.concertSchedule = concertSchedule;
+        this.seatNo = seatNo;
+        this.isAvailable = isAvailable;
+        this.price = price;
+        this.tempReservationExpiredAt = tempReservationExpiredAt;
+    }
+
+    @Builder(access = AccessLevel.PACKAGE)
     Seat(ConcertSchedule concertSchedule, String seatNo, Boolean isAvailable, Integer price, LocalDateTime tempReservationExpiredAt) {
         this.concertSchedule = concertSchedule;
         this.seatNo = seatNo;

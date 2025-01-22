@@ -1,7 +1,9 @@
 package kr.hhplus.be.server.domain.reservation.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import kr.hhplus.be.server.domain.concert.dto.ReservationSeatInfo;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
+import kr.hhplus.be.server.domain.concert.entity.SeatMapper;
 import kr.hhplus.be.server.domain.concert.repository.ConcertRepository;
 import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.entity.Reservation;
@@ -31,11 +33,10 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResult makeTempReservation(Long userId, Long seatId, LocalDateTime tempReservationExpiredAt) {
+    public ReservationResult makeTempReservation(Long userId, ReservationSeatInfo reservationSeatInfo, LocalDateTime tempReservationExpiredAt) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("User not found (id = " + userId + ")"));
-        Seat seat = concertRepository.findSeatById(seatId)
-            .orElseThrow(() -> new EntityNotFoundException("Seat not found (id = " + seatId + ")"));
+        Seat seat = SeatMapper.mapToEntityFromInfoDto(reservationSeatInfo);
 
         Reservation reservation = Reservation.tempReserve(user, seat, tempReservationExpiredAt);
         Reservation saved = reservationRepository.save(reservation);

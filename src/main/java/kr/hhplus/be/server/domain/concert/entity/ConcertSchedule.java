@@ -30,6 +30,13 @@ public class ConcertSchedule extends BaseEntity {
     @Column(name = "total_seat_count", nullable = false)
     private Integer totalSeatCount = 0;
 
+    ConcertSchedule(long id, Concert concert, LocalDateTime eventDate, Integer totalSeatCount) {
+        this.id = id;
+        this.concert = concert;
+        this.eventDate = eventDate;
+        this.totalSeatCount = totalSeatCount;
+    }
+
     ConcertSchedule(Concert concert, LocalDateTime eventDate, Integer totalSeatCount) {
         this.concert = concert;
         this.eventDate = eventDate;
