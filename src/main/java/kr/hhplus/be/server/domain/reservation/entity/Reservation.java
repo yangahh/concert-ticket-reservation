@@ -70,6 +70,9 @@ public class Reservation extends BaseEntity {
     }
 
     public void confirm(LocalDateTime confirmedAt) {
+        if (this.status == ReservationStatus.CONFIRMED) {
+            throw new UnprocessableEntityException("Reservation is already confirmed. (id: " + id + ")");
+        }
         this.status = ReservationStatus.CONFIRMED;
         this.confirmedAt = confirmedAt;
     }
@@ -80,7 +83,7 @@ public class Reservation extends BaseEntity {
 
     public boolean isTempReservationExpired(LocalDateTime now) {
         if (status != ReservationStatus.PENDING_PAYMENT) {
-            throw new UnprocessableEntityException("The reservation is not a temporary reservation");
+            throw new UnprocessableEntityException("Reservation is not a temporary reservation. (id: " + id + ")");
         }
         return tempReservationExpiredAt.isBefore(now);
     }
