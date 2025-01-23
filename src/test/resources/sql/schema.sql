@@ -61,6 +61,7 @@ CREATE TABLE `seat` (
     `is_available` boolean NOT NULL DEFAULT true,
     `price` integer NOT NULL,
     `temp_reservation_expired_at` timestamp(6),
+    `version` bigint NOT NULL DEFAULT 0,
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -77,11 +78,12 @@ CREATE TABLE `reservation` (
     `payment_price` integer NOT NULL,
     `temp_reservation_expired_at` timestamp(6) NOT NULL,
     `confirmed_at` timestamp(6),
+    `version` bigint NOT NULL DEFAULT 0,
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-ALTER TABLE `reservation` ADD FOREIGN KEY (`seat_id`) REFERENCES `seat` (`id`);
+CREATE INDEX idx_reservation_seat_id ON reservation(seat_id);
 ALTER TABLE `reservation` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
@@ -90,6 +92,7 @@ CREATE TABLE `point` (
     `id` bigint PRIMARY KEY AUTO_INCREMENT,
     `user_id` bigint NOT NULL,
     `balance` integer NOT NULL DEFAULT 0,
+    `version` bigint NOT NULL DEFAULT 0,
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -111,5 +114,5 @@ CREATE TABLE `point_history` (
 );
 
 CREATE INDEX idx_point_history_ref_id ON point_history(ref_id);
-ALTER TABLE `point_history` ADD FOREIGN KEY (`point_id`) REFERENCES `point` (`id`);
+CREATE INDEX idx_point_history_point_id ON point_history(point_id);
 ALTER TABLE `point_history` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);

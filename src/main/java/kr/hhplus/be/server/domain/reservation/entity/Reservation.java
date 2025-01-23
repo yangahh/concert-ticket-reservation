@@ -17,37 +17,39 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "reservation")
+@Table(name = "reservation",
+    indexes = {
+    @Index(name = "idx_reservation_seat_id", columnList = "seat_id"),
+})
 public class Reservation extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seat_id", nullable = false)
+    @JoinColumn(name = "seat_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Seat seat;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ReservationStatus status = ReservationStatus.PENDING_PAYMENT;
 
-    @NotNull
     @Column(name = "payment_price", nullable = false)
     private int paymentPrice;
 
-    @NotNull
     @Column(name = "temp_reservation_expired_at", nullable = false, columnDefinition = "TIMESTAMP(6)")
     private LocalDateTime tempReservationExpiredAt;
 
     @Column(name = "confirmed_at", columnDefinition = "TIMESTAMP(6)")
     private LocalDateTime confirmedAt;
+
+    @Version
+    @Column(name = "version", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long version = 0L;
 
     @Builder(access = AccessLevel.PROTECTED)
     Reservation(User user, Seat seat, ReservationStatus status, int paymentPrice, LocalDateTime tempReservationExpiredAt, LocalDateTime confirmedAt) {
