@@ -20,25 +20,25 @@ public class Seat extends BaseEntity  {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "concert_schedule_id", nullable = false)
     private ConcertSchedule concertSchedule;
 
-    @NotNull
     @Column(name = "seat_no", nullable = false, length = 255)
     private String seatNo;
 
-    @NotNull
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable = true;
 
-    @NotNull
     @Column(nullable = false)
     private Integer price;
 
     @Column(name = "temp_reservation_expired_at", columnDefinition = "TIMESTAMP(6)")
     private LocalDateTime tempReservationExpiredAt;
+
+    @Version
+    @Column(name = "version", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long version = 0L;
 
     @Builder(access = AccessLevel.PACKAGE)
     Seat(Long id, ConcertSchedule concertSchedule, String seatNo, Boolean isAvailable, Integer price, LocalDateTime tempReservationExpiredAt) {
@@ -57,6 +57,10 @@ public class Seat extends BaseEntity  {
         this.isAvailable = isAvailable;
         this.price = price;
         this.tempReservationExpiredAt = tempReservationExpiredAt;
+    }
+
+    public static Seat getReferenceById(Long id) {
+        return Seat.builder().id(id).build();
     }
 
     public static Seat create(ConcertSchedule concertSchedule, String seatNo, boolean isAvailable, Integer price, LocalDateTime tempReservationExpiredAt) {
