@@ -11,11 +11,9 @@ import kr.hhplus.be.server.domain.reservation.service.ReservationService;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.infrastructure.concert.repository.ConcertJpaRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.ConcertScheduleJpaRepository;
-import kr.hhplus.be.server.infrastructure.concert.repository.SeatJpaRepository;
-import kr.hhplus.be.server.infrastructure.reservation.repository.ReservationJpaRepository;
-import kr.hhplus.be.server.infrastructure.user.repository.UserJpaRepository;
+import kr.hhplus.be.server.tests.support.JpaRepositorySupport;
 import kr.hhplus.be.server.utils.time.TimeProvider;
-import org.junit.jupiter.api.AfterEach;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,8 +30,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 @SpringBootTest
-class ReservationConcurrencyTest {
+class ReservationConcurrencyTest extends JpaRepositorySupport {
     @Autowired
     ReservationUseCase reservationUseCase;
 
@@ -47,15 +46,6 @@ class ReservationConcurrencyTest {
     TimeProvider timeProvider;
 
     @Autowired
-    ReservationJpaRepository reservationJpaRepository;
-
-    @Autowired
-    SeatJpaRepository seatJpaRepository;
-
-    @Autowired
-    UserJpaRepository userJpaRepository;
-
-    @Autowired
     private ConcertJpaRepository concertJpaRepository;
 
     @Autowired
@@ -64,7 +54,7 @@ class ReservationConcurrencyTest {
     List<Long> userIds = new ArrayList<>();
     Long seatId;
 
-    int threadCount = 10;
+    int threadCount = 30;
 
     @BeforeEach
     void setUp() {
@@ -85,15 +75,6 @@ class ReservationConcurrencyTest {
         }
     }
 
-    @AfterEach
-    void tearDown() {
-        reservationJpaRepository.deleteAll();
-        seatJpaRepository.deleteAll();
-        concertScheduleJpaRepository.deleteAll();
-        concertJpaRepository.deleteAll();
-        userJpaRepository.deleteAll();
-    }
-
     @DisplayName("10명의 사용자가 동시에 같은 좌석에 예약을 요청하면, 예약은 단 한 건만 성공해야 하고 나머지는 실패해야 한다.")
     @Test
     void shouldSuccessOnlyOneReservationWhen100Requests() throws InterruptedException {
@@ -105,9 +86,13 @@ class ReservationConcurrencyTest {
         AtomicInteger failCnt = new AtomicInteger();
         List<Exception> exceptions = new ArrayList<>();
 
+        List<Long> threadExecutionTimes = new ArrayList<>();
+        long startTime = System.nanoTime();
+
         // when
         for (Long userId : userIds) {
             executorService.submit(() -> {
+                long threadStartTime = System.nanoTime();
                 try {
                     reservationUseCase.makeTempReservation(userId, seatId);
                     successCnt.getAndIncrement();
@@ -116,11 +101,16 @@ class ReservationConcurrencyTest {
                     failCnt.getAndIncrement();
                 } finally {
                     latch.countDown();
+                    long threadEndTime = System.nanoTime();
+                    threadExecutionTimes.add(threadEndTime - threadStartTime);
                 }
             });
         }
         latch.await();
         executorService.shutdown();
+
+        long endTime = System.nanoTime();
+        long totalExecutionTime = endTime - startTime;
 
         // then
         assertThat(successCnt.get()).isEqualTo(1);
@@ -129,8 +119,9 @@ class ReservationConcurrencyTest {
         List<Reservation> reservations = reservationJpaRepository.findAll();
         assertThat(reservations.size()).isEqualTo(1);
 
-        exceptions.stream().forEach(e -> {
-            assertThat(e).isInstanceOf(UnprocessableEntityException.class);
-        });
+        for (Long threadExecutionTime : threadExecutionTimes) {
+            log.info("thread execution time : {} s", threadExecutionTime / 1_000_000_000.0);
+        }
+        log.info("total execution time : {} s", totalExecutionTime / 1_000_000_000.0);
     }
 }

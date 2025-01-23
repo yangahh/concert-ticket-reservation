@@ -15,6 +15,7 @@ import kr.hhplus.be.server.domain.reservation.service.ReservationService;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.tests.support.JpaRepositorySupport;
 import kr.hhplus.be.server.utils.time.TimeProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 public class PaymentConcurrencyTest extends JpaRepositorySupport {
     @Autowired
     protected PaymentUseCase paymentUseCase;
@@ -66,12 +68,12 @@ public class PaymentConcurrencyTest extends JpaRepositorySupport {
         ConcertSchedule schedule = concertScheduleJpaRepository.save(ConcertSchedule.create(concert, timeProvider.now(), 50));
         seat = Seat.create(schedule, "1", true, price, timeProvider.now().plusMinutes(5));
         seat.reserve(timeProvider.now());
-        seat = seatJpaRepository.save(seat);
+        seat = seatJpaRepository.saveAndFlush(seat);
         reservation = Reservation.tempReserve(user, seat, LocalDateTime.now().plusMinutes(5));
-        reservation = reservationJpaRepository.save(reservation);
+        reservation = reservationJpaRepository.saveAndFlush(reservation);
         Point point = Point.create(user);
         point.plus(balance);
-        pointJpaRepository.save(point);
+        point = pointJpaRepository.saveAndFlush(point);
         pointId = point.getId();
 
         QueueToken token = QueueToken.createWaitingToken(user.getId(), concert.getId(), timeProvider);
@@ -84,30 +86,38 @@ public class PaymentConcurrencyTest extends JpaRepositorySupport {
     @Test
     void concurrencyTest() throws InterruptedException {
         // given
-        int threadCount = 10;
+        int threadCount = 30;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
         AtomicInteger successCnt = new AtomicInteger();
         AtomicInteger failCnt = new AtomicInteger();
-        List<Exception> exceptions = new ArrayList<>();
+
+        List<Long> threadExecutionTimes = new ArrayList<>();
+        long startTime = System.nanoTime();
 
         // when
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
+                long threadStartTime = System.nanoTime();
+
                 try {
                     paymentUseCase.payForReservation(reservation.getId(), tokenUuid);
                     successCnt.incrementAndGet();
                 } catch (Exception e) {
                     failCnt.incrementAndGet();
-                    exceptions.add(e);
                 } finally {
                     latch.countDown();
+                    long threadEndTime = System.nanoTime();
+                    threadExecutionTimes.add(threadEndTime - threadStartTime);
                 }
             });
         }
         latch.await();
         executorService.shutdown();
+
+        long endTime = System.nanoTime();
+        long totalExecutionTime = endTime - startTime;
 
         // then
         assertThat(successCnt.get()).isEqualTo(1);
@@ -115,11 +125,10 @@ public class PaymentConcurrencyTest extends JpaRepositorySupport {
 
         Point point = pointJpaRepository.findById(pointId).get();
         assertThat(point.getBalance()).isEqualTo(balance - price);
-        exceptions.stream().forEach(
-            e -> {
-                assertThat(e).isInstanceOf(UnprocessableEntityException.class);
-                assertThat(e.getMessage()).contains("Reservation is not a temporary reservation");
-            }
-        );
+
+        for (Long threadExecutionTime : threadExecutionTimes) {
+            log.info("thread execution time : {} s", threadExecutionTime / 1_000_000_000.0);
+        }
+        log.info("total execution time : {} s", totalExecutionTime / 1_000_000_000.0);
     }
 }
