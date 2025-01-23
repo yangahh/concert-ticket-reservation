@@ -8,6 +8,7 @@ import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import kr.hhplus.be.server.infrastructure.point.repository.PointHistoryJpaRepository;
 import kr.hhplus.be.server.infrastructure.point.repository.PointJpaRepository;
 import kr.hhplus.be.server.infrastructure.user.repository.UserJpaRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 @SpringBootTest
 public class PointChargeConcurrencyTest {
     @Autowired
@@ -66,7 +68,7 @@ public class PointChargeConcurrencyTest {
     @Test
     void concurrencyTest() throws InterruptedException {
         // given
-        int threadCount = 10;
+        int threadCount = 30;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
@@ -75,9 +77,13 @@ public class PointChargeConcurrencyTest {
         List<Exception> exceptions = new ArrayList<>();
         int chargeAmount = 10_000;
 
+        List<Long> threadExecutionTimes = new ArrayList<>();
+        long startTime = System.nanoTime();
+
         // when
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
+                long threadStartTime = System.nanoTime();
                 try {
                     pointService.chargePoint(userId, chargeAmount);
                     successCnt.getAndIncrement();
@@ -87,18 +93,27 @@ public class PointChargeConcurrencyTest {
                     exceptions.add(e);
                 } finally {
                     latch.countDown();
+                    long threadEndTime = System.nanoTime();
+                    threadExecutionTimes.add(threadEndTime - threadStartTime);
                 }
             });
         }
         latch.await();
         executorService.shutdown();
 
+        long endTime = System.nanoTime();
+        long totalExecutionTime = endTime - startTime;
+
         // then
-        assertThat(successCnt.get()).isEqualTo(10);
+        assertThat(successCnt.get()).isEqualTo(threadCount);
         assertThat(failCnt.get()).isEqualTo(0);
 
         Point point = pointJpaRepository.findById(pointId).get();
-        assertThat(point.getBalance()).isEqualTo(chargeAmount * 10);
+        assertThat(point.getBalance()).isEqualTo(chargeAmount * threadCount);
 
+        for (Long threadExecutionTime : threadExecutionTimes) {
+            log.info("thread execution time : {} s", threadExecutionTime / 1_000_000_000.0);
+        }
+        log.info("total execution time : {} s", totalExecutionTime / 1_000_000_000.0);
     }
 }
