@@ -38,7 +38,7 @@ public class PointHistory extends BaseEntity {
     @Column(name = "balance", nullable = false)
     private Integer balance;
 
-    @Column(name = "ref_id", nullable = false)
+    @Column(name = "ref_id")
     private Long refId;
 
     @Builder(access = AccessLevel.PROTECTED)
