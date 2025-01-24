@@ -56,7 +56,7 @@ public class ReservationServiceTest {
         ReservationSeatInfo reservationSeatInfo = ReservationSeatInfo.fromEntity(seat);
 
         // when & then
-        assertThatThrownBy(() -> sut.makeTempReservation(1L, reservationSeatInfo, LocalDateTime.now()))
+        assertThatThrownBy(() -> sut.makeTempReservation(1L, seat.getId(), LocalDateTime.now()))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("User not found");
     }
@@ -89,6 +89,7 @@ public class ReservationServiceTest {
         doReturn(userId).when(mockUser).getId();
         doReturn(reservationId).when(mockReservation).getId();
         doReturn(seatId).when(mockSeat).getId();
+        doReturn(10000).when(mockSeat).getPrice();
         doReturn(concertScheduleId).when(mockConcertSchedule).getId();
         doReturn(concertId).when(mockConcert).getId();
 
@@ -101,10 +102,11 @@ public class ReservationServiceTest {
         given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
         given(concertRepository.findSeatById(anyLong())).willReturn(Optional.of(seat));
         given(reservationRepository.save(any(Reservation.class))).willReturn(mockReservation);
+        given(concertRepository.getReferenceSeatById(seatId)).willReturn(mockSeat);
         ReservationSeatInfo seatInfo = ReservationSeatInfo.fromEntity(mockSeat);
 
         // when
-        ReservationResult reservationResult = sut.makeTempReservation(userId, seatInfo, now);
+        ReservationResult reservationResult = sut.makeTempReservation(userId, seatInfo.seatId(), now);
 
         // then
         assertThat(reservationResult.reservationId()).isEqualTo(reservationId);
