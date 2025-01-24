@@ -23,10 +23,6 @@ public class Point extends BaseEntity {
     @Column(name = "balance", nullable = false)
     private Integer balance;
 
-    @Version
-    @Column(name = "version", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
-    private Long version = 0L;
-
     Point(User user, int balance) {
         this.user = user;
         this.balance = balance;

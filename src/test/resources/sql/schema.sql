@@ -92,7 +92,6 @@ CREATE TABLE `point` (
     `id` bigint PRIMARY KEY AUTO_INCREMENT,
     `user_id` bigint NOT NULL,
     `balance` integer NOT NULL DEFAULT 0,
-    `version` bigint NOT NULL DEFAULT 0,
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
