@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.domain.point.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import kr.hhplus.be.server.domain.point.dto.PointResult;
 import kr.hhplus.be.server.domain.point.entity.Point;
 import kr.hhplus.be.server.domain.point.entity.PointHistory;
@@ -10,6 +11,8 @@ import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,11 @@ public class PointService {
         return Point.create(user);
     }
 
+    @Retryable(
+        retryFor = OptimisticLockException.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
     @Transactional
     public PointResult chargePoint(Long userId, int amount) {
         Point userPoint = pointRepository.findByUserId(userId).orElse(initializePoint(userId));
