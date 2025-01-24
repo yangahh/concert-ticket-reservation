@@ -21,3 +21,4 @@ docker-compose up -d
 ### 5. [API 명세서](https://app.swaggerhub.com/apis-docs/TOAUR6802/concert/1.0.0)
 ### 6. [ERD 설계](https://github.com/yangahh/concert-ticket-reservation/wiki/6.-ERD-%EC%84%A4%EA%B3%84)
 ### 7. [아키텍처 설계](https://github.com/yangahh/concert-ticket-reservation/wiki/7.-%EC%95%84%ED%82%A4%ED%85%8D%EC%B3%90-%EA%B5%AC%EC%A1%B0-%EC%84%A4%EA%B3%84)
+### 8. [콘서트 예매 서비스의 동시성 문제 파악 및 최적화 방안 탐색](https://massive-turn-bcc.notion.site/18104128f957806c9a22c494423d575f?pvs=4)
