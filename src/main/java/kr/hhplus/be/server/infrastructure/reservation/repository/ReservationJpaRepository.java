@@ -27,7 +27,7 @@ public interface ReservationJpaRepository extends JpaRepository<Reservation, Lon
     @Query("UPDATE Reservation r SET r.status = 'CANCELED' WHERE r.tempReservationExpiredAt < :now AND r.status = 'PENDING_PAYMENT'")
     void updatePendingPaymentReservationsToCanceled(LocalDateTime now);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.OPTIMISTIC)
     @Query("SELECT r FROM Reservation r WHERE r.id = :reservationId")
     Optional<Reservation> findByIdWithLock(Long reservationId);
 

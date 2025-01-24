@@ -1,6 +1,9 @@
 package kr.hhplus.be.server.domain.reservation.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.OptimisticLockException;
+import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.concert.dto.ReservationSeatInfo;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
 import kr.hhplus.be.server.domain.concert.entity.SeatMapper;
@@ -11,6 +14,7 @@ import kr.hhplus.be.server.domain.reservation.repository.ReservationRepository;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,10 +37,10 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResult makeTempReservation(Long userId, ReservationSeatInfo reservationSeatInfo, LocalDateTime tempReservationExpiredAt) {
+    public ReservationResult makeTempReservation(Long userId, Long seatId, LocalDateTime tempReservationExpiredAt) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("User not found (id = " + userId + ")"));
-        Seat seat = SeatMapper.mapToEntityFromInfoDto(reservationSeatInfo);
+        Seat seat = concertRepository.getReferenceSeatById(seatId);
 
         Reservation reservation = Reservation.tempReserve(user, seat, tempReservationExpiredAt);
         Reservation saved = reservationRepository.save(reservation);
