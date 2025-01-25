@@ -64,7 +64,7 @@ public class PointChargeConcurrencyTest {
         userJpaRepository.deleteAll();
     }
 
-    @DisplayName("포인트가 0인 사용자가 10,000 포인트 충전을 동시에 10번 충전을 요청할 때, 10번의 요청이 모두 처리되어야 한다.")
+    @DisplayName("포인트가 0인 사용자가 10,000 포인트 충전을 동시에 30번 충전을 요청할 때, 10번의 요청이 모두 처리되어야 한다.")
     @Test
     void concurrencyTest() throws InterruptedException {
         // given
@@ -111,8 +111,8 @@ public class PointChargeConcurrencyTest {
         Point point = pointJpaRepository.findById(pointId).get();
         assertThat(point.getBalance()).isEqualTo(chargeAmount * threadCount);
 
-        for (Long threadExecutionTime : threadExecutionTimes) {
-            log.info("thread execution time : {} s", threadExecutionTime / 1_000_000_000.0);
+        for (int i = 0; i < threadExecutionTimes.size(); i++) {
+            log.info("thread [{}] execution time : {} s", i, threadExecutionTimes.get(i) / 1_000_000_000.0);
         }
         log.info("total execution time : {} s", totalExecutionTime / 1_000_000_000.0);
     }

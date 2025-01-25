@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.tests.reservation.integration;
 
 import kr.hhplus.be.server.application.reservation.usecase.ReservationUseCase;
-import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.concert.entity.Concert;
 import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
@@ -54,7 +53,7 @@ class ReservationConcurrencyTest extends JpaRepositorySupport {
     List<Long> userIds = new ArrayList<>();
     Long seatId;
 
-    int threadCount = 30;
+    int threadCount = 300;
 
     @BeforeEach
     void setUp() {
@@ -75,9 +74,9 @@ class ReservationConcurrencyTest extends JpaRepositorySupport {
         }
     }
 
-    @DisplayName("10명의 사용자가 동시에 같은 좌석에 예약을 요청하면, 예약은 단 한 건만 성공해야 하고 나머지는 실패해야 한다.")
+    @DisplayName("30명의 사용자가 동시에 같은 좌석에 예약을 요청하면, 예약은 단 한 건만 성공해야 하고 나머지는 실패해야 한다.")
     @Test
-    void shouldSuccessOnlyOneReservationWhen100Requests() throws InterruptedException {
+    void shouldSuccessOnlyOneReservationWhen30Requests() throws InterruptedException {
         // given
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
@@ -119,8 +118,8 @@ class ReservationConcurrencyTest extends JpaRepositorySupport {
         List<Reservation> reservations = reservationJpaRepository.findAll();
         assertThat(reservations.size()).isEqualTo(1);
 
-        for (Long threadExecutionTime : threadExecutionTimes) {
-            log.info("thread execution time : {} s", threadExecutionTime / 1_000_000_000.0);
+        for (int i = 0; i < threadExecutionTimes.size(); i++) {
+            log.info("thread [{}] execution time : {} s", i, threadExecutionTimes.get(i) / 1_000_000_000.0);
         }
         log.info("total execution time : {} s", totalExecutionTime / 1_000_000_000.0);
     }

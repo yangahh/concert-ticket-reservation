@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.tests.payment.integration;
 
 import kr.hhplus.be.server.application.payment.usecase.PaymentUseCase;
-import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.concert.entity.Concert;
 import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
@@ -81,7 +80,7 @@ public class PaymentConcurrencyTest extends JpaRepositorySupport {
         tokenUuid = token.getTokenUuid();
     }
 
-    @DisplayName("사용자가 예약한 좌석에 대해 결제 요청을 동시에 10번 시도하면 한 번만 성공해야 한다.")
+    @DisplayName("사용자가 예약한 좌석에 대해 결제 요청을 동시에 30번 시도하면 한 번만 성공해야 한다.")
     @Test
     void concurrencyTest() throws InterruptedException {
         // given
@@ -125,8 +124,8 @@ public class PaymentConcurrencyTest extends JpaRepositorySupport {
         Point point = pointJpaRepository.findById(pointId).get();
         assertThat(point.getBalance()).isEqualTo(balance - price);
 
-        for (Long threadExecutionTime : threadExecutionTimes) {
-            log.info("thread execution time : {} s", threadExecutionTime / 1_000_000_000.0);
+        for (int i = 0; i < threadExecutionTimes.size(); i++) {
+            log.info("thread [{}] execution time : {} s", i, threadExecutionTimes.get(i) / 1_000_000_000.0);
         }
         log.info("total execution time : {} s", totalExecutionTime / 1_000_000_000.0);
     }
