@@ -22,7 +22,7 @@ public interface SeatJpaRepository extends JpaRepository<Seat, Long> {
         "AND cs.eventDate BETWEEN :startDateTime AND :endDateTime")
     Page<Seat> findAllByConcertIdAndEventDate(Long concertId, LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.OPTIMISTIC)
     @Query("SELECT s FROM Seat s WHERE s.id = :seatId")
     Optional<Seat> findByIdWithLock(Long seatId);
 
@@ -37,4 +37,6 @@ public interface SeatJpaRepository extends JpaRepository<Seat, Long> {
         "SET s.isAvailable = true, s.tempReservationExpiredAt = null " +
         "WHERE s.id = :seatId")
     void updateToAvailableById(Long seatId);
+
+    Seat getReferenceById(Long seatId);
 }

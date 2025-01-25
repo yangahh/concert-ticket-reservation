@@ -65,7 +65,7 @@ public class CancelExpiredTempReservationSchedulerTest {
     @BeforeEach
     void setUp() {
         LocalDateTime now = LocalDateTime.now();
-        User user = userJpaRepository.findById(1L).get();  //data.sql에 미리 저장된 사용자
+        User user = userJpaRepository.save(User.create("test"));
         Concert concert = concertJpaRepository.save(Concert.create("concert"));
         ConcertSchedule concertSchedule = concertScheduleJpaRepository.save(ConcertSchedule.create(concert, now.plusDays(2), 1000));
 

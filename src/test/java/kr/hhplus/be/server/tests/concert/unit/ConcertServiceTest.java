@@ -3,8 +3,8 @@ package kr.hhplus.be.server.tests.concert.unit;
 import jakarta.persistence.EntityNotFoundException;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSchedulesResult;
-import kr.hhplus.be.server.domain.concert.dto.ConcertSeatResult;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSeatsResult;
+import kr.hhplus.be.server.domain.concert.dto.ReservationSeatInfo;
 import kr.hhplus.be.server.domain.concert.entity.Concert;
 import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
@@ -176,9 +176,9 @@ class ConcertServiceTest {
         given(concertRepository.saveSeat(spySeat)).willReturn(spySeat);
 
         // when
-        ConcertSeatResult result = sut.reserveSeat(1L, now);
+        ReservationSeatInfo reservationSeatInfo = sut.reserveSeat(1L, now);
 
         // then
-        assertThat(result.isAvailable()).isFalse();
+        assertThat(reservationSeatInfo.isAvailable()).isFalse();
     }
 }

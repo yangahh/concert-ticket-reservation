@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.payment.usecase;
 
+import jakarta.persistence.OptimisticLockException;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.concert.service.ConcertService;
 import kr.hhplus.be.server.domain.point.service.PointService;
@@ -28,22 +29,29 @@ public class PaymentUseCase {
     @Transactional
     public ReservationResult payForReservation(long reservationId, UUID tokenUuid) {
         LocalDateTime now = timeProvider.now();
-        boolean tempReservationExpired = reservationService.isTempReservationExpired(reservationId, now);
 
-        if (tempReservationExpired) {
-            Long seatId = reservationService.getSeatIdByReservationId(reservationId);
-            concertSeatService.releaseSeat(seatId);
-            reservationService.cancelReservation(reservationId);
-            log.warn("Temp reservation expired. reservationId: {}", reservationId);
+        try {
+            boolean tempReservationExpired = reservationService.isTempReservationExpired(reservationId, now);
 
-            throw new UnprocessableEntityException("Temp reservation expired");
+            if (tempReservationExpired) {
+                Long seatId = reservationService.getSeatIdByReservationId(reservationId);
+                concertSeatService.releaseSeat(seatId);
+                reservationService.cancelReservation(reservationId);
+                log.warn("Temp reservation expired. reservationId: {}", reservationId);
+
+                throw new UnprocessableEntityException("Temp reservation expired");
+            }
+
+            ReservationResult reservationResult = reservationService.confirmReservation(reservationId, now);
+            pointService.usePoint(reservationResult.userId(), reservationResult.price(), reservationId);
+
+            queueTokenService.deleteToken(tokenUuid);
+
+            return reservationResult;
+        } catch (OptimisticLockException e) {
+                throw new UnprocessableEntityException("Reservation is not a temporary reservation (id = " + reservationId + ")");
         }
-
-        ReservationResult reservationResult = reservationService.confirmReservation(reservationId, now);
-        pointService.usePoint(reservationResult.userId(), reservationResult.price(), reservationId);
-
-        queueTokenService.deleteToken(tokenUuid);
-
-        return reservationResult;
     }
 }
+
+

@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@Sql("/sql/concert_data.sql")
 public class ConcertIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
@@ -66,7 +68,7 @@ public class ConcertIntegrationTest {
     void getConcertSchedulesTest() throws Exception {
         // given
         String uri = "/concerts/{concertId}/dates";
-        // data.sql 기준 concertId = 1인 schedule이 3개 있음
+        // concert_data.sql 기준 concertId = 1인 schedule이 3개 있음
 
         // when & then
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId)
@@ -88,7 +90,7 @@ public class ConcertIntegrationTest {
     void getConcertSeatsTest() throws Exception {
         // given
         String uri = "/concerts/{concertId}/dates/{date}/seats";
-        String date = "2025-03-31"; // data.sql 기준 해당 날짜에 50개 좌석
+        String date = "2025-03-31"; // concert_data.sql 기준 해당 날짜에 50개 좌석
 
         // when & then
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId, date)

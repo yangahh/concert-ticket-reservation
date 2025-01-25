@@ -72,4 +72,9 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     public void updateSeatToAvailableById(Long seatId) {
         seatJpaRepository.updateToAvailableById(seatId);
     }
+
+    @Override
+    public Seat getReferenceSeatById(Long seatId) {
+        return seatJpaRepository.getReferenceById(seatId);
+    }
 }

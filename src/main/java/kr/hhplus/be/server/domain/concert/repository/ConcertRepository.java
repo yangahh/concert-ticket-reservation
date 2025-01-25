@@ -28,4 +28,5 @@ public interface ConcertRepository {
 
     void updateSeatToAvailableById(Long seatId);
 
+    Seat getReferenceSeatById(Long seatId);
 }

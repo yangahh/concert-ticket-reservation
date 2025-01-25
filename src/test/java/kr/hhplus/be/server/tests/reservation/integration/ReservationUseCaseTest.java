@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.tests.reservation.integration;
 
 import kr.hhplus.be.server.application.reservation.usecase.ReservationUseCase;
+import kr.hhplus.be.server.domain.concert.entity.Concert;
+import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
 import kr.hhplus.be.server.domain.concert.service.ConcertService;
 import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
@@ -26,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 @SpringBootTest
-public class ReservationUsecaseTest {
+public class ReservationUseCaseTest {
     @Autowired
     private ReservationUseCase reservationUsecase;
 
@@ -45,13 +47,23 @@ public class ReservationUsecaseTest {
     @Autowired
     private UserJpaRepository userJpaRepository;
 
+    @Autowired
+    private ConcertJpaRepository concertJpaRepository;
+
+    @Autowired
+    private ConcertScheduleJpaRepository concertScheduleJpaRepository;
+
+
     User user;
     Seat seat;
 
     @BeforeEach
     void setUp() {
-        user = userJpaRepository.findById(1L).get();  //data.sql에 미리 저장된 사용자
-        seat = seatJpaRepository.findById(1L).get();
+        user = userJpaRepository.save(User.create("test"));
+        Concert concert = concertJpaRepository.save(Concert.create("test"));
+        ConcertSchedule concertSchedule = concertScheduleJpaRepository.save(ConcertSchedule.create(concert, LocalDateTime.now().plusDays(1), 50));
+        seat = seatJpaRepository.save(Seat.create(concertSchedule, "1", true, 1000, LocalDateTime.now().plusMinutes(5)));
+
     }
 
     @AfterEach
