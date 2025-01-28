@@ -12,6 +12,7 @@ import kr.hhplus.be.server.utils.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -70,7 +71,7 @@ public class ConcertService {
         concertRepository.updateSeatToAvailableById(seatId);
     }
 
-    @Transactional(timeout = 5)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ReservationSeatInfo reserveSeat(Long seatId, LocalDateTime now) {
         Seat seat = concertRepository.findSeatByIdForUpdate(seatId)
             .orElseThrow(() -> new EntityNotFoundException("Seat not found (id = " + seatId + ")"));

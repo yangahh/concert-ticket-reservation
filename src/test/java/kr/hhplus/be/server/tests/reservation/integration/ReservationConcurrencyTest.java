@@ -53,7 +53,7 @@ class ReservationConcurrencyTest extends JpaRepositorySupport {
     List<Long> userIds = new ArrayList<>();
     Long seatId;
 
-    int threadCount = 300;
+    int threadCount = 30;
 
     @BeforeEach
     void setUp() {

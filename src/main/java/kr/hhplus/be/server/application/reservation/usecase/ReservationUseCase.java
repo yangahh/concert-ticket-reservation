@@ -28,6 +28,11 @@ public class ReservationUseCase {
             return reservationService.makeTempReservation(userId, seatId, now.plusMinutes(5));
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new UnprocessableEntityException("Seat is already reserved (id = " + seatId + ")");
+        } catch (Exception e) {
+            if (!(e instanceof UnprocessableEntityException)) {
+                concertService.releaseSeat(seatId);  // 보상 트랜잭션
+            }
+            throw e;
         }
     }
 }
