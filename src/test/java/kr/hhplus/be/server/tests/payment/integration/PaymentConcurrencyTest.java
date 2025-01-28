@@ -90,6 +90,7 @@ public class PaymentConcurrencyTest extends JpaRepositorySupport {
 
         AtomicInteger successCnt = new AtomicInteger();
         AtomicInteger failCnt = new AtomicInteger();
+        List<Exception> exceptions = new ArrayList<>();
 
         List<Long> threadExecutionTimes = new ArrayList<>();
         long startTime = System.nanoTime();
@@ -104,6 +105,7 @@ public class PaymentConcurrencyTest extends JpaRepositorySupport {
                     successCnt.incrementAndGet();
                 } catch (Exception e) {
                     failCnt.incrementAndGet();
+                    exceptions.add(e);
                 } finally {
                     latch.countDown();
                     long threadEndTime = System.nanoTime();

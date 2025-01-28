@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.domain.concert.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import kr.hhplus.be.server.domain.common.entity.BaseEntity;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import lombok.AccessLevel;

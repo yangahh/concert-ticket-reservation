@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.domain.reservation.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import kr.hhplus.be.server.domain.common.entity.BaseEntity;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
@@ -88,5 +87,10 @@ public class Reservation extends BaseEntity {
             throw new UnprocessableEntityException("Reservation is not a temporary reservation. (id: " + id + ")");
         }
         return tempReservationExpiredAt.isBefore(now);
+    }
+
+    public void rollbackToTempReservation() {
+        this.status = ReservationStatus.PENDING_PAYMENT;
+        this.confirmedAt = null;
     }
 }

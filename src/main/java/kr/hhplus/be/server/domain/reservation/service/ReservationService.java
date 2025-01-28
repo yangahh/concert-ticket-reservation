@@ -1,12 +1,7 @@
 package kr.hhplus.be.server.domain.reservation.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.LockModeType;
-import jakarta.persistence.OptimisticLockException;
-import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
-import kr.hhplus.be.server.domain.concert.dto.ReservationSeatInfo;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
-import kr.hhplus.be.server.domain.concert.entity.SeatMapper;
 import kr.hhplus.be.server.domain.concert.repository.ConcertRepository;
 import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.entity.Reservation;
@@ -14,13 +9,15 @@ import kr.hhplus.be.server.domain.reservation.repository.ReservationRepository;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Lock;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -58,7 +55,7 @@ public class ReservationService {
         return reservation.isTempReservationExpired(now);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ReservationResult confirmReservation(Long reservationId, LocalDateTime now) {
         Reservation reservation = reservationRepository.findByIdForUpdate(reservationId)
             .orElseThrow(() -> new EntityNotFoundException("Reservation not found (id = " + reservationId + ")"));
@@ -67,7 +64,6 @@ public class ReservationService {
         return ReservationResult.fromEntity(saved);
     }
 
-    @Transactional
     public void cancelReservation(Long reservationId) {
         Reservation reservation = getReservation(reservationId);
         reservation.cancel();
@@ -80,4 +76,9 @@ public class ReservationService {
         return reservation.getSeat().getId();
     }
 
+    public void rollbackToTempReservation(Long reservationId) {
+        Reservation reservation = getReservation(reservationId);
+        reservation.rollbackToTempReservation();
+        reservationRepository.save(reservation);
+    }
 }
