@@ -40,6 +40,8 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.0")
 	implementation("p6spy:p6spy:3.9.1")
 	implementation("com.github.gavlyukovskiy:datasource-decorator-spring-boot-autoconfigure:1.9.2")
+	implementation("org.springframework.retry:spring-retry")
+	implementation("org.aspectj:aspectjweaver")
 
 	// DB
 	runtimeOnly("com.mysql:mysql-connector-j")

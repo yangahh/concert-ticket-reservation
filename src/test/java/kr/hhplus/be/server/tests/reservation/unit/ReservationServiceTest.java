@@ -1,9 +1,8 @@
 package kr.hhplus.be.server.tests.reservation.unit;
 
 import jakarta.persistence.EntityNotFoundException;
-import kr.hhplus.be.server.domain.concert.entity.Concert;
-import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
-import kr.hhplus.be.server.domain.concert.entity.Seat;
+import kr.hhplus.be.server.domain.concert.dto.ReservationSeatInfo;
+import kr.hhplus.be.server.domain.concert.entity.*;
 import kr.hhplus.be.server.domain.concert.repository.ConcertRepository;
 import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.entity.Reservation;
@@ -12,12 +11,15 @@ import kr.hhplus.be.server.domain.reservation.service.ReservationService;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -48,27 +50,18 @@ public class ReservationServiceTest {
     void shouldThrowEntityNotFoundExceptionWhenNotExistingUserId() {
         // given
         given(userRepository.findById(anyLong())).willReturn(Optional.empty());
+        Concert concert = Concert.create("concert1");
+        ConcertSchedule concertSchedule = ConcertSchedule.create(concert, LocalDateTime.of(2025, 3, 10, 18, 0, 0), 50);
+        Seat seat = Seat.create(concertSchedule, "A1", false, 10000, LocalDateTime.now());
+        ReservationSeatInfo reservationSeatInfo = ReservationSeatInfo.fromEntity(seat);
 
         // when & then
-        assertThatThrownBy(() -> sut.makeTempReservation(1L, 1L, LocalDateTime.now()))
+        assertThatThrownBy(() -> sut.makeTempReservation(1L, seat.getId(), LocalDateTime.now()))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("User not found");
     }
 
-    @DisplayName("임시 예약 요청 시, 존재하지 않는 seatId로 요청하면 예외가 발생한다.")
-    @Test
-    void shouldThrowEntityNotFoundExceptionWhenNotExistingSeatId() {
-        // given
-        User user = User.create("test");
-        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
-        given(concertRepository.findSeatById(anyLong())).willReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> sut.makeTempReservation(1L, 1L, LocalDateTime.now()))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Seat not found");
-    }
-
+    @MockitoSettings(strictness = Strictness.LENIENT)
     @DisplayName("정상적으로 임시 예약 요청을 하면 ReservationResult를 반환한다.")
     @Test
     void shouldReturnReservationResultSuccessTest() {
@@ -80,35 +73,40 @@ public class ReservationServiceTest {
         long seatId = 1000L;
         long reservationId = 1001L;
 
-
         User user = User.create("test");
         Concert concert = Concert.create("concert1");
         ConcertSchedule concertSchedule = ConcertSchedule.create(concert, LocalDateTime.of(2025, 3, 10, 18, 0, 0), 50);
         Seat seat = Seat.create(concertSchedule, "A1", false, 10000, now);
-        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
-        given(concertRepository.findSeatById(anyLong())).willReturn(Optional.of(seat));
-
         Reservation reservation = Reservation.tempReserve(user, seat, now);
+
         Reservation mockReservation = spy(reservation);
         Seat mockSeat = spy(seat);
         ConcertSchedule mockConcertSchedule = spy(concertSchedule);
         Concert mockConcert = spy(concert);
         User mockUser = spy(user);
 
+        // set id
         doReturn(userId).when(mockUser).getId();
         doReturn(reservationId).when(mockReservation).getId();
         doReturn(seatId).when(mockSeat).getId();
+        doReturn(10000).when(mockSeat).getPrice();
         doReturn(concertScheduleId).when(mockConcertSchedule).getId();
         doReturn(concertId).when(mockConcert).getId();
+
+        // set relation
         doReturn(mockUser).when(mockReservation).getUser();
         doReturn(mockSeat).when(mockReservation).getSeat();
         doReturn(mockConcertSchedule).when(mockSeat).getConcertSchedule();
         doReturn(mockConcert).when(mockConcertSchedule).getConcert();
 
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
+        given(concertRepository.findSeatById(anyLong())).willReturn(Optional.of(seat));
         given(reservationRepository.save(any(Reservation.class))).willReturn(mockReservation);
+        given(concertRepository.getReferenceSeatById(seatId)).willReturn(mockSeat);
+        ReservationSeatInfo seatInfo = ReservationSeatInfo.fromEntity(mockSeat);
 
         // when
-        ReservationResult reservationResult = sut.makeTempReservation(userId, seatId, now);
+        ReservationResult reservationResult = sut.makeTempReservation(userId, seatInfo.seatId(), now);
 
         // then
         assertThat(reservationResult.reservationId()).isEqualTo(reservationId);

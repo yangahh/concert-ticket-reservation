@@ -20,14 +20,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Transactional
 public class CancelExpiredTempReservationSchedulerTest {
     @Autowired
     private CancelExpiredTempReservationScheduler scheduler;
@@ -65,22 +63,21 @@ public class CancelExpiredTempReservationSchedulerTest {
     @BeforeEach
     void setUp() {
         LocalDateTime now = LocalDateTime.now();
-        User user = userJpaRepository.findById(1L).get();  //data.sql에 미리 저장된 사용자
+        User user = userJpaRepository.save(User.create("test"));
         Concert concert = concertJpaRepository.save(Concert.create("concert"));
         ConcertSchedule concertSchedule = concertScheduleJpaRepository.save(ConcertSchedule.create(concert, now.plusDays(2), 1000));
 
         // 만료된 임시 예약
         Seat seat1 = Seat.create(concertSchedule, "1", false, 1000, now.minusMinutes(10));
         expiredSeat = seatJpaRepository.save(seat1);
-        Reservation expired = Reservation.tempReserve(user, seat1, now.minusMinutes(10));
+        Reservation expired = Reservation.tempReserve(user, expiredSeat, now.minusMinutes(10));
         expiredReservation = reservationJpaRepository.save(expired);
 
         // 유효한 임시 예약
-        Seat seat2 = Seat.create(concertSchedule, "1", false, 1000, now.plusMinutes(10));
+        Seat seat2 = Seat.create(concertSchedule, "2", false, 1000, now.plusMinutes(10));
         validSeat = seatJpaRepository.save(seat2);
-        Reservation valid = Reservation.tempReserve(user, seat2, now.plusMinutes(10));
+        Reservation valid = Reservation.tempReserve(user, validSeat, now.plusMinutes(10));
         validReservation = reservationJpaRepository.save(valid);
-
     }
 
     @DisplayName("임시 예약 만료 시간이 지난 예약의 상태를 변경하고 해당 좌석을 예약 가능한 상태로 변경한다.")

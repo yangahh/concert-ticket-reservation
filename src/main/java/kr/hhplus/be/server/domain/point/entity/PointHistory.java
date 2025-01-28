@@ -15,13 +15,14 @@ import lombok.NoArgsConstructor;
 @Table(name = "point_history",
     indexes = {
         @Index(name = "idx_point_history_ref_id", columnList = "ref_id"),
+        @Index(name = "idx_point_history_point_id", columnList = "point_id"),
     })
 public class PointHistory extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "point_id", nullable = false)
+    @JoinColumn(name = "point_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Point point;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,7 +39,7 @@ public class PointHistory extends BaseEntity {
     @Column(name = "balance", nullable = false)
     private Integer balance;
 
-    @Column(name = "ref_id", nullable = false)
+    @Column(name = "ref_id")
     private Long refId;
 
     @Builder(access = AccessLevel.PROTECTED)

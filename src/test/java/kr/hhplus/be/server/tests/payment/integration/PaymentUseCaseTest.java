@@ -2,6 +2,8 @@ package kr.hhplus.be.server.tests.payment.integration;
 
 import kr.hhplus.be.server.application.payment.usecase.PaymentUseCase;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
+import kr.hhplus.be.server.domain.concert.entity.Concert;
+import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
 import kr.hhplus.be.server.domain.point.entity.Point;
 import kr.hhplus.be.server.domain.point.entity.PointHistory;
@@ -11,6 +13,8 @@ import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.entity.Reservation;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
 import kr.hhplus.be.server.domain.user.entity.User;
+import kr.hhplus.be.server.infrastructure.concert.repository.ConcertJpaRepository;
+import kr.hhplus.be.server.infrastructure.concert.repository.ConcertScheduleJpaRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.SeatJpaRepository;
 import kr.hhplus.be.server.infrastructure.point.repository.PointHistoryJpaRepository;
 import kr.hhplus.be.server.infrastructure.point.repository.PointJpaRepository;
@@ -25,7 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,7 +37,6 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 
 @SpringBootTest
-@Transactional
 public class PaymentUseCaseTest {
     @Autowired
     private PaymentUseCase paymentUseCase;
@@ -47,6 +49,12 @@ public class PaymentUseCaseTest {
 
     @Autowired
     private UserJpaRepository userJpaRepository;
+
+    @Autowired
+    private ConcertJpaRepository concertJpaRepository;
+
+    @Autowired
+    private ConcertScheduleJpaRepository concertScheduleJpaRepository;
 
     @Autowired
     private ReservationJpaRepository reservationJpaRepository;
@@ -66,16 +74,22 @@ public class PaymentUseCaseTest {
     User user;
     QueueToken token;
     Point userPoint;
+    Concert concert;
+    ConcertSchedule concertSchedule;
+
 
     @BeforeEach
     void setUp() {
-        token = QueueToken.createWaitingToken(1L, 1L, timeProvider);
+        user = userJpaRepository.save(User.create("test"));
+        token = QueueToken.createWaitingToken(user.getId(), 1L, timeProvider);
         token.activate();
         queueTokenJpaRepository.save(token);
-        user = userJpaRepository.findById(1L).get();
         userPoint = Point.create(user);
         userPoint.plus(1_000_000);
         userPoint = pointJpaRepository.save(userPoint);
+
+        concert = concertJpaRepository.save(Concert.create("test"));
+        concertSchedule = concertScheduleJpaRepository.save(ConcertSchedule.create(concert, timeProvider.now().plusDays(1), 50));
     }
 
     @AfterEach
@@ -84,13 +98,15 @@ public class PaymentUseCaseTest {
         pointJpaRepository.deleteAll();
         queueTokenJpaRepository.deleteAll();
         reservationJpaRepository.deleteAll();
+        seatJpaRepository.deleteAll();
+        userJpaRepository.deleteAll();
     }
 
-    @DisplayName("결제 성공")
+    @DisplayName("정상적으로 저장된 예약에 대해서 유효시간 안에 결제 요청 시 결제에 성공한다.")
     @Test
     void payForReservationSuccessTest() {
         // given
-        Seat seat = seatJpaRepository.findById(1L).get();
+        Seat seat = Seat.create(concertSchedule, "A", true, 10000, timeProvider.now().plusMinutes(5));
         seat.reserve(timeProvider.now());
         seat = seatJpaRepository.save(seat);
         Reservation tempReservation = reservationJpaRepository.save(Reservation.tempReserve(user, seat, timeProvider.now().plusMinutes(5)));
@@ -111,7 +127,7 @@ public class PaymentUseCaseTest {
     @Test
     void shouldFailToPayForReservationWhenTempReservationExpired() {
         // given
-        Seat seat = seatJpaRepository.findById(2L).get();
+        Seat seat = Seat.create(concertSchedule, "A", true, 10000, timeProvider.now().minusMinutes(5));
         seat.reserve(timeProvider.now());
         seat = seatJpaRepository.save(seat);
         Reservation tempReservation = reservationJpaRepository.save(Reservation.tempReserve(user, seat, timeProvider.now().minusMinutes(5)));
@@ -121,7 +137,7 @@ public class PaymentUseCaseTest {
             .isInstanceOf(UnprocessableEntityException.class)
             .hasMessage("Temp reservation expired");
 
-        Seat afterSeat = seatJpaRepository.findById(2L).get();
+        Seat afterSeat = seatJpaRepository.findById(seat.getId()).get();
         assertThat(afterSeat.getIsAvailable()).isTrue();
         assertThat(afterSeat.getTempReservationExpiredAt()).isNull();
         assertThat(reservationJpaRepository.findById(tempReservation.getId()).get().getStatus()).isEqualTo(ReservationStatus.CANCELED);
