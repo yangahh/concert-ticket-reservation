@@ -64,6 +64,7 @@ public class ReservationService {
         return ReservationResult.fromEntity(saved);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void cancelReservation(Long reservationId) {
         Reservation reservation = getReservation(reservationId);
         reservation.cancel();
@@ -76,6 +77,7 @@ public class ReservationService {
         return reservation.getSeat().getId();
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void rollbackToTempReservation(Long reservationId) {
         Reservation reservation = getReservation(reservationId);
         reservation.rollbackToTempReservation();

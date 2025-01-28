@@ -66,7 +66,7 @@ public class ConcertService {
         concertRepository.updateSeatsToAvailableByIds(seatIds);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void releaseSeat(Long seatId) {
         concertRepository.updateSeatToAvailableById(seatId);
     }

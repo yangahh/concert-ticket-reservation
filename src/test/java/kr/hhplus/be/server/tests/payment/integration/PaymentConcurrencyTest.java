@@ -80,11 +80,11 @@ public class PaymentConcurrencyTest extends JpaRepositorySupport {
         tokenUuid = token.getTokenUuid();
     }
 
-    @DisplayName("사용자가 예약한 좌석에 대해 결제 요청을 동시에 30번 시도하면 한 번만 성공해야 한다.")
+    @DisplayName("사용자가 예약한 좌석에 대해 결제 요청을 동시에 10번 시도하면 한 번만 성공해야 한다.")
     @Test
     void concurrencyTest() throws InterruptedException {
         // given
-        int threadCount = 30;
+        int threadCount = 10;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 

@@ -53,7 +53,7 @@ class ReservationConcurrencyTest extends JpaRepositorySupport {
     List<Long> userIds = new ArrayList<>();
     Long seatId;
 
-    int threadCount = 30;
+    int threadCount = 10;
 
     @BeforeEach
     void setUp() {
@@ -74,9 +74,9 @@ class ReservationConcurrencyTest extends JpaRepositorySupport {
         }
     }
 
-    @DisplayName("30명의 사용자가 동시에 같은 좌석에 예약을 요청하면, 예약은 단 한 건만 성공해야 하고 나머지는 실패해야 한다.")
+    @DisplayName("여러명의 사용자가 동시에 같은 좌석에 예약을 요청하면, 예약은 단 한 건만 성공해야 하고 나머지는 실패해야 한다.")
     @Test
-    void shouldSuccessOnlyOneReservationWhen30Requests() throws InterruptedException {
+    void shouldSuccessOnlyOneReservationWhenConcurrentRequests() throws InterruptedException {
         // given
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);

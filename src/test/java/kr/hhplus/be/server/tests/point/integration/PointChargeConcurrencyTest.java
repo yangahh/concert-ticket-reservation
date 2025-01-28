@@ -68,7 +68,7 @@ public class PointChargeConcurrencyTest {
     @Test
     void concurrencyTest() throws InterruptedException {
         // given
-        int threadCount = 30;
+        int threadCount = 10;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 

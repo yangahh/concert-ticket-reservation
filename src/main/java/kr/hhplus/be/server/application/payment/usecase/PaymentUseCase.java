@@ -32,7 +32,10 @@ public class PaymentUseCase {
         LocalDateTime now = timeProvider.now();
         try {
             boolean tempReservationExpired = reservationService.isTempReservationExpired(reservationId, now);
-            handelExpiredReservation(reservationId, tempReservationExpired);
+            if (tempReservationExpired) {
+                handelExpiredReservation(reservationId);
+                throw new UnprocessableEntityException("Temp reservation expired");
+            }
 
             ReservationResult reservationResult = reservationService.confirmReservation(reservationId, now);
             pointService.usePoint(reservationResult.userId(), reservationResult.price(), reservationId);
@@ -50,15 +53,12 @@ public class PaymentUseCase {
         }
     }
 
-    private void handelExpiredReservation(long reservationId, boolean tempReservationExpired) {
-        if (tempReservationExpired) {
-            Long seatId = reservationService.getSeatIdByReservationId(reservationId);
-            concertSeatService.releaseSeat(seatId);
-            reservationService.cancelReservation(reservationId);
-            log.warn("Temp reservation expired. reservationId: {}", reservationId);
+    public void handelExpiredReservation(long reservationId) {
+        Long seatId = reservationService.getSeatIdByReservationId(reservationId);
+        concertSeatService.releaseSeat(seatId);
+        reservationService.cancelReservation(reservationId);
 
-            throw new UnprocessableEntityException("Temp reservation expired");
-        }
+        log.warn("Temp reservation expired. reservationId: {}", reservationId);
     }
 
 }
