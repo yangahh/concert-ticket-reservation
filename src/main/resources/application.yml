@@ -17,23 +17,27 @@ spring:
   jpa:
     open-in-view: false
     generate-ddl: false
-#    show-sql: false
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         timezone.default_storage: NORMALIZE_UTC
-#        format_sql: true
+        format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
         default_batch_fetch_size: 100
         jdbc:
           time_zone: UTC
           batch_size: 50
+  data:
+    redis:
+      host: localhost
+      port: 6379
 logging:
   level:
     p6spy: info
     root: INFO
     org.springframework: INFO
+    org.springframework.cache: TRACE
 
 springdoc:
 #  packages-to-scan: kr.hhplus.be.server  # 문서화할 패키지를 지정
