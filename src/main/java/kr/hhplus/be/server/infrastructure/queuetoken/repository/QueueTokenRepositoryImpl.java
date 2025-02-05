@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,38 +23,34 @@ public class QueueTokenRepositoryImpl implements QueueTokenRepository {
     }
 
     @Override
-    public Optional<QueueToken> findByTokenUuid(UUID tokenUuid) {
+    public Optional<QueueToken> findByConcertIdAndTokenUuid(Long concertId, UUID tokenUuid) {
         return jpaRepository.findByTokenUuid(tokenUuid);
     }
 
     @Override
-    public void deleteExpiredTokens() {
+    public void deleteExpiredTokens(Long concertId) {
         jpaRepository.deleteByExpiredAtBefore(timeProvider.now());
     }
 
     @Override
-    public int countActiveTokens() {
-        return jpaRepository.countByIsActive(true);
+    public int countActiveTokens(Long concertId) {
+        return jpaRepository.countByConcertIdAndIsActive(concertId, true);
     }
 
     @Override
-    public List<Long> findOldestWaitingTokensIds(int limit) {
-        return jpaRepository.findOldestWaitingTokenIds(Pageable.ofSize(limit));
+    public void activateTokensByConcertId(Long concertId, int countToActivate) {
+        List<Long> oldestWaitingTokenIds = jpaRepository.findOldestWaitingTokenIds(Pageable.ofSize(countToActivate));
+        jpaRepository.updateOldestWaitingTokensToActive(oldestWaitingTokenIds);
     }
 
     @Override
-    public void updateOldestWaitingTokensToActive(List<Long> ids) {
-        jpaRepository.updateOldestWaitingTokensToActive(ids);
-    }
-
-    @Override
-    public int countWaitingTokensAhead(Long concertId, LocalDateTime referenceCreatedAt) {
+    public int countWaitingTokensAhead(QueueToken queueToken) {
         return jpaRepository.countByConcertIdAndCreatedAtBeforeAndExpiredAtAfterAndIsActive(
-            concertId, referenceCreatedAt, timeProvider.now(), false);
+            queueToken.getConcertId(), queueToken.getCreatedAt(), timeProvider.now(), false);
     }
 
     @Override
-    public void deleteByUuid(UUID tokenUuid) {
+    public void deleteByConcertIdAndUuid(Long concertId, UUID tokenUuid) {
         jpaRepository.deleteByTokenUuid(tokenUuid);
     }
 }
