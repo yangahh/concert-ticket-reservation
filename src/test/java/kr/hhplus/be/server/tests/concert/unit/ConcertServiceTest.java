@@ -65,7 +65,7 @@ class ConcertServiceTest {
         int offset = 0;
         int limit = 10;
         Page<ConcertSchedule> mockPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(offset / limit, limit), 0);
-        Concert concert = Concert.create("test");
+        Concert concert = Concert.create("test", LocalDateTime.now());
         given(concertRepository.findConcertById(anyLong())).willReturn(Optional.of(concert));
         given(concertRepository.findConcertSchedulesByConcertId(concertId, offset, limit)).willReturn(mockPage);
 
@@ -96,7 +96,7 @@ class ConcertServiceTest {
         given(timeProvider.now()).willReturn(LocalDateTime.now());
 
         LocalDate searchDate = LocalDate.now().minusDays(1);
-        Concert concert = Concert.create("test");
+        Concert concert = Concert.create("test", LocalDateTime.now());
         given(concertRepository.findConcertById(anyLong())).willReturn(Optional.of(concert));
 
         // when & then
@@ -117,7 +117,7 @@ class ConcertServiceTest {
         int limit = 10;
         Page<Seat> mockPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(offset / limit, limit), 0); // 결과가 0건인 Page 객체 생성
 
-        Concert concert = Concert.create("test");
+        Concert concert = Concert.create("test", LocalDateTime.now());
         given(concertRepository.findConcertById(concertId)).willReturn(Optional.of(concert));
         given(concertRepository.findSeatsByConcertSchedule(concertId, searchDate, offset, limit)).willReturn(mockPage);
 
@@ -145,7 +145,7 @@ class ConcertServiceTest {
     @DisplayName("예약을 위해 좌석 조회 시, 좌석이 이미 예약되어 있으면 예외가 발생한다.")
     void shouldThrowEntityNotFoundExceptionWhenSeatIsAlreadyReserved() {
         // given
-        Concert concert = Concert.create("test");
+        Concert concert = Concert.create("test", LocalDateTime.now());
         ConcertSchedule concertSchedule = ConcertSchedule.create(concert, LocalDateTime.now(), 1);
         Seat seat = Seat.create(concertSchedule, "A1", false, 10000, LocalDateTime.now().plusMinutes(5));
         given(concertRepository.findSeatByIdForUpdate(1L)).willReturn(Optional.of(seat));
@@ -161,7 +161,7 @@ class ConcertServiceTest {
     void shouldReturnTrueWhenSeatIsAvailable() {
         // given
         LocalDateTime now = LocalDateTime.now();
-        Concert concert = Concert.create("concert1");
+        Concert concert = Concert.create("concert1", now);
         ConcertSchedule concertSchedule = ConcertSchedule.create(concert, LocalDateTime.of(2025, 3, 10, 18, 0, 0), 50);
 
         Seat seat = Seat.create(concertSchedule, "A1", true, 10000, now.plusMinutes(5));

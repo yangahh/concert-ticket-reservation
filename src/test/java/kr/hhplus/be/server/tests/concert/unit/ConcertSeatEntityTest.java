@@ -21,7 +21,7 @@ public class ConcertSeatEntityTest {
         // given
         LocalDateTime mockPastTime = LocalDateTime.of(2025, 1, 1, 0, 0, 0);
 
-        Concert concert = Concert.create("test");
+        Concert concert = Concert.create("test", LocalDateTime.now());
         ConcertSchedule concertSchedule = ConcertSchedule.create(concert, LocalDateTime.now(), 1);
         Seat seatForExpiredReservation = Seat.create(concertSchedule, "A1", false, 10000, mockPastTime);
 
@@ -36,7 +36,7 @@ public class ConcertSeatEntityTest {
     @Test
     void isAvailableNow_shouldReturnFalseWhenNotExpiredTempReservation() {
         // given
-        Concert concert = Concert.create("test");
+        Concert concert = Concert.create("test", LocalDateTime.now());
         ConcertSchedule concertSchedule = ConcertSchedule.create(concert, LocalDateTime.now(), 1);
         Seat seatForNotExpiredReservation = Seat.create(concertSchedule, "A1", false, 10000, LocalDateTime.now().plusMinutes(10));
 

@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Entity
 @Table(name = "concert")
@@ -16,16 +18,15 @@ public class Concert extends BaseEntity {
 
     private String title;
 
-    Concert(Long id, String title) {
-        this.id = id;
+    @Column(columnDefinition = "DATETIME")
+    private LocalDateTime reservationOpenDateTime;
+
+    Concert(String title, LocalDateTime reservationOpenDateTime) {
         this.title = title;
+        this.reservationOpenDateTime = reservationOpenDateTime;
     }
 
-    Concert(String title) {
-        this.title = title;
-    }
-
-    public static Concert create(String title) {
-        return new Concert(title);
+    public static Concert create(String title, LocalDateTime reservationOpenDateTime) {
+        return new Concert(title, reservationOpenDateTime);
     }
 }

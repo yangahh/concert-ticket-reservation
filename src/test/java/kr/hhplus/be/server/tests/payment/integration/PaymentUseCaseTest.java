@@ -88,7 +88,7 @@ public class PaymentUseCaseTest {
         userPoint.plus(1_000_000);
         userPoint = pointJpaRepository.save(userPoint);
 
-        concert = concertJpaRepository.save(Concert.create("test"));
+        concert = concertJpaRepository.save(Concert.create("test", timeProvider.now()));
         concertSchedule = concertScheduleJpaRepository.save(ConcertSchedule.create(concert, timeProvider.now().plusDays(1), 50));
     }
 

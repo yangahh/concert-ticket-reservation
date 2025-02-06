@@ -50,7 +50,7 @@ public class ReservationServiceTest {
     void shouldThrowEntityNotFoundExceptionWhenNotExistingUserId() {
         // given
         given(userRepository.findById(anyLong())).willReturn(Optional.empty());
-        Concert concert = Concert.create("concert1");
+        Concert concert = Concert.create("concert1", LocalDateTime.now());
         ConcertSchedule concertSchedule = ConcertSchedule.create(concert, LocalDateTime.of(2025, 3, 10, 18, 0, 0), 50);
         Seat seat = Seat.create(concertSchedule, "A1", false, 10000, LocalDateTime.now());
         ReservationSeatInfo reservationSeatInfo = ReservationSeatInfo.fromEntity(seat);
@@ -74,7 +74,7 @@ public class ReservationServiceTest {
         long reservationId = 1001L;
 
         User user = User.create("test");
-        Concert concert = Concert.create("concert1");
+        Concert concert = Concert.create("concert1", LocalDateTime.now());
         ConcertSchedule concertSchedule = ConcertSchedule.create(concert, LocalDateTime.of(2025, 3, 10, 18, 0, 0), 50);
         Seat seat = Seat.create(concertSchedule, "A1", false, 10000, now);
         Reservation reservation = Reservation.tempReserve(user, seat, now);
@@ -166,7 +166,7 @@ public class ReservationServiceTest {
         long reservationId = 1L;
 
         User user = User.create("test");
-        Concert concert = Concert.create("concert1");
+        Concert concert = Concert.create("concert1", LocalDateTime.now());
         ConcertSchedule concertSchedule = ConcertSchedule.create(concert, LocalDateTime.of(2025, 3, 10, 18, 0, 0), 50);
         Seat seat = Seat.create(concertSchedule, "A1", false, 10000, now);
 

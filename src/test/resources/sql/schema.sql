@@ -35,6 +35,7 @@ CREATE INDEX idx_queue_token_concert_id ON queue_token(concert_id);
 CREATE TABLE `concert` (
     `id` bigint PRIMARY KEY AUTO_INCREMENT,
     `title` varchar(255) NOT NULL,
+    `reservation_open_date_time` datetime NOT NULL,
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

@@ -3,8 +3,12 @@ INSERT INTO `users` (`id`, `username`, `created_at`, `updated_at`) VALUES
     (1, 'test_user', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Insert into concert
-INSERT INTO `concert` (`id`, `title`, `created_at`, `updated_at`) VALUES
-    (1, 'Test Concert', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `concert` (`id`, `title`, `reservation_open_date_time`, `created_at`, `updated_at`) VALUES
+    (1, 'Test Concert1', '2024-12-01 11:00:00', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `concert` (`id`, `title`, `reservation_open_date_time`, `created_at`, `updated_at`) VALUES
+    (2, 'Test Concert2', '2025-05-01 11:00:00', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO `concert` (`id`, `title`, `reservation_open_date_time`, `created_at`, `updated_at`) VALUES
+    (3, 'Test Concert3', '2026-12-01 11:00:00', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Insert into concert_schedule
 INSERT INTO `concert_schedule` (`id`, `concert_id`, `event_date`, `total_seat_count`, `created_at`, `updated_at`) VALUES

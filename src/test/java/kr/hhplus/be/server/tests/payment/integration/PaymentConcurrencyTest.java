@@ -62,7 +62,7 @@ public class PaymentConcurrencyTest extends JpaRepositorySupport {
     @BeforeEach
     void setUp() {
         user = userJpaRepository.save(User.create("test"));
-        Concert concert = concertJpaRepository.save(Concert.create("test"));
+        Concert concert = concertJpaRepository.save(Concert.create("test", timeProvider.now()));
         ConcertSchedule schedule = concertScheduleJpaRepository.save(ConcertSchedule.create(concert, timeProvider.now(), 50));
         seat = Seat.create(schedule, "1", true, price, timeProvider.now().plusMinutes(5));
         seat.reserve(timeProvider.now());

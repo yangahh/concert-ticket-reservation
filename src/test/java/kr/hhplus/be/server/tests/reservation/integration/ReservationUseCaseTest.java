@@ -60,7 +60,7 @@ public class ReservationUseCaseTest {
     @BeforeEach
     void setUp() {
         user = userJpaRepository.save(User.create("test"));
-        Concert concert = concertJpaRepository.save(Concert.create("test"));
+        Concert concert = concertJpaRepository.save(Concert.create("test", LocalDateTime.now()));
         ConcertSchedule concertSchedule = concertScheduleJpaRepository.save(ConcertSchedule.create(concert, LocalDateTime.now().plusDays(1), 50));
         seat = seatJpaRepository.save(Seat.create(concertSchedule, "1", true, 1000, LocalDateTime.now().plusMinutes(5)));
 
