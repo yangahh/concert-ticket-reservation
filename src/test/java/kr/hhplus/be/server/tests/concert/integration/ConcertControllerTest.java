@@ -1,10 +1,7 @@
 package kr.hhplus.be.server.tests.concert.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.hhplus.be.server.domain.concert.dto.ConcertScheduleResult;
-import kr.hhplus.be.server.domain.concert.dto.ConcertSchedulesResult;
-import kr.hhplus.be.server.domain.concert.dto.ConcertSeatResult;
-import kr.hhplus.be.server.domain.concert.dto.ConcertSeatsResult;
+import kr.hhplus.be.server.domain.concert.dto.*;
 import kr.hhplus.be.server.domain.concert.service.ConcertService;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.interfaces.api.concert.controller.ConcertController;
@@ -17,11 +14,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,6 +38,43 @@ class ConcertControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @DisplayName("콘서트 목록 조회: 파라미터에 날짜를 입력하지 않으면 조회에 실패한다.")
+    @Test
+    void shouldFailWhenDateIsNotProvided() throws Exception {
+        // given
+        String uri = "/concerts";
+
+        // when  // then
+        mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("콘서트 목록 조회: offset, limit을 입력하지 않아도 기본 값인 offset=0, limit=100으로 조회에 성공한다.")
+    @Test
+    void shouldSuccessWhenOffsetAndLimitIsNotProvided() throws Exception {
+        // given
+        String uri = "/concerts";
+        ConcertsResult mockResult = ConcertsResult.builder()
+            .concerts(List.of(
+                ConcertResult.builder().concertId(1L).concertName("concert1").reservationOpenDateTime(LocalDateTime.now()).build(),
+                ConcertResult.builder().concertId(2L).concertName("concert2").reservationOpenDateTime(LocalDateTime.now()).build()))
+            .offset(0)
+            .limit(100)
+            .total(2)
+            .build();
+
+        given(concertService.getConcertsAfterDate(any(), anyInt(), anyInt())).willReturn(mockResult);
+        LocalDate today = LocalDate.now();
+
+        // when  // then
+        mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("date", today.toString()))
+                .andExpect(status().isOk());
+    }
 
     @DisplayName("예약 가능한 날짜 조회: 잘못된 형식의 token으로 조회에 실패한다.")
     @Test

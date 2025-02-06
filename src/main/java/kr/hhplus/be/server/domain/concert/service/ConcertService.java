@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSchedulesResult;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSeatsResult;
+import kr.hhplus.be.server.domain.concert.dto.ConcertsResult;
 import kr.hhplus.be.server.domain.concert.dto.ReservationSeatInfo;
 import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
@@ -26,6 +27,13 @@ import java.util.Optional;
 public class ConcertService {
     private final ConcertRepository concertRepository;
     private final TimeProvider timeProvider;
+
+    public ConcertsResult getConcertsAfterDate(LocalDate date, Optional<Integer> offset, Optional<Integer> limit) {
+        int offsetValue = offset.orElse(0);
+        int limitValue = limit.orElse(100);
+
+        return ConcertsResult.fromPage(concertRepository.findConcertsAfterDate(date, offsetValue, limitValue));
+    }
 
     public ConcertSchedulesResult getConcertSchedules(
             Long concertId, Optional<Integer> offset, Optional<Integer> limit) {

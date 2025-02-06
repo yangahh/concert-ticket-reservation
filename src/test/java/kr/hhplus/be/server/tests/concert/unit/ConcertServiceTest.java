@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSchedulesResult;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSeatsResult;
+import kr.hhplus.be.server.domain.concert.dto.ConcertsResult;
 import kr.hhplus.be.server.domain.concert.dto.ReservationSeatInfo;
 import kr.hhplus.be.server.domain.concert.entity.Concert;
 import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
@@ -44,6 +45,24 @@ class ConcertServiceTest {
 
     @Mock
     private TimeProvider timeProvider;
+
+    @DisplayName("콘서트 조회: 주어진 날짜 이후에 예약이 시작되는 콘서트가 없으면 빈 목록을 반환한다.")
+    @Test
+    void shouldReturnEmptyListWhenNoConcertsAfterDate() {
+        // given
+        LocalDate date = LocalDate.of(2030, 1, 1);
+        int offset = 0;
+        int limit = 10;
+        Page<Concert> mockPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(offset / limit, limit), 0);
+        given(concertRepository.findConcertsAfterDate(date, offset, limit)).willReturn(mockPage);
+
+        // when
+        ConcertsResult result = sut.getConcertsAfterDate(date, offset, limit);
+
+        // then
+        assertThat(result.getConcerts()).isEmpty();
+        assertThat(result.getTotal()).isEqualTo(0);
+    }
 
     @DisplayName("날짜 조회: 존재하지 않는 콘서트 id로 조회하면 예외가 발생한다.")
     @Test

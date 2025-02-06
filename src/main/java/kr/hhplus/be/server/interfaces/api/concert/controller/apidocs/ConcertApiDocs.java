@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.ErrorResponse;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.PaginationData;
+import kr.hhplus.be.server.interfaces.api.concert.dto.ConcertResponse;
 import kr.hhplus.be.server.interfaces.api.concert.dto.ConcertScheduleDateResponse;
 import kr.hhplus.be.server.interfaces.api.concert.dto.SeatResponse;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,6 +25,19 @@ import java.time.LocalDate;
 
 @Tag(name = "Concert")
 public interface ConcertApiDocs {
+
+    @Operation(summary = "특정 날짜 이후의 콘서트 목록 조회", description = "특정 날짜 이후의 콘서트 목록을 페이징 처리하여 조회합니다.")
+    @Parameters({
+            @Parameter(name = "offset", description = "페이지 시작 인덱스", required = false, example = "0", in = ParameterIn.QUERY),
+            @Parameter(name = "limit", description = "페이지 당 조회 개수", required = false, example = "100", in = ParameterIn.QUERY),
+            @Parameter(name = "date", description = "날짜", required = true, example = "2025-01-01", in = ParameterIn.QUERY)
+    })
+    @ApiResponse(responseCode = "200", description = "OK")
+    ResponseEntity<BaseResponse<PaginationData<ConcertResponse>>> getMainPageConcerts(
+            @RequestParam(value = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "limit", defaultValue = "10") int limit);
+
 
     @Operation(summary = "예약 가능한 날짜 목록 조회", description = "특정 콘서트의 예약 가능한 날짜 목록을 조회합니다.")
     @Parameters({

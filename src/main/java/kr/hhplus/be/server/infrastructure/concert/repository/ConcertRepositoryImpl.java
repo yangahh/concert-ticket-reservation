@@ -23,6 +23,13 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     private final SeatJpaRepository seatJpaRepository;
 
     @Override
+    public Page<Concert> findConcertsAfterDate(LocalDate date, int offset, int limit) {
+        LocalDateTime reservationOpenDateTime = date.atStartOfDay();
+        Pageable pageable = Pageable.ofSize(limit).withPage(offset/limit);
+        return concertJpaRepository.findAllByReservationOpenDateTimeAfter(reservationOpenDateTime, pageable);
+    }
+
+    @Override
     public Optional<Concert> findConcertById(Long concertId) {
         return concertJpaRepository.findById(concertId);
     }

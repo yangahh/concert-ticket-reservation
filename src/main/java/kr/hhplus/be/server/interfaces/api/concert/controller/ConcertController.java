@@ -2,11 +2,13 @@ package kr.hhplus.be.server.interfaces.api.concert.controller;
 
 import kr.hhplus.be.server.domain.concert.dto.ConcertSchedulesResult;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSeatsResult;
+import kr.hhplus.be.server.domain.concert.dto.ConcertsResult;
 import kr.hhplus.be.server.domain.concert.service.ConcertService;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.PaginationData;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.PaginationResponse;
 import kr.hhplus.be.server.interfaces.api.concert.controller.apidocs.ConcertApiDocs;
+import kr.hhplus.be.server.interfaces.api.concert.dto.ConcertResponse;
 import kr.hhplus.be.server.interfaces.api.concert.dto.ConcertScheduleDateResponse;
 import kr.hhplus.be.server.interfaces.api.concert.dto.SeatResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,20 @@ import java.util.Optional;
 @Validated
 public class ConcertController implements ConcertApiDocs {
     private final ConcertService concertService;
+
+    @Override
+    @GetMapping
+    public ResponseEntity<BaseResponse<PaginationData<ConcertResponse>>> getMainPageConcerts(
+        @RequestParam(value = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+        @RequestParam(value = "offset", defaultValue = "0") int offset,
+        @RequestParam(value = "limit", defaultValue = "100") int limit) {
+
+        ConcertsResult result = concertService.getConcertsAfterDate(date, offset, limit);
+        List<ConcertResponse> res = result.getConcerts().stream()
+            .map(ConcertResponse::fromDomainDto)
+            .toList();
+        return ResponseEntity.ok(PaginationResponse.of(res, result.getOffset(), result.getLimit(), result.getTotal()));
+    }
 
     @Override
     @GetMapping("/{concert-id}/dates")

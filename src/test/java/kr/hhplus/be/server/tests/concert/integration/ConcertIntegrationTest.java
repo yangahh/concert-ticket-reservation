@@ -7,6 +7,7 @@ import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.infrastructure.queuetoken.repository.QueueTokenJpaRepository;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.PaginationData;
+import kr.hhplus.be.server.interfaces.api.concert.dto.ConcertResponse;
 import kr.hhplus.be.server.interfaces.api.concert.dto.ConcertScheduleDateResponse;
 import kr.hhplus.be.server.interfaces.api.concert.dto.SeatResponse;
 import kr.hhplus.be.server.utils.time.TimeProvider;
@@ -62,6 +63,29 @@ public class ConcertIntegrationTest {
     void tearDown() {
         queueTokenJpaRepository.delete(token);
     }
+
+    @DisplayName("파라미터로 받은 날짜 이후의 콘서트 목록을 조회 성공 통합 테스트")
+    @Test
+    void getConcertsTest() throws Exception {
+        // given
+        String uri = "/concerts";
+
+        // when & then
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                .param("date", "2025-02-01")  // concert_data.sql 기준 2025-02-01 이후 날짜로 2개의 콘서트가 있음
+                .param("offset", "0")
+                .param("limit", "10")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        BaseResponse<PaginationData<ConcertResponse>> response = objectMapper.readValue(
+            mvcResult.getResponse().getContentAsString(),
+            new TypeReference<>() {});
+        assertThat(response.getData().getCount()).isEqualTo(2);
+    }
+
 
     @DisplayName("concertID로 해당 콘서트의 날짜 목록을 조회 성공 통합 테스트")
     @Test

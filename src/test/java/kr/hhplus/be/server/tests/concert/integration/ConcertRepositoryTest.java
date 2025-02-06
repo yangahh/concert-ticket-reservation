@@ -37,6 +37,53 @@ class ConcertRepositoryTest {
     @Autowired
     private SeatJpaRepository seatJpaRepository;
 
+    @DisplayName("콘서트 목록 조회: 예약 오픈 일이 입력된 날짜 이후인 콘서트 목록이 정상적으로 반환된다")
+    @Test
+    void findConcertsAfterDate_shouldReturnConcerts() {
+        // given
+        LocalDate date = LocalDate.of(2025, 1, 1);
+        int offset = 0;
+        int limit = 10;
+        // concert_data.sql 기준으로 2025/01/01 이후 2개의 콘서트
+
+        // when
+        Page<Concert> concerts = concertRepository.findConcertsAfterDate(date, offset, limit);
+
+        // then
+        assertThat(concerts.getTotalElements()).isEqualTo(2);
+    }
+
+    @DisplayName("콘서트 목록 조회: limit 값이 1이면 1개의 콘서트만 반환된다(페이징 테스트)")
+    @Test
+    void findConcertsAfterDate_shouldReturnOneConcertWhenLimitIs1() {
+        // given
+        LocalDate date = LocalDate.of(2025, 1, 1);
+        int offset = 0;
+        int limit = 1;
+
+        // when
+        Page<Concert> concerts = concertRepository.findConcertsAfterDate(date, offset, limit);
+
+        // then
+        assertThat(concerts.getContent().size()).isEqualTo(1);
+    }
+
+    @DisplayName("콘서트 목록 조회: 예약 오픈 날짜가 주어진 날짜 이후인 콘서트가 없으면 빈 목록을 반환한다.")
+    @Test
+    void findConcertsAfterDate_shouldReturnEmptyListWhenNoConcertsAfterDate() {
+        // given
+        LocalDate date = LocalDate.of(2050, 1, 1);
+        int offset = 0;
+        int limit = 10;
+
+        // when
+        Page<Concert> concerts = concertRepository.findConcertsAfterDate(date, offset, limit);
+
+        // then
+        assertThat(concerts.getContent()).isEmpty();
+        assertThat(concerts.getTotalElements()).isEqualTo(0);
+    }
+
     @Test
     @DisplayName("콘서트를 ID로 조회하면 해당 콘서트가 반환된다.")
     void findConcertById_shouldReturnConcert() {
