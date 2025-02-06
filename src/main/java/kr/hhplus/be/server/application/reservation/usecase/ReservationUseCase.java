@@ -24,7 +24,7 @@ public class ReservationUseCase {
     public ReservationResult makeTempReservation(Long userId, Long seatId) {
         LocalDateTime now = timeProvider.now();
         try {
-            ReservationSeatInfo reservationSeatInfo = concertService.reserveSeat(seatId, now);
+            concertService.reserveSeat(seatId, now);
             return reservationService.makeTempReservation(userId, seatId, now.plusMinutes(5));
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new UnprocessableEntityException("Seat is already reserved (id = " + seatId + ")");
