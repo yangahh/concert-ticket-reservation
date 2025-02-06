@@ -43,6 +43,7 @@ dependencies {
 	implementation("com.github.gavlyukovskiy:datasource-decorator-spring-boot-autoconfigure:1.9.2")
 	implementation("org.springframework.retry:spring-retry")
 	implementation("org.aspectj:aspectjweaver")
+	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3")
 
 	// DB
 	runtimeOnly("com.mysql:mysql-connector-j")

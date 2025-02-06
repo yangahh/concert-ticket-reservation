@@ -11,6 +11,7 @@ import kr.hhplus.be.server.domain.concert.entity.Seat;
 import kr.hhplus.be.server.domain.concert.repository.ConcertRepository;
 import kr.hhplus.be.server.utils.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,11 +29,9 @@ public class ConcertService {
     private final ConcertRepository concertRepository;
     private final TimeProvider timeProvider;
 
-    public ConcertsResult getConcertsAfterDate(LocalDate date, Optional<Integer> offset, Optional<Integer> limit) {
-        int offsetValue = offset.orElse(0);
-        int limitValue = limit.orElse(100);
-
-        return ConcertsResult.fromPage(concertRepository.findConcertsAfterDate(date, offsetValue, limitValue));
+    @Cacheable(value = "getConcertsAfterDate", key = "'concert:' + #date + ':offset:' + #offset + ':limit:' + #limit", cacheManager = "concertCacheManager")
+    public ConcertsResult getConcertsAfterDate(LocalDate date, int offset, int limit) {
+        return ConcertsResult.fromPage(concertRepository.findConcertsAfterDate(date, offset, limit));
     }
 
     public ConcertSchedulesResult getConcertSchedules(
