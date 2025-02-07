@@ -3,13 +3,15 @@ package kr.hhplus.be.server.tests.concert.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
+import kr.hhplus.be.server.domain.queuetoken.repository.QueueTokenRepository;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
-import kr.hhplus.be.server.infrastructure.queuetoken.repository.QueueTokenJpaRepository;
+import kr.hhplus.be.server.infrastructure.queuetoken.repository.ActiveTokenRedisTemplate;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.PaginationData;
 import kr.hhplus.be.server.interfaces.api.concert.dto.ConcertResponse;
 import kr.hhplus.be.server.interfaces.api.concert.dto.ConcertScheduleDateResponse;
 import kr.hhplus.be.server.interfaces.api.concert.dto.SeatResponse;
+import kr.hhplus.be.server.interfaces.utils.queuetoken.QueueTokenEncoder;
 import kr.hhplus.be.server.utils.time.TimeProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
@@ -43,7 +46,10 @@ public class ConcertIntegrationTest {
     private QueueTokenService queueTokenService;
 
     @Autowired
-    private QueueTokenJpaRepository queueTokenJpaRepository;
+    private QueueTokenRepository queueTokenRepository;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
     TimeProvider timeProvider;
@@ -56,12 +62,12 @@ public class ConcertIntegrationTest {
     void setUp() {
         token = QueueToken.createWaitingToken(userId, concertId, timeProvider);
         token.activate();
-        token = queueTokenJpaRepository.save(token);
+        token = queueTokenRepository.save(token);
     }
 
     @AfterEach
     void tearDown() {
-        queueTokenJpaRepository.delete(token);
+        redisTemplate.delete(ActiveTokenRedisTemplate.getKey(concertId));
     }
 
     @DisplayName("파라미터로 받은 날짜 이후의 콘서트 목록을 조회 성공 통합 테스트")
@@ -92,13 +98,14 @@ public class ConcertIntegrationTest {
     void getConcertSchedulesTest() throws Exception {
         // given
         String uri = "/concerts/{concertId}/dates";
+        String encodedToken = QueueTokenEncoder.base64EncodeToken(token.getTokenUuid(), concertId);
         // concert_data.sql 기준 concertId = 1인 schedule이 3개 있음
 
         // when & then
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("X-Queue-Token", token.getTokenUuid().toString()))
+                .header("X-Queue-Token", encodedToken))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -114,13 +121,14 @@ public class ConcertIntegrationTest {
     void getConcertSeatsTest() throws Exception {
         // given
         String uri = "/concerts/{concertId}/dates/{date}/seats";
+        String encodedToken = QueueTokenEncoder.base64EncodeToken(token.getTokenUuid(), concertId);
         String date = "2025-03-31"; // concert_data.sql 기준 해당 날짜에 50개 좌석
 
         // when & then
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId, date)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("X-Queue-Token", token.getTokenUuid().toString()))
+                .header("X-Queue-Token", encodedToken))
             .andExpect(status().isOk()).andReturn();
 
         BaseResponse<PaginationData<SeatResponse>> response = objectMapper.readValue(

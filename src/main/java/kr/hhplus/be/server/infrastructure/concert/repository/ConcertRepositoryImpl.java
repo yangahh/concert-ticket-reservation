@@ -30,6 +30,11 @@ public class ConcertRepositoryImpl implements ConcertRepository {
     }
 
     @Override
+    public List<Concert> findAllConcert() {
+        return concertJpaRepository.findAll();
+    }
+
+    @Override
     public Optional<Concert> findConcertById(Long concertId) {
         return concertJpaRepository.findById(concertId);
     }

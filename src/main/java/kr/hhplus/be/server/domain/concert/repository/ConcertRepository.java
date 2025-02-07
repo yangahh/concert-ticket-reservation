@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface ConcertRepository {
     Page<Concert> findConcertsAfterDate(LocalDate date, int offset, int limit);
 
+    List<Concert> findAllConcert();
+
     Optional<Concert> findConcertById(Long concertId);
 
     Optional<ConcertSchedule> findConcertScheduleById(Long concertScheduleId);

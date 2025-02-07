@@ -9,6 +9,7 @@ import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
 import kr.hhplus.be.server.interfaces.api.reservation.controller.ReservationController;
 import kr.hhplus.be.server.interfaces.api.reservation.dto.ReservationRequest;
+import kr.hhplus.be.server.interfaces.utils.queuetoken.QueueTokenEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -42,7 +44,7 @@ public class ReservationControllerTest {
 
     @BeforeEach
     void setUp() {
-        given(queueTokenService.isTokenValid(any(UUID.class))).willReturn(true);
+        given(queueTokenService.isTokenValid(anyLong(), any(UUID.class))).willReturn(true);
     }
 
     @DisplayName("예약 요청: userId가 없어서 예약에 실패한다.")
@@ -51,13 +53,14 @@ public class ReservationControllerTest {
         // given
         String uri = "/reservations";
         ReservationRequest request = new ReservationRequest(null, 1L);
+        String encodedToken = QueueTokenEncoder.base64EncodeToken(UUID.randomUUID(), 1L);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.post(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header("X-Queue-Token", UUID.randomUUID().toString()))
+                        .header("X-Queue-Token", encodedToken))
                 .andExpect(status().isBadRequest());
     }
 
@@ -67,13 +70,14 @@ public class ReservationControllerTest {
         // given
         String uri = "/reservations";
         ReservationRequest request = new ReservationRequest(1L, null);
+        String encodedToken = QueueTokenEncoder.base64EncodeToken(UUID.randomUUID(), 1L);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.post(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header("X-Queue-Token", UUID.randomUUID().toString()))
+                        .header("X-Queue-Token", encodedToken))
                 .andExpect(status().isBadRequest());
     }
 
@@ -98,15 +102,17 @@ public class ReservationControllerTest {
     void shouldFailWhenTokenIsInvalid() throws Exception {
         // given
         String uri = "/reservations";
+        String encodedToken = QueueTokenEncoder.base64EncodeToken(UUID.randomUUID(), 1L);
+
         ReservationRequest request = new ReservationRequest(1L, 1L);
-        given(queueTokenService.isTokenValid(any(UUID.class))).willReturn(false);
+        given(queueTokenService.isTokenValid(anyLong(), any(UUID.class))).willReturn(false);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.post(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header("X-Queue-Token", UUID.randomUUID().toString()))
+                        .header("X-Queue-Token", encodedToken))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -115,6 +121,8 @@ public class ReservationControllerTest {
     void shouldSuccessWhenAllParamsAreValid() throws Exception {
         // given
         String uri = "/reservations";
+        String encodedToken = QueueTokenEncoder.base64EncodeToken(UUID.randomUUID(), 1L);
+
         ReservationRequest request = new ReservationRequest(1L, 1L);
         ConcertScheduleResult mockSchedule = ConcertScheduleResult.builder()
                 .concertId(1L)
@@ -141,7 +149,7 @@ public class ReservationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header("X-Queue-Token", UUID.randomUUID().toString()))
+                        .header("X-Queue-Token", encodedToken))
                 .andExpect(status().isOk());
     }
 }

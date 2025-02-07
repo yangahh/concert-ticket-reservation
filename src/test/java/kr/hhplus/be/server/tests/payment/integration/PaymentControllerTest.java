@@ -9,6 +9,7 @@ import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
 import kr.hhplus.be.server.interfaces.api.payment.controller.PaymentController;
 import kr.hhplus.be.server.interfaces.api.payment.dto.PaymentRequest;
+import kr.hhplus.be.server.interfaces.utils.queuetoken.QueueTokenEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,9 +42,11 @@ class PaymentControllerTest {
     @MockitoBean
     private PaymentUseCase paymentUseCase;
 
+    Long concertId = 1L;
+
     @BeforeEach
     void setUp() {
-        given(queueTokenService.isTokenValid(any(UUID.class))).willReturn(true);
+        given(queueTokenService.isTokenValid(anyLong(), any(UUID.class))).willReturn(true);
     }
 
     @DisplayName("결제 요청: 예약 ID가 없어서 결제에 실패한다.")
@@ -51,13 +55,14 @@ class PaymentControllerTest {
         // given
         String uri = "/payments";
         PaymentRequest request = new PaymentRequest(null);
+        String encodedToken = QueueTokenEncoder.base64EncodeToken(UUID.randomUUID(), concertId);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.post(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header("X-Queue-Token", UUID.randomUUID().toString()))
+                        .header("X-Queue-Token", encodedToken))
                 .andExpect(status().isBadRequest());
     }
 
@@ -81,16 +86,17 @@ class PaymentControllerTest {
     void shouldFailWhenInvalidToken() throws Exception {
         // given
         String uri = "/payments";
-        UUID token = UUID.randomUUID();
+        UUID tokenUuid = UUID.randomUUID();
+        String encodedToken = QueueTokenEncoder.base64EncodeToken(tokenUuid, concertId);
         PaymentRequest request = new PaymentRequest(1L);
-        given(queueTokenService.isTokenValid(token)).willReturn(false);
+        given(queueTokenService.isTokenValid(concertId, tokenUuid)).willReturn(false);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.post(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header("X-Queue-Token", token.toString()))
+                        .header("X-Queue-Token", encodedToken))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -100,8 +106,11 @@ class PaymentControllerTest {
         // given
         String uri = "/payments";
         PaymentRequest request = new PaymentRequest(1L);
-        UUID token = UUID.randomUUID();
-        given(queueTokenService.isTokenValid(token)).willReturn(true);
+        UUID tokenUuid = UUID.randomUUID();
+        String encodedToken = QueueTokenEncoder.base64EncodeToken(tokenUuid, concertId);
+
+        given(queueTokenService.isTokenValid(concertId, tokenUuid)).willReturn(true);
+
         ConcertScheduleResult mockSchedule = ConcertScheduleResult.builder()
             .concertId(1L)
             .concertScheduleId(1L)
@@ -121,14 +130,14 @@ class PaymentControllerTest {
             .concertScheduleResult(mockSchedule)
             .concertSeatResult(mockSeat)
             .build();
-        given(paymentUseCase.payForReservation(1L, token)).willReturn(mockResult);
+        given(paymentUseCase.payForReservation(1L, tokenUuid)).willReturn(mockResult);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.post(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header("X-Queue-Token", token.toString()))
+                        .header("X-Queue-Token", encodedToken))
                 .andExpect(status().isOk());
     }
 }
