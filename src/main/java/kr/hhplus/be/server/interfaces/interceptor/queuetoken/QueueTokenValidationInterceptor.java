@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.hhplus.be.server.domain.queuetoken.exception.InvalidToken;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
+import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueueTokenCoreInfo;
+import kr.hhplus.be.server.interfaces.utils.queuetoken.QueueTokenDecoder;
 import kr.hhplus.be.server.utils.regexp.Patterns;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -30,11 +32,17 @@ public class QueueTokenValidationInterceptor implements HandlerInterceptor {
             throw new IllegalArgumentException("Missing required header: " + QUEUE_TOKEN_HEADER);
         }
 
-        if (!queueToken.matches(Patterns.UUID)) {
-            throw new IllegalArgumentException("Invalid token format: " + queueToken);
+        // base64 인코딩된 토큰인지 확인
+        if (!queueToken.matches(Patterns.BASE64)) {
+            throw new IllegalArgumentException("Invalid Base64 encoded token: " + queueToken);
         }
 
-        boolean tokenValid = queueTokenService.isTokenValid(UUID.fromString(queueToken));
+        // 토큰에서 uuid, concertId 추출
+        QueueTokenCoreInfo queueTokenCoreInfo = QueueTokenDecoder.base64DecodeToken(queueToken);
+        UUID tokenUuid = queueTokenCoreInfo.tokenUuid();
+        Long concertId = queueTokenCoreInfo.concertId();
+
+        boolean tokenValid = queueTokenService.isTokenValid(concertId, tokenUuid);
         if (!tokenValid) {
             throw new InvalidToken("Token is invalid");
         }
