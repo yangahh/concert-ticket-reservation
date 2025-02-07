@@ -1,19 +1,22 @@
 package kr.hhplus.be.server.tests.support;
 
+import kr.hhplus.be.server.domain.queuetoken.repository.QueueTokenRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.ConcertJpaRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.ConcertScheduleJpaRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.SeatJpaRepository;
 import kr.hhplus.be.server.infrastructure.point.repository.PointHistoryJpaRepository;
 import kr.hhplus.be.server.infrastructure.point.repository.PointJpaRepository;
-import kr.hhplus.be.server.infrastructure.queuetoken.repository.QueueTokenJpaRepository;
+import kr.hhplus.be.server.infrastructure.queuetoken.repository.ActiveTokenRedisTemplate;
+import kr.hhplus.be.server.infrastructure.queuetoken.repository.WaitingTokenRedisTemplate;
 import kr.hhplus.be.server.infrastructure.reservation.repository.ReservationJpaRepository;
 import kr.hhplus.be.server.infrastructure.user.repository.UserJpaRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 
 @SpringBootTest
-public class JpaRepositorySupport {
+public class InfraRepositorySupport {
     @Autowired
     protected UserJpaRepository userJpaRepository;
 
@@ -36,7 +39,16 @@ public class JpaRepositorySupport {
     protected PointHistoryJpaRepository pointHistoryJpaRepository;
 
     @Autowired
-    protected QueueTokenJpaRepository queueTokenJpaRepository;
+    protected RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    protected ActiveTokenRedisTemplate activeTokenRedisTemplate;
+
+    @Autowired
+    protected WaitingTokenRedisTemplate waitingTokenRedisTemplate;
+
+    @Autowired
+    protected QueueTokenRepository queueTokenRepository;
 
     @AfterEach
     void tearDown() {
@@ -47,6 +59,6 @@ public class JpaRepositorySupport {
         concertScheduleJpaRepository.deleteAll();
         concertJpaRepository.deleteAll();
         userJpaRepository.deleteAll();
-        queueTokenJpaRepository.deleteAll();
+        redisTemplate.getConnectionFactory().getConnection().flushAll();
     }
 }

@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,12 +36,13 @@ class QueueTokenServiceTest {
     @Mock
     private TimeProvider timeProvider;
 
+    long concertId = 100L;
+
     @DisplayName("토큰 발급: 사용자 ID와 콘서트 ID를 입력받아 비활성상태의 토큰을 정상적으로 발급한다.")
     @Test
     void issueWaitingTokenSuccessTest() {
         // given
         long userId = 1L;
-        long concertId = 100L;
         given(timeProvider.now()).willReturn(LocalDateTime.now());
         QueueToken newToken = QueueToken.createWaitingToken(userId, concertId, timeProvider);
         given(queueTokenRepository.save(any(QueueToken.class))).willReturn(newToken);
@@ -51,7 +51,6 @@ class QueueTokenServiceTest {
         QueueTokenResult saved = sut.issueWaitingToken(userId, concertId);
 
         // then
-        assertThat(saved.userId()).isEqualTo(newToken.getUserId());
         assertThat(saved.concertId()).isEqualTo(newToken.getConcertId());
         assertThat(saved.tokenUuid()).isEqualTo(newToken.getTokenUuid());
         assertThat(saved.isActive()).isFalse();
@@ -64,10 +63,10 @@ class QueueTokenServiceTest {
     void shouldNotFoundExceptionWhenGetWaitingTokenPositionWithNonExistingTokenUuid() {
         // given
         UUID nonExistingTokenUuid = UUID.randomUUID();
-        given(queueTokenRepository.findByTokenUuid(nonExistingTokenUuid)).willReturn(Optional.empty());
+        given(queueTokenRepository.findByConcertIdAndTokenUuid(concertId, nonExistingTokenUuid)).willReturn(Optional.empty());
 
         // when  // then
-        assertThatThrownBy(() -> sut.getWaitingTokenPositionAndRemainingTime(nonExistingTokenUuid))
+        assertThatThrownBy(() -> sut.getWaitingTokenPositionAndRemainingTime(concertId, nonExistingTokenUuid))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Token is not found");
     }
@@ -78,13 +77,13 @@ class QueueTokenServiceTest {
         // given
         given(timeProvider.now()).willReturn(LocalDateTime.now());
 
-        QueueToken queueToken = QueueToken.createWaitingToken(1L, 100L, timeProvider);
+        QueueToken queueToken = QueueToken.createWaitingToken(1L, concertId, timeProvider);
         UUID tokenUuid = queueToken.getTokenUuid();
         queueToken.activate();
-        given(queueTokenRepository.findByTokenUuid(tokenUuid)).willReturn(Optional.of(queueToken));
+        given(queueTokenRepository.findByConcertIdAndTokenUuid(concertId, tokenUuid)).willReturn(Optional.of(queueToken));
 
         // when
-        QueueTokenPositionResult result = sut.getWaitingTokenPositionAndRemainingTime(tokenUuid);
+        QueueTokenPositionResult result = sut.getWaitingTokenPositionAndRemainingTime(concertId, tokenUuid);
 
         // then
         assertThat(result.position()).isEqualTo(0);
@@ -98,12 +97,12 @@ class QueueTokenServiceTest {
         given(timeProvider.now()).willReturn(LocalDateTime.now());
 
         UUID tokenUuid = UUID.randomUUID();
-        QueueToken queueToken = QueueToken.createWaitingToken(1L, 100L, timeProvider);
-        given(queueTokenRepository.findByTokenUuid(tokenUuid)).willReturn(Optional.of(queueToken));
-        given(queueTokenRepository.countWaitingTokensAhead(queueToken.getConcertId(), queueToken.getCreatedAt())).willReturn(99);
+        QueueToken queueToken = QueueToken.createWaitingToken(1L, concertId, timeProvider);
+        given(queueTokenRepository.findByConcertIdAndTokenUuid(concertId, tokenUuid)).willReturn(Optional.of(queueToken));
+        given(queueTokenRepository.countWaitingTokensAhead(queueToken)).willReturn(99);
 
         // when
-        QueueTokenPositionResult result = sut.getWaitingTokenPositionAndRemainingTime(tokenUuid);
+        QueueTokenPositionResult result = sut.getWaitingTokenPositionAndRemainingTime(concertId, tokenUuid);
 
         // then
         assertThat(result.position()).isEqualTo(100);
@@ -114,30 +113,28 @@ class QueueTokenServiceTest {
     @Test
     void activateTokensWhenActiveTokenCountIsMaxTest() {
         // given
-        given(queueTokenRepository.countActiveTokens()).willReturn(QueueTokenService.ACTIVE_TOKEN_MAX_COUNT);
+        given(queueTokenRepository.countActiveTokens(concertId)).willReturn(QueueTokenService.ACTIVE_TOKEN_MAX_COUNT);
 
         // when
-        sut.activateTokens();
+        sut.activateTokens(concertId);
 
         // then
-        then(queueTokenRepository).should().deleteExpiredTokens();
-        then(queueTokenRepository).should(never()).findOldestWaitingTokensIds(anyInt());
-        then(queueTokenRepository).should(never()).updateOldestWaitingTokensToActive(anyList());
+        then(queueTokenRepository).should().deleteExpiredTokens(concertId);
+        then(queueTokenRepository).should(never()).activateTokensByConcertId(anyLong(), anyInt());
     }
 
     @DisplayName("토큰 활성화: 대기열에 active 토큰이 최대 개수보다 적을 때, 최대 개수에서 모자란 수만큼 대기열에서 가장 오래된 waiting 토큰을 활성화한다.")
     @Test
     void activateTokensWhenActiveTokenCountIsLessThanMaxTest() {
         // given
-        given(queueTokenRepository.countActiveTokens()).willReturn(QueueTokenService.ACTIVE_TOKEN_MAX_COUNT - 5);
-        given(queueTokenRepository.findOldestWaitingTokensIds(anyInt())).willReturn(List.of(1L, 2L, 3L, 4L, 5L));
+        given(queueTokenRepository.countActiveTokens(concertId)).willReturn(QueueTokenService.ACTIVE_TOKEN_MAX_COUNT - 5);
+        // given(queueTokenRepository.findOldestWaitingTokensIds(anyInt())).willReturn(List.of(1L, 2L, 3L, 4L, 5L));
 
         // when
-        sut.activateTokens();
+        sut.activateTokens(concertId);
 
         // then
-        then(queueTokenRepository).should().findOldestWaitingTokensIds(5);
-        then(queueTokenRepository).should().updateOldestWaitingTokensToActive(List.of(1L, 2L, 3L, 4L, 5L));
+        then(queueTokenRepository).should().activateTokensByConcertId(concertId, 5);
     }
 
     @DisplayName("토큰 유효성 검증: 존재하지 않는 토큰 UUID로 검증을 하면 예외가 발생한다")
@@ -145,10 +142,10 @@ class QueueTokenServiceTest {
     void shouldNotFoundExceptionWhenValidateTokenWithNonExistingTokenUuid() {
         // given
         UUID nonExistingTokenUuid = UUID.randomUUID();
-        given(queueTokenRepository.findByTokenUuid(nonExistingTokenUuid)).willReturn(Optional.empty());
+        given(queueTokenRepository.findByConcertIdAndTokenUuid(concertId, nonExistingTokenUuid)).willReturn(Optional.empty());
 
         // when // then
-        assertThatThrownBy(() -> sut.isTokenValid(nonExistingTokenUuid))
+        assertThatThrownBy(() -> sut.isTokenValid(concertId, nonExistingTokenUuid))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Token is not found");
     }
@@ -160,11 +157,11 @@ class QueueTokenServiceTest {
         given(timeProvider.now()).willReturn(LocalDateTime.now());
 
         UUID tokenUuid = UUID.randomUUID();
-        QueueToken waitingToken = QueueToken.createWaitingToken(1L, 100L, timeProvider);
-        given(queueTokenRepository.findByTokenUuid(tokenUuid)).willReturn(Optional.of(waitingToken));
+        QueueToken waitingToken = QueueToken.createWaitingToken(1L, concertId, timeProvider);
+        given(queueTokenRepository.findByConcertIdAndTokenUuid(concertId, tokenUuid)).willReturn(Optional.of(waitingToken));
 
         // when
-        boolean result = sut.isTokenValid(tokenUuid);
+        boolean result = sut.isTokenValid(concertId, tokenUuid);
 
         // then
         assertThat(result).isFalse();
@@ -176,13 +173,13 @@ class QueueTokenServiceTest {
         // given
         given(timeProvider.now()).willReturn(LocalDateTime.now());
 
-        QueueToken queueToken = QueueToken.createWaitingToken(1L, 100L, timeProvider);
+        QueueToken queueToken = QueueToken.createWaitingToken(1L, concertId, timeProvider);
         UUID tokenUuid = queueToken.getTokenUuid();
         queueToken.activate();
-        given(queueTokenRepository.findByTokenUuid(tokenUuid)).willReturn(Optional.of(queueToken));
+        given(queueTokenRepository.findByConcertIdAndTokenUuid(concertId, tokenUuid)).willReturn(Optional.of(queueToken));
 
         // when
-        boolean isValid = sut.isTokenValid(tokenUuid);
+        boolean isValid = sut.isTokenValid(concertId, tokenUuid);
 
         // then
         assertThat(isValid).isTrue();

@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -19,8 +18,9 @@ import java.util.UUID;
 public class QueueTokenService {
     private final QueueTokenRepository queueTokenRepository;
     private final TimeProvider timeProvider;
-    public static final int ACTIVE_TOKEN_MAX_COUNT = 30;
-    public static final double PROCESSING_RATE_PER_SECONDS = 10;  // 1초당 처리 가능한 토큰 수
+    public static final int ACTIVE_TOKEN_MAX_COUNT = 500;  // 최대 active 토큰 수
+    public static final int CONVERT_RATE_PER_10_SECONDS = 30;  // 10초당 active로 전환되는 토큰 수
+    public static final double PROCESSING_RATE_PER_SECONDS = 3;  // 1초당 처리 가능한 토큰 수
 
     @Transactional
     public QueueTokenResult issueWaitingToken(long userId, long concertId) {
@@ -30,8 +30,8 @@ public class QueueTokenService {
     }
 
     @Transactional(readOnly = true)
-    public QueueTokenPositionResult getWaitingTokenPositionAndRemainingTime(UUID tokenUuid) {
-        QueueToken queueToken = getQueueToken(tokenUuid);
+    public QueueTokenPositionResult getWaitingTokenPositionAndRemainingTime(Long concertId, UUID tokenUuid) {
+        QueueToken queueToken = getQueueToken(concertId, tokenUuid);
 
         if (queueToken.isValid(timeProvider)) {
             return QueueTokenPositionResult.fromEntity(queueToken, 0, 0);
@@ -47,13 +47,13 @@ public class QueueTokenService {
         return QueueTokenPositionResult.fromEntity(queueToken, waitingPosition, remainingSeconds);
     }
 
-    private QueueToken getQueueToken(UUID tokenUuid) {
-        return queueTokenRepository.findByTokenUuid(tokenUuid)
+    private QueueToken getQueueToken(Long concertId, UUID tokenUuid) {
+        return queueTokenRepository.findByConcertIdAndTokenUuid(concertId, tokenUuid)
                 .orElseThrow(() -> new EntityNotFoundException("Token is not found (id = " + tokenUuid + ")"));
     }
 
     private int calculateWaitingPosition(QueueToken queueToken) {
-        int countAhead = queueTokenRepository.countWaitingTokensAhead(queueToken.getConcertId(), queueToken.getCreatedAt());
+        int countAhead = queueTokenRepository.countWaitingTokensAhead(queueToken);
         return countAhead + 1;
     }
 
@@ -62,29 +62,24 @@ public class QueueTokenService {
     }
 
     @Transactional
-    public void activateTokens() {
-        queueTokenRepository.deleteExpiredTokens();
+    public void activateTokens(Long concertId) {
+        queueTokenRepository.deleteExpiredTokens(concertId);
 
-        int activeTokenCount = queueTokenRepository.countActiveTokens();
+        int activeTokenCount = queueTokenRepository.countActiveTokens(concertId);
         if (activeTokenCount >= ACTIVE_TOKEN_MAX_COUNT) {
             return;
         }
-        updateToActive(ACTIVE_TOKEN_MAX_COUNT - activeTokenCount);
-    }
-
-    private void updateToActive(int countToActivate) {
-        List<Long> waitingTokens = queueTokenRepository.findOldestWaitingTokensIds(countToActivate);
-        queueTokenRepository.updateOldestWaitingTokensToActive(waitingTokens);
+        queueTokenRepository.activateTokensByConcertId(concertId, CONVERT_RATE_PER_10_SECONDS);
     }
 
     @Transactional(readOnly = true)
-    public boolean isTokenValid(UUID tokenUuid) {
-        return getQueueToken(tokenUuid).isValid(timeProvider);
+    public boolean isTokenValid(Long concertId, UUID tokenUuid) {
+        return getQueueToken(concertId, tokenUuid).isValid(timeProvider);
     }
 
     @Transactional
-    public void deleteToken(UUID tokenUuid) {
-        QueueToken queueToken = getQueueToken(tokenUuid);
-        queueTokenRepository.deleteByUuid(queueToken.getTokenUuid());
+    public void deleteToken(Long concertId, UUID tokenUuid) {
+        QueueToken queueToken = getQueueToken(concertId, tokenUuid);
+        queueTokenRepository.deleteByConcertIdAndUuid(concertId, queueToken.getTokenUuid());
     }
 }

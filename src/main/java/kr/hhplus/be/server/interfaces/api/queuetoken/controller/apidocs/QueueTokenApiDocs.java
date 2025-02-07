@@ -33,5 +33,5 @@ public interface QueueTokenApiDocs {
     @ApiResponse(responseCode = "200", description = "OK")
     @ApiResponse(responseCode = "400", description = "BAD_REQUEST", content = @Content( schema = @Schema(implementation = ErrorResponse.class, example = "{\"statusCode\":400,\"message\":\"잘못된 형식의 토큰값입니다.\"}")))
     ResponseEntity<BaseResponse<QueuePositionResponse>> getWaitingTokenPosition(
-            @RequestParam("token") @Pattern(regexp = Patterns.UUID, message = INVALID_TOKEN_FORMAT) String token);
+            @RequestParam("token") @Pattern(regexp = Patterns.BASE64, message = INVALID_TOKEN_FORMAT) String token);
 }

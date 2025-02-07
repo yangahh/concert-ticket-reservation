@@ -22,7 +22,7 @@ public interface QueueTokenJpaRepository extends JpaRepository<QueueToken, Long>
     @Modifying(clearAutomatically = true)
     void deleteByExpiredAtBefore(LocalDateTime datetime);
 
-    int countByIsActive(boolean isActive);
+    int countByConcertIdAndIsActive(Long concertId, boolean isActive);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT qt.id FROM QueueToken qt WHERE qt.isActive = false ORDER BY qt.createdAt ASC")
