@@ -48,6 +48,10 @@ public class ActivateTokenSchedulerTest {
 
     Long concertId;
 
+    int activeTokenCnt = 25;
+    int expiredActiveTokenCnt = 5;
+    int waitingTokenCnt = 10;
+
     @BeforeEach
     void setUp() {
         Concert concert = concertJpaRepository.save(Concert.create("concert1", LocalDateTime.now()));
@@ -56,16 +60,16 @@ public class ActivateTokenSchedulerTest {
         Clock mockClock = Clock.fixed(Instant.parse("2025-01-01T00:00:00Z"), ZoneId.systemDefault());
 
         // active 토큰 30개(5개는 만료, 25개는 유효)
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < expiredActiveTokenCnt; i++) {
             QueueToken expired = QueueTokenFactory.createMock(UUID.randomUUID(), 1L, concertId, true, mockClock);
             queueTokenRepository.save(expired);
         }
-        for (int i = 0; i < QueueTokenService.ACTIVE_TOKEN_MAX_COUNT - 5; i++) {
+        for (int i = 0; i < activeTokenCnt; i++) {
             QueueToken valid = QueueTokenFactory.createMock(UUID.randomUUID(), 1L, concertId, true);
             queueTokenRepository.save(valid);
         }
         // waiting 상태의 토큰 10개
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < waitingTokenCnt; i++) {
             QueueToken token = QueueTokenFactory.createMock(UUID.randomUUID(), 1L, concertId, false);
             queueTokenRepository.save(token);
         }
@@ -78,15 +82,15 @@ public class ActivateTokenSchedulerTest {
         redisTemplate.delete(ActiveTokenRedisTemplate.getKey(concertId));
     }
 
-    @DisplayName("대기열에서 active 할 수 있는 토큰의 수 만큼 wait 상태의 토큰을 active 상태로 변경한다.")
+    @DisplayName("대기열에서 active 할 수 있는 토큰의 수 만큼 waiting 상태의 토큰을 active 상태로 변경한다.")
     @Test
     void activeTokenSchedulerSuccessTest() {
         // when
         scheduler.execute();
 
         // then
-        assertThat(activeTokenRedisTemplate.size(concertId)).isEqualTo(QueueTokenService.ACTIVE_TOKEN_MAX_COUNT);
-        assertThat(waitingTokenRedisTemplate.size(concertId)).isEqualTo(5);
+        assertThat(activeTokenRedisTemplate.size(concertId)).isEqualTo(activeTokenCnt + waitingTokenCnt);
+        assertThat(waitingTokenRedisTemplate.size(concertId)).isEqualTo(0);
 
     }
 }

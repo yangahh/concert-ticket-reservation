@@ -66,7 +66,7 @@ public class QueueTokenService {
         queueTokenRepository.deleteExpiredTokens(concertId);
 
         int activeTokenCount = queueTokenRepository.countActiveTokens(concertId);
-        if (activeTokenCount >= ACTIVE_TOKEN_MAX_COUNT) {
+        if (activeTokenCount + CONVERT_RATE_PER_10_SECONDS > ACTIVE_TOKEN_MAX_COUNT) {
             return;
         }
         queueTokenRepository.activateTokensByConcertId(concertId, CONVERT_RATE_PER_10_SECONDS);

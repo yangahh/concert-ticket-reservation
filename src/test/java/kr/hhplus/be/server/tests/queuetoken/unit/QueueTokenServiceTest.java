@@ -90,7 +90,7 @@ class QueueTokenServiceTest {
         assertThat(result.remainingSeconds()).isEqualTo(0);
     }
 
-    @DisplayName("대기열 순번 조회: 내 앞에 99명이 있을 때, 대기 순번 100번, 예상 남은 시간 10초를 반환한다.")
+    @DisplayName("대기열 순번 조회: 내 앞에 99명이 있을 때, 대기 순번 100번, 예상 남은 시간 100/3(올림한 값) 를 반환한다.")
     @Test
     void getWaitingTokenPositionAndRemainingTimeSuccessTest() {
         // given
@@ -106,7 +106,7 @@ class QueueTokenServiceTest {
 
         // then
         assertThat(result.position()).isEqualTo(100);
-        assertThat(result.remainingSeconds()).isEqualTo(10);
+        assertThat(result.remainingSeconds()).isEqualTo((int) Math.ceil(100 / QueueTokenService.PROCESSING_RATE_PER_SECONDS));
     }
 
     @DisplayName("토큰 활성화: 만료된 토큰을 삭제하고, 대기열에 active 토큰이 최대 개수만큼 있다면 아무 작업 없이 종료한다.")
@@ -123,18 +123,17 @@ class QueueTokenServiceTest {
         then(queueTokenRepository).should(never()).activateTokensByConcertId(anyLong(), anyInt());
     }
 
-    @DisplayName("토큰 활성화: 대기열에 active 토큰이 최대 개수보다 적을 때, 최대 개수에서 모자란 수만큼 대기열에서 가장 오래된 waiting 토큰을 활성화한다.")
+    @DisplayName("토큰 활성화: 대기열에 active 토큰의 개수와 active로 전환할 토큰의 개수의 합이 active 토큰 최대 개수보다 적으면 정해진 수 만큼 전환이 된다.")
     @Test
     void activateTokensWhenActiveTokenCountIsLessThanMaxTest() {
         // given
-        given(queueTokenRepository.countActiveTokens(concertId)).willReturn(QueueTokenService.ACTIVE_TOKEN_MAX_COUNT - 5);
-        // given(queueTokenRepository.findOldestWaitingTokensIds(anyInt())).willReturn(List.of(1L, 2L, 3L, 4L, 5L));
+        given(queueTokenRepository.countActiveTokens(concertId)).willReturn(QueueTokenService.ACTIVE_TOKEN_MAX_COUNT - QueueTokenService.CONVERT_RATE_PER_10_SECONDS);
 
         // when
         sut.activateTokens(concertId);
 
         // then
-        then(queueTokenRepository).should().activateTokensByConcertId(concertId, 5);
+        then(queueTokenRepository).should().activateTokensByConcertId(concertId, QueueTokenService.CONVERT_RATE_PER_10_SECONDS);
     }
 
     @DisplayName("토큰 유효성 검증: 존재하지 않는 토큰 UUID로 검증을 하면 예외가 발생한다")

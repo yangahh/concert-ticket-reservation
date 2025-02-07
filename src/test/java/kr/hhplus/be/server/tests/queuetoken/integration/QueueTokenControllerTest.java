@@ -6,6 +6,7 @@ import kr.hhplus.be.server.domain.queuetoken.dto.QueueTokenResult;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.interfaces.api.queuetoken.controller.QueueTokenController;
 import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueueTokenRequest;
+import kr.hhplus.be.server.interfaces.utils.queuetoken.QueueTokenEncoder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +116,7 @@ public class QueueTokenControllerTest {
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.get(uri)
-                .param("token", validToken.toString()))
+                .param("token", QueueTokenEncoder.base64EncodeToken(validToken, concertId)))
             .andExpect(status().isOk());
     }
 }
