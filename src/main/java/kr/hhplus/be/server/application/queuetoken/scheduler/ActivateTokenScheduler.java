@@ -19,10 +19,13 @@ public class ActivateTokenScheduler {
 
     @Scheduled(fixedRate = 10000)  // 10초마다 실행
     public void execute() {
+        log.info("==============================ActivateTokenScheduler================================");
+        log.info("Started at {}", LocalDateTime.now());
         List<Long> allConcertIds = concertService.getAllConcertIds();
         for (Long concertId : allConcertIds) {
+            log.info("For ConcertId '{}'", concertId);
             queueTokenService.activateTokens(concertId);
-            log.info("ActivateTokenScheduler for concertId '{}' is running at {}", concertId, LocalDateTime.now());
         }
+        log.info("==============================ActivateTokenScheduler End================================");
     }
 }

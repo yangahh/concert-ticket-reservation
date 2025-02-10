@@ -24,8 +24,16 @@ public class CancelExpiredTempReservationScheduler {
     @Transactional
     public void handleExpiredReservations() {
         LocalDateTime now = timeProvider.now();
+        log.info("==============================CancelExpiredTempReservations================================");
+        log.info("Started at {}", now);
         List<Long> expiredSeatIds = reservationService.cancelExpiredTempReservations(now);
-        seatService.releaseSeats(expiredSeatIds);
-        log.info("CancelExpiredTempReservationScheduler is running at {}", now);
+
+        if (expiredSeatIds.isEmpty()) {
+            log.info("No expired reservations");
+        } else {
+            seatService.releaseSeats(expiredSeatIds);
+            log.info("Released {} seats", expiredSeatIds.size());
+        }
+        log.info("==============================CancelExpiredTempReservations End================================");
     }
 }

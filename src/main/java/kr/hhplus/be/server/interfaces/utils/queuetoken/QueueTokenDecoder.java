@@ -19,10 +19,7 @@ public class QueueTokenDecoder {
         } catch (IllegalArgumentException e) {
             throw new InvalidToken("Invalid Base64 encoded token: " + encodedToken);
         } catch (JsonProcessingException e) {
-            if (e.getMessage().contains("uuid")) {
-                throw new InvalidToken("Invalid token format: " + encodedToken);
-            }
-            throw new RuntimeException(e);
+            throw new InvalidToken("Invalid token format: " + encodedToken);
         }
     }
 }
