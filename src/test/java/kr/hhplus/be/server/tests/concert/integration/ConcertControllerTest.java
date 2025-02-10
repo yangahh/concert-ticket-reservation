@@ -5,6 +5,7 @@ import kr.hhplus.be.server.domain.concert.dto.*;
 import kr.hhplus.be.server.domain.concert.service.ConcertService;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.interfaces.api.concert.controller.ConcertController;
+import kr.hhplus.be.server.interfaces.utils.queuetoken.QueueTokenEncoder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +99,8 @@ class ConcertControllerTest {
         // given
         String uri = "/concerts/{concertId}/dates";
         long concertId = 1L;
+        UUID tokenUuid = UUID.randomUUID();
+        String encodedToken = QueueTokenEncoder.base64EncodeToken(tokenUuid, concertId);
 
         ConcertSchedulesResult mockResult = ConcertSchedulesResult.builder()
             .concertSchedules(List.of(
@@ -107,7 +110,7 @@ class ConcertControllerTest {
             .limit(10)
             .total(2)
             .build();
-        given(queueTokenService.isTokenValid(any(UUID.class))).willReturn(true);
+        given(queueTokenService.isTokenValid(concertId, tokenUuid)).willReturn(true);
         given(concertService.getConcertSchedules(any(Long.class), any(), any()))
                 .willReturn(mockResult);
 
@@ -115,7 +118,7 @@ class ConcertControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Queue-Token", UUID.randomUUID().toString()))
+                        .header("X-Queue-Token", encodedToken))
                 .andExpect(status().isOk());
     }
 
@@ -126,12 +129,13 @@ class ConcertControllerTest {
         String uri = "/concerts/{concertId}/dates/{date}/seats";
         long concertId = 1L;
         String wrongDate = "20250101";
+        String encodedToken = QueueTokenEncoder.base64EncodeToken(UUID.randomUUID(), concertId);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId, wrongDate)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Queue-Token", UUID.randomUUID().toString()))
+                        .header("X-Queue-Token", encodedToken))
                 .andExpect(status().is4xxClientError());
     }
 
@@ -157,6 +161,9 @@ class ConcertControllerTest {
         // given
         String uri = "/concerts/{concertId}/dates/{date}/seats";
         long concertId = 1L;
+        UUID tokenUuid = UUID.randomUUID();
+        String encodedToken = QueueTokenEncoder.base64EncodeToken(tokenUuid, concertId);
+
         String date = "2025-03-01";
         ConcertSeatsResult mockResult = ConcertSeatsResult.builder()
             .seats(List.of(
@@ -167,7 +174,7 @@ class ConcertControllerTest {
             .total(50)
             .build();
 
-        given(queueTokenService.isTokenValid(any(UUID.class))).willReturn(true);
+        given(queueTokenService.isTokenValid(concertId, tokenUuid)).willReturn(true);
         given(concertService.getSeatsByConcertIdAndEventDate(any(Long.class), any(), any(), any()))
                 .willReturn(mockResult);
 
@@ -176,7 +183,7 @@ class ConcertControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get(uri, concertId, date)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Queue-Token", UUID.randomUUID().toString()))
+                        .header("X-Queue-Token", encodedToken))
                 .andExpect(status().isOk());
     }
 }

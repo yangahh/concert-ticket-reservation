@@ -6,6 +6,7 @@ import kr.hhplus.be.server.domain.queuetoken.dto.QueueTokenResult;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.interfaces.api.queuetoken.controller.QueueTokenController;
 import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueueTokenRequest;
+import kr.hhplus.be.server.interfaces.utils.queuetoken.QueueTokenEncoder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,19 +103,20 @@ public class QueueTokenControllerTest {
         // given
         String uri = "/queue/position";
         UUID validToken = UUID.randomUUID();
+        Long concertId = 100L;
 
         QueueTokenPositionResult mockResult = QueueTokenPositionResult.builder()
                 .tokenUuid(validToken)
                 .userId(1L)
-                .concertId(100L)
+                .concertId(concertId)
                 .position(1)
                 .remainingSeconds(1)
                 .build();
-        given(queueTokenService.getWaitingTokenPositionAndRemainingTime(validToken)).willReturn(mockResult);
+        given(queueTokenService.getWaitingTokenPositionAndRemainingTime(concertId, validToken)).willReturn(mockResult);
 
         // when  // then
         mockMvc.perform(MockMvcRequestBuilders.get(uri)
-                .param("token", validToken.toString()))
+                .param("token", QueueTokenEncoder.base64EncodeToken(validToken, concertId)))
             .andExpect(status().isOk());
     }
 }

@@ -12,7 +12,7 @@ import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.domain.reservation.entity.Reservation;
 import kr.hhplus.be.server.domain.reservation.service.ReservationService;
 import kr.hhplus.be.server.domain.user.entity.User;
-import kr.hhplus.be.server.tests.support.JpaRepositorySupport;
+import kr.hhplus.be.server.tests.support.InfraRepositorySupport;
 import kr.hhplus.be.server.utils.time.TimeProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-public class PaymentConcurrencyTest extends JpaRepositorySupport {
+public class PaymentConcurrencyTest extends InfraRepositorySupport {
     @Autowired
     protected PaymentUseCase paymentUseCase;
 
@@ -76,7 +76,7 @@ public class PaymentConcurrencyTest extends JpaRepositorySupport {
 
         QueueToken token = QueueToken.createWaitingToken(user.getId(), concert.getId(), timeProvider);
         token.activate();
-        token = queueTokenJpaRepository.save(token);
+        token = queueTokenRepository.save(token);
         tokenUuid = token.getTokenUuid();
     }
 

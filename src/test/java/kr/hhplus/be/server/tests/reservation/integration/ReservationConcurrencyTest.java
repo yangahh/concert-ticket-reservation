@@ -10,7 +10,7 @@ import kr.hhplus.be.server.domain.reservation.service.ReservationService;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.infrastructure.concert.repository.ConcertJpaRepository;
 import kr.hhplus.be.server.infrastructure.concert.repository.ConcertScheduleJpaRepository;
-import kr.hhplus.be.server.tests.support.JpaRepositorySupport;
+import kr.hhplus.be.server.tests.support.InfraRepositorySupport;
 import kr.hhplus.be.server.utils.time.TimeProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-class ReservationConcurrencyTest extends JpaRepositorySupport {
+class ReservationConcurrencyTest extends InfraRepositorySupport {
     @Autowired
     ReservationUseCase reservationUseCase;
 

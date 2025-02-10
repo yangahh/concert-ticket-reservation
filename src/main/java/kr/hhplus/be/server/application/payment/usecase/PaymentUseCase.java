@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.application.payment.usecase;
 
-import jakarta.persistence.OptimisticLockException;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.concert.service.ConcertService;
 import kr.hhplus.be.server.domain.point.service.PointService;
@@ -39,7 +38,7 @@ public class PaymentUseCase {
 
             ReservationResult reservationResult = reservationService.confirmReservation(reservationId, now);
             pointService.usePoint(reservationResult.userId(), reservationResult.price(), reservationId);
-            queueTokenService.deleteToken(tokenUuid);
+            queueTokenService.deleteToken(reservationResult.concertScheduleResult().concertId(), tokenUuid);
 
             return reservationResult;
 

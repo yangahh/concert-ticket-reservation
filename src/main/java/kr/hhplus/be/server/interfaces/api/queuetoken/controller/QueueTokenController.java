@@ -8,16 +8,16 @@ import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.queuetoken.controller.apidocs.QueueTokenApiDocs;
 import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueuePositionResponse;
+import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueueTokenCoreInfo;
 import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueueTokenRequest;
 import kr.hhplus.be.server.interfaces.api.queuetoken.dto.QueueTokenResponse;
+import kr.hhplus.be.server.interfaces.utils.queuetoken.QueueTokenDecoder;
 import kr.hhplus.be.server.utils.regexp.Patterns;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 import static kr.hhplus.be.server.interfaces.api.common.exception.message.ExceptionMessage.INVALID_TOKEN_FORMAT;
 
@@ -38,8 +38,9 @@ public class QueueTokenController implements QueueTokenApiDocs {
     @Override
     @GetMapping("/position")
     public ResponseEntity<BaseResponse<QueuePositionResponse>> getWaitingTokenPosition(
-            @RequestParam("token") @Pattern(regexp = Patterns.UUID, message = INVALID_TOKEN_FORMAT) String token) {
-        QueueTokenPositionResult result = queueTokenService.getWaitingTokenPositionAndRemainingTime(UUID.fromString(token));
+            @RequestParam("token") @Pattern(regexp = Patterns.BASE64, message = INVALID_TOKEN_FORMAT) String token) {
+        QueueTokenCoreInfo decodedToken = QueueTokenDecoder.base64DecodeToken(token);
+        QueueTokenPositionResult result = queueTokenService.getWaitingTokenPositionAndRemainingTime(decodedToken.concertId(), decodedToken.tokenUuid());
         return ResponseEntity.ok(BaseResponse.ok(QueuePositionResponse.fromDomainDto(result)));
     }
 }

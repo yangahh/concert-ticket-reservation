@@ -6,6 +6,7 @@ import kr.hhplus.be.server.domain.concert.dto.ConcertSchedulesResult;
 import kr.hhplus.be.server.domain.concert.dto.ConcertSeatsResult;
 import kr.hhplus.be.server.domain.concert.dto.ConcertsResult;
 import kr.hhplus.be.server.domain.concert.dto.ReservationSeatInfo;
+import kr.hhplus.be.server.domain.concert.entity.Concert;
 import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
 import kr.hhplus.be.server.domain.concert.repository.ConcertRepository;
@@ -32,6 +33,13 @@ public class ConcertService {
     @Cacheable(value = "getConcertsAfterDate", key = "'concert:' + #date + ':offset:' + #offset + ':limit:' + #limit", cacheManager = "concertCacheManager")
     public ConcertsResult getConcertsAfterDate(LocalDate date, int offset, int limit) {
         return ConcertsResult.fromPage(concertRepository.findConcertsAfterDate(date, offset, limit));
+    }
+
+    public List<Long> getAllConcertIds() {
+        List<Concert> allConcert = concertRepository.findAllConcert();
+        return allConcert.stream()
+                .map(Concert::getId)
+                .toList();
     }
 
     public ConcertSchedulesResult getConcertSchedules(

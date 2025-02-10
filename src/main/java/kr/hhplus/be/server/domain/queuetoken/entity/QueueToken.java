@@ -24,7 +24,6 @@ public class QueueToken {
     @Column(name = "token_uuid", unique = true, nullable = false, updatable = false, columnDefinition = "BINARY(16)")
     private UUID tokenUuid;
 
-    @NotNull
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
@@ -36,11 +35,9 @@ public class QueueToken {
     @Column(name = "is_active", nullable = false)
     private boolean isActive;
 
-    @NotNull
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP(6)")
     private LocalDateTime createdAt;
 
-    @NotNull
     @Column(name = "expired_at", updatable = false, columnDefinition = "TIMESTAMP(6)")
     private LocalDateTime expiredAt;
 
@@ -66,6 +63,14 @@ public class QueueToken {
                 .build();
     }
 
+    public static QueueToken fromRedis(Long concertId, UUID tokenUuid, boolean isActive) {
+        return QueueToken.builder()
+            .tokenUuid(tokenUuid)
+            .concertId(concertId)
+            .isActive(isActive)
+            .build();
+    }
+
     public void activate() {
         if (!isActive) {
             this.isActive = true;
@@ -73,6 +78,7 @@ public class QueueToken {
     }
 
     public boolean isExpired(TimeProvider timeProvider) {
+        if (expiredAt == null) return false;  // Redis에서 가져온 경우 만료된 경우는 Redis에 없기 때문에 항상 isExpired가 false가 됨
         return timeProvider.now().isAfter(expiredAt);
     }
 
