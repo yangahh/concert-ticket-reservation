@@ -24,3 +24,4 @@ docker-compose up -d
 ### 8. [콘서트 예매 서비스의 동시성 문제 파악 및 최적화 방안 탐색](https://github.com/yangahh/concert-ticket-reservation/wiki/08.-%EB%8F%99%EC%8B%9C%EC%84%B1-%EC%9D%B4%EC%8A%88%EC%97%90-%EB%8C%80%ED%95%9C-%EB%B6%84%EC%84%9D)
 ### 9. [캐시 도입에 관한 보고서](https://github.com/yangahh/concert-ticket-reservation/wiki/09.-%EC%BD%98%EC%84%9C%ED%8A%B8-%EC%98%88%EB%A7%A4-%EC%84%9C%EB%B9%84%EC%8A%A4%EC%97%90-%EC%BA%90%EC%8B%9C-%EB%8F%84%EC%9E%85)
 ### 10. [대기열 로직 RDB에서 Redis로 이관에 관한 보고서](https://github.com/yangahh/concert-ticket-reservation/wiki/10.-%EB%8C%80%EA%B8%B0%EC%97%B4-RDB%EC%97%90%EC%84%9C-Redis%EB%A1%9C-%EC%9D%B4%EA%B4%80)
+### 11. [인덱스 설정을 통한 성능 개선](https://massive-turn-bcc.notion.site/19404128f95780b0a6cfcb23aad38ecb?pvs=4)
