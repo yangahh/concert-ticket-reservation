@@ -1,5 +1,6 @@
 drop table if exists point_history;
 drop table if exists point;
+drop table if exists payment;
 drop table if exists reservation;
 drop table if exists seat;
 drop table if exists concert_schedule;
@@ -88,6 +89,21 @@ CREATE TABLE `reservation` (
 
 CREATE INDEX idx_reservation_seat_id ON reservation(seat_id);
 ALTER TABLE `reservation` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+
+CREATE TABLE `payment` (
+    `id` bigint PRIMARY KEY AUTO_INCREMENT,
+    `user_id` bigint NOT NULL,
+    `reservation_id` bigint NOT NULL,
+    `amount` integer NOT NULL,
+    `status` ENUM('COMPLETED', 'CANCELED', 'IN_PROGRESS') NOT NULL DEFAULT 'IN_PROGRESS',
+    `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_payment_user_id ON payment(user_id);
+CREATE INDEX idx_payment_reservation_id ON payment(reservation_id);
 
 --
 
