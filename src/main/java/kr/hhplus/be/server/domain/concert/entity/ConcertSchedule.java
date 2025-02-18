@@ -11,7 +11,9 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@Table(name = "concert_schedule")
+@Table(name = "concert_schedule", indexes = {
+    @Index(name = "idx_event_date", columnList = "concert_id, event_date")
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ConcertSchedule extends BaseEntity {
     @Id

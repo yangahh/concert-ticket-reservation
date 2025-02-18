@@ -10,7 +10,9 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@Table(name = "concert")
+@Table(name = "concert", indexes = {
+    @Index(name = "idx_reservation_open_date_time", columnList = "reservation_open_date_time")
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Concert extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

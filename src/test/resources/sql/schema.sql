@@ -39,6 +39,7 @@ CREATE TABLE `concert` (
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+CREATE INDEX idx_reservation_seat_id ON concert(reservation_open_date_time);
 
 --
 
@@ -51,6 +52,7 @@ CREATE TABLE `concert_schedule` (
     `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE INDEX idx_concert_id_event_date ON concert_schedule(concert_id, event_date);
 ALTER TABLE `concert_schedule` ADD FOREIGN KEY (`concert_id`) REFERENCES `concert` (`id`);
 
 --

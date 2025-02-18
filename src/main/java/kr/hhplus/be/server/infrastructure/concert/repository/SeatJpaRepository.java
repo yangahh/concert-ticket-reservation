@@ -14,9 +14,8 @@ import java.util.Optional;
 @Repository
 public interface SeatJpaRepository extends JpaRepository<Seat, Long> {
 
-    @EntityGraph(attributePaths = {"concertSchedule"}, type = EntityGraph.EntityGraphType.FETCH)
     @Query("SELECT s FROM Seat s " +
-        "JOIN s.concertSchedule cs " +
+        "JOIN FETCH s.concertSchedule cs " +
         "JOIN cs.concert c " +
         "WHERE c.id = :concertId " +
         "AND cs.eventDate BETWEEN :startDateTime AND :endDateTime")
