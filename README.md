@@ -25,3 +25,4 @@ docker-compose up -d
 ### 9. [캐시 도입에 관한 보고서](https://github.com/yangahh/concert-ticket-reservation/wiki/09.-%EC%BD%98%EC%84%9C%ED%8A%B8-%EC%98%88%EB%A7%A4-%EC%84%9C%EB%B9%84%EC%8A%A4%EC%97%90-%EC%BA%90%EC%8B%9C-%EB%8F%84%EC%9E%85)
 ### 10. [대기열 로직 RDB에서 Redis로 이관에 관한 보고서](https://github.com/yangahh/concert-ticket-reservation/wiki/10.-%EB%8C%80%EA%B8%B0%EC%97%B4-RDB%EC%97%90%EC%84%9C-Redis%EB%A1%9C-%EC%9D%B4%EA%B4%80)
 ### 11. [인덱스 설정을 통한 성능 개선](https://massive-turn-bcc.notion.site/19404128f95780b0a6cfcb23aad38ecb?pvs=4)
+### 12. [MSA로 전환 시 트랜잭션 처리 한계와 해결방안에 대한 탐색](https://massive-turn-bcc.notion.site/MSA-19404128f95780f5bc03f2550ed81a8a?pvs=4)
