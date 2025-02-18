@@ -111,6 +111,7 @@ public class QueueTokenControllerTest {
                 .concertId(concertId)
                 .position(1)
                 .remainingSeconds(1)
+                .isActive(false)
                 .build();
         given(queueTokenService.getWaitingTokenPositionAndRemainingTime(concertId, validToken)).willReturn(mockResult);
 

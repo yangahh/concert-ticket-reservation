@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,6 +31,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 
 @Slf4j
 public class PaymentConcurrencyTest extends InfraRepositorySupport {
@@ -45,7 +50,7 @@ public class PaymentConcurrencyTest extends InfraRepositorySupport {
     @Autowired
     protected PointService pointService;
 
-    @Autowired
+    @MockitoBean
     protected QueueTokenService queueTokenService;
 
     @Autowired

@@ -88,7 +88,7 @@ public class PaymentUseCaseTest extends InfraRepositorySupport {
 
     @DisplayName("해당 임시 예약이 만료된 경우 결제에 실패하고, 좌석 상태 및 예약 상태가 변경된다.")
     @Test
-    void shouldFailToPayForReservationWhenTempReservationExpired() {
+    void shouldFailToPayForReservationWhenTempReservationExpired() throws InterruptedException {
         // given
         Seat seat = Seat.create(concertSchedule, "A", true, 10000, timeProvider.now().minusMinutes(5));
         seat.reserve(timeProvider.now());
@@ -99,6 +99,8 @@ public class PaymentUseCaseTest extends InfraRepositorySupport {
         assertThatThrownBy(() -> paymentUseCase.payForReservation(tempReservation.getId(), token.getTokenUuid()))
             .isInstanceOf(UnprocessableEntityException.class)
             .hasMessage("Temp reservation expired");
+
+        Thread.sleep(100); // 이벤트 처리를 위한 대기
 
         Seat afterSeat = seatJpaRepository.findById(seat.getId()).get();
         assertThat(afterSeat.getIsAvailable()).isTrue();

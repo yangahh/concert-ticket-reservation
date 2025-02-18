@@ -118,25 +118,6 @@ public class ReservationServiceTest {
         assertThat(reservationResult.status()).isEqualTo(ReservationStatus.PENDING_PAYMENT);
     }
 
-    @DisplayName("임시 예약이 만료되었는지 확인할 때, 만료된 상태를 반환한다.")
-    @Test
-    void shouldReturnTrueWhenTempReservationIsExpired() {
-        // given
-        Long reservationId = 1L;
-        LocalDateTime now = LocalDateTime.now();
-        Reservation reservation = mock(Reservation.class);
-
-        given(reservationRepository.findByIdForUpdate(reservationId)).willReturn(Optional.of(reservation));
-        given(reservation.isTempReservationExpired(now)).willReturn(true);
-
-        // when
-        boolean isExpired = sut.isTempReservationExpired(reservationId, now);
-
-        // then
-        assertThat(isExpired).isTrue();
-        verify(reservationRepository).findByIdForUpdate(reservationId);
-        verify(reservation).isTempReservationExpired(now);
-    }
 
     @Test
     @DisplayName("임시 예약 확정(=결제) 시 예약이 존재하지 않으면 예외를 발생시킨다.")
@@ -145,13 +126,13 @@ public class ReservationServiceTest {
         Long reservationId = 1L;
         LocalDateTime now = LocalDateTime.now();
 
-        given(reservationRepository.findByIdForUpdate(reservationId)).willReturn(Optional.empty());
+        given(reservationRepository.findById(reservationId)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> sut.confirmReservation(reservationId, now))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Reservation not found");
-        verify(reservationRepository).findByIdForUpdate(reservationId);
+        verify(reservationRepository).findById(reservationId);
     }
 
     @Test
@@ -188,7 +169,7 @@ public class ReservationServiceTest {
         doReturn(mockConcert).when(mockConcertSchedule).getConcert();
         doReturn(ReservationStatus.CONFIRMED).when(mockReservation).getStatus();
 
-        given(reservationRepository.findByIdForUpdate(reservationId)).willReturn(Optional.of(mockReservation));
+        given(reservationRepository.findById(reservationId)).willReturn(Optional.of(mockReservation));
         given(reservationRepository.save(any(Reservation.class))).willReturn(mockReservation);
 
         // when
@@ -196,7 +177,7 @@ public class ReservationServiceTest {
 
         // then
         assertThat(result.status()).isEqualTo(ReservationStatus.CONFIRMED);
-        verify(reservationRepository).findByIdForUpdate(reservationId);
+        verify(reservationRepository).findById(reservationId);
         verify(mockReservation).confirm(now);
         verify(reservationRepository).save(mockReservation);
     }
