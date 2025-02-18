@@ -32,4 +32,9 @@ public class ReservationRepositoryImpl implements ReservationRepository {
     public Optional<Reservation> findByIdForUpdate(Long reservationId) {
         return reservationJpaRepository.findByIdWithLock(reservationId);
     }
+
+    @Override
+    public Optional<Reservation> findById(Long reservationId) {
+        return reservationJpaRepository.findById(reservationId);
+    }
 }

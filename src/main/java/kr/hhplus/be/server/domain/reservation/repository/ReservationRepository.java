@@ -11,4 +11,5 @@ public interface ReservationRepository {
     void updateExpiredTempReservationsToCanceled(LocalDateTime now);
     Reservation save(Reservation reservation);
     Optional<Reservation> findByIdForUpdate(Long reservationId);
+    Optional<Reservation> findById(Long reservationId);
 }
