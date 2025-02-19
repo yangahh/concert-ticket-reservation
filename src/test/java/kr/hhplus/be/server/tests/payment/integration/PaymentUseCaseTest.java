@@ -13,7 +13,7 @@ import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.entity.Reservation;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
 import kr.hhplus.be.server.domain.user.entity.User;
-import kr.hhplus.be.server.infrastructure.point.repository.PointHistoryJpaRepository;
+import kr.hhplus.be.server.infrastructure.repository.point.PointHistoryJpaRepository;
 import kr.hhplus.be.server.tests.support.InfraRepositorySupport;
 import kr.hhplus.be.server.utils.time.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;

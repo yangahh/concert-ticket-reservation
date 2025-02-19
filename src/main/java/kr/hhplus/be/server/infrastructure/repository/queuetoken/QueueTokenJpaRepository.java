@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.infrastructure.queuetoken.repository;
+package kr.hhplus.be.server.infrastructure.repository.queuetoken;
 
 import jakarta.persistence.LockModeType;
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;

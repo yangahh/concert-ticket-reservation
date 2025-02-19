@@ -2,14 +2,12 @@ package kr.hhplus.be.server.tests.queuetoken.integration;
 
 import kr.hhplus.be.server.application.queuetoken.scheduler.ActivateTokenScheduler;
 import kr.hhplus.be.server.domain.concert.entity.Concert;
-import kr.hhplus.be.server.domain.concert.service.ConcertService;
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueTokenFactory;
 import kr.hhplus.be.server.domain.queuetoken.repository.QueueTokenRepository;
-import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
-import kr.hhplus.be.server.infrastructure.concert.repository.ConcertJpaRepository;
-import kr.hhplus.be.server.infrastructure.queuetoken.repository.ActiveTokenRedisTemplate;
-import kr.hhplus.be.server.infrastructure.queuetoken.repository.WaitingTokenRedisTemplate;
+import kr.hhplus.be.server.infrastructure.repository.concert.ConcertJpaRepository;
+import kr.hhplus.be.server.infrastructure.repository.queuetoken.ActiveTokenRedisTemplate;
+import kr.hhplus.be.server.infrastructure.repository.queuetoken.WaitingTokenRedisTemplate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

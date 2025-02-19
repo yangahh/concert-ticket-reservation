@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.infrastructure.payment.repository;
+package kr.hhplus.be.server.infrastructure.repository.payment;
 
 import kr.hhplus.be.server.domain.payment.entity.Payment;
 import kr.hhplus.be.server.domain.payment.repository.PaymentRepository;

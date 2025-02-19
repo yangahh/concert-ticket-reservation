@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.infrastructure.concert.repository;
+package kr.hhplus.be.server.infrastructure.repository.concert;
 
 import jakarta.persistence.LockModeType;
 import kr.hhplus.be.server.domain.concert.entity.Seat;

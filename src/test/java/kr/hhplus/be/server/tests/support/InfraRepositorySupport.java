@@ -1,15 +1,15 @@
 package kr.hhplus.be.server.tests.support;
 
 import kr.hhplus.be.server.domain.queuetoken.repository.QueueTokenRepository;
-import kr.hhplus.be.server.infrastructure.concert.repository.ConcertJpaRepository;
-import kr.hhplus.be.server.infrastructure.concert.repository.ConcertScheduleJpaRepository;
-import kr.hhplus.be.server.infrastructure.concert.repository.SeatJpaRepository;
-import kr.hhplus.be.server.infrastructure.point.repository.PointHistoryJpaRepository;
-import kr.hhplus.be.server.infrastructure.point.repository.PointJpaRepository;
-import kr.hhplus.be.server.infrastructure.queuetoken.repository.ActiveTokenRedisTemplate;
-import kr.hhplus.be.server.infrastructure.queuetoken.repository.WaitingTokenRedisTemplate;
-import kr.hhplus.be.server.infrastructure.reservation.repository.ReservationJpaRepository;
-import kr.hhplus.be.server.infrastructure.user.repository.UserJpaRepository;
+import kr.hhplus.be.server.infrastructure.repository.concert.ConcertJpaRepository;
+import kr.hhplus.be.server.infrastructure.repository.concert.ConcertScheduleJpaRepository;
+import kr.hhplus.be.server.infrastructure.repository.concert.SeatJpaRepository;
+import kr.hhplus.be.server.infrastructure.repository.point.PointHistoryJpaRepository;
+import kr.hhplus.be.server.infrastructure.repository.point.PointJpaRepository;
+import kr.hhplus.be.server.infrastructure.repository.queuetoken.ActiveTokenRedisTemplate;
+import kr.hhplus.be.server.infrastructure.repository.queuetoken.WaitingTokenRedisTemplate;
+import kr.hhplus.be.server.infrastructure.repository.reservation.ReservationJpaRepository;
+import kr.hhplus.be.server.infrastructure.repository.user.UserJpaRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

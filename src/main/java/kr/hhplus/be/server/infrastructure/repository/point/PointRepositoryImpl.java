@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.infrastructure.point.repository;
+package kr.hhplus.be.server.infrastructure.repository.point;
 
 import kr.hhplus.be.server.domain.point.entity.Point;
 import kr.hhplus.be.server.domain.point.entity.PointHistory;

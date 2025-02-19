@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
 import kr.hhplus.be.server.domain.queuetoken.repository.QueueTokenRepository;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
-import kr.hhplus.be.server.infrastructure.queuetoken.repository.ActiveTokenRedisTemplate;
+import kr.hhplus.be.server.infrastructure.repository.queuetoken.ActiveTokenRedisTemplate;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.BaseResponse;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.PaginationData;
 import kr.hhplus.be.server.interfaces.api.concert.dto.ConcertResponse;

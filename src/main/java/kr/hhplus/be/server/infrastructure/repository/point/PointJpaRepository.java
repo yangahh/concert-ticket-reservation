@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.infrastructure.point.repository;
+package kr.hhplus.be.server.infrastructure.repository.point;
 
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;

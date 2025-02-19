@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.infrastructure.user.repository;
+package kr.hhplus.be.server.infrastructure.repository.user;
 
 import kr.hhplus.be.server.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

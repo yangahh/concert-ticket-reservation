@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.infrastructure.reservation.repository;
+package kr.hhplus.be.server.infrastructure.repository.reservation;
 
 import jakarta.persistence.LockModeType;
 import kr.hhplus.be.server.domain.reservation.entity.Reservation;
