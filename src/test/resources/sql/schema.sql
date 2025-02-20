@@ -7,6 +7,7 @@ drop table if exists concert_schedule;
 drop table if exists concert;
 drop table if exists queue_token;
 drop table if exists users;
+drop table if exists payment_completed_event_outbox;
 
 
 CREATE TABLE `users` (
@@ -134,3 +135,19 @@ CREATE TABLE `point_history` (
 CREATE INDEX idx_point_history_ref_id ON point_history(ref_id);
 CREATE INDEX idx_point_history_point_id ON point_history(point_id);
 ALTER TABLE `point_history` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+
+create table `payment_completed_event_outbox`
+(
+    `id` bigint PRIMARY KEY AUTO_INCREMENT,
+    `retry_count` int NOT NULL DEFAULT 0,
+    `payment_id` bigint NOT NULL,
+    `payload` json NOT NULL,
+    `status` ENUM('FAILED', 'INIT', 'PUBLISHED') NOT NULL DEFAULT 'INIT',
+    `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_payment_completed_event_outbox_payment_id on payment_completed_event_outbox (payment_id);
+CREATE INDEX idx_payment_completed_event_outbox_status on payment_completed_event_outbox (status);
