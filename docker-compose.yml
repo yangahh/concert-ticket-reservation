@@ -2,6 +2,7 @@ version: '3'
 services:
   mysql:
     image: mysql:8.0
+    container_name: mysql
     ports:
       - "3306:3306"
     environment:
@@ -10,13 +11,61 @@ services:
       - MYSQL_PASSWORD=application
       - MYSQL_DATABASE=hhplus
     volumes:
-      - ./data/mysql/:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
   redis:
     image: redis:7.0.8-alpine
+    container_name: redis
     restart: always
     ports:
       - "6379:6379"
-
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000  # 2s(default)
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper
+      - zookeeper-datalog:/var/lib/zookeeper/log
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"  # 내부 네트워크 통신을 위한 PLAINTEXT Listener
+      - "29092:29092"  # 외부 접근을 위한 EXTERNAL Listener
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092 #  모든 네트워크 인터페이스에서 9092, 29092 포트로 Kafka 브로커에 접근 가능하도록 설정.
+        # PLAINTEXT: 평문(암호화 X)으로 전송하는 리스너로 보안이 필요 없는 카프카 컨테이너 내부 네트워크에서 사용됨(같은 docker-compose 네트워크 안에 있는 서비스들이 kafka:9092로 접근 가능)
+        # PLAINTEXT_HOST: 컨테이너 외부(로컬 애플리케이션)에서 접근할 리스너
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092  # Kafka가 클라이언트(Spring Boot, Kafka CLI 등)에게 "이 주소로 접속하라"고 광고하는 주소
+        # PLAINTEXT://kafka:9092 → Docker 내부에서 실행되는 애플리케이션이 kafka:9092로 접속하도록 광고
+        # PLAINTEXT_HOST://host.docker.internal:29092 → Docker 외부(로컬에서 실행 중인 Spring Boot 애플리케이션)가 host.docker.internal:29092로 접속하도록 광고
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    ports:
+      - "9090:8080"
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092  # Kafka UI는 Kafka 브로커의 PLAINTEXT_HOST 리스너(kafka:9092)를 사용해야 함
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+volumes:
+  mysql-data:
+  zookeeper-data:
+  zookeeper-datalog:
+  kafka-data:
 networks:
   default:
     driver: bridge
