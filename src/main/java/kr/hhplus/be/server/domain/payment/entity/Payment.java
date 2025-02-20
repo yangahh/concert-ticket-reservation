@@ -2,10 +2,7 @@ package kr.hhplus.be.server.domain.payment.entity;
 
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.common.entity.BaseEntity;
-import kr.hhplus.be.server.domain.payment.dto.PaymentResult;
 import kr.hhplus.be.server.domain.payment.vo.PaymentStatus;
-import kr.hhplus.be.server.domain.reservation.entity.Reservation;
-import kr.hhplus.be.server.domain.user.entity.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -49,7 +46,7 @@ public class Payment extends BaseEntity {
             .userId(userId)
             .reservationId(reservationId)
             .amount(amount)
-            .status(PaymentStatus.IN_PROGRESS)
+            .status(PaymentStatus.COMPLETED)
             .build();
     }
 }
