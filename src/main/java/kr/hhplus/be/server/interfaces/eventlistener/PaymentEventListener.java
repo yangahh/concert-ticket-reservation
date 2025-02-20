@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.application.payment.eventlistener;
+package kr.hhplus.be.server.interfaces.eventlistener;
 
 import kr.hhplus.be.server.domain.payment.event.PaymentCompletedEvent;
 import kr.hhplus.be.server.domain.payment.messaging.PaymentMessageProducer;

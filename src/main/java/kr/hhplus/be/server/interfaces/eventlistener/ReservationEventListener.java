@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.application.reservation.eventlistener;
+package kr.hhplus.be.server.interfaces.eventlistener;
 
 import kr.hhplus.be.server.domain.reservation.event.ReservationExpiredEvent;
 import kr.hhplus.be.server.domain.reservation.service.ReservationService;
