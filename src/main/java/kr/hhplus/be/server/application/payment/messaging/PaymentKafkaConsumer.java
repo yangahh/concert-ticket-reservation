@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.infrastructure.messaging.payment;
+package kr.hhplus.be.server.application.payment.messaging;
 
 import kr.hhplus.be.server.application.payment.usecase.PaymentUseCase;
 import kr.hhplus.be.server.domain.payment.event.PaymentCompletedEvent;
@@ -6,7 +6,6 @@ import kr.hhplus.be.server.domain.payment.service.PaymentOutboxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import static kr.hhplus.be.server.infrastructure.messaging.config.KafkaConstance.PAYMENT_COMPLETED_TOPIC;
@@ -22,7 +21,6 @@ public class PaymentKafkaConsumer {
         topics = PAYMENT_COMPLETED_TOPIC,
         groupId = PAYMENT_CONSUMER_GROUP
     )
-    @Async
     public void consume(PaymentCompletedEvent event) {
         try {
             log.info("[PAYMENT-SERVICE][PaymentKafkaConsumer] 결제 처리 KafkaListener: 결제 ID - {}", event.paymentId());
