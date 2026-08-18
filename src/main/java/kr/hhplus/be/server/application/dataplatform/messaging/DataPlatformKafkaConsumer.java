@@ -23,7 +23,7 @@ public class DataPlatformKafkaConsumer {
     public void consume(PaymentCompletedEvent event) {
         // event -> DTO 변환 (생략)
         log.info("[DATA-PLATFORM-SERVICE][DataPlatformKafkaConsumer] 결제 데이터 전송: 결제 ID - {}", event.paymentId());
-        dataPlatformSendService.sendReservationPaymentResult();
+        dataPlatformSendService.sendReservationPaymentResult(event.paymentId());
         log.info("[DATA-PLATFORM-SERVICE][DataPlatformKafkaConsumer] 결제 데이터 전송 완료");
     }
 }

@@ -8,6 +8,7 @@ drop table if exists concert;
 drop table if exists queue_token;
 drop table if exists users;
 drop table if exists payment_completed_event_outbox;
+drop table if exists data_platform_send_log;
 
 
 CREATE TABLE `users` (
@@ -151,3 +152,12 @@ create table `payment_completed_event_outbox`
 
 CREATE INDEX idx_payment_completed_event_outbox_payment_id on payment_completed_event_outbox (payment_id);
 CREATE INDEX idx_payment_completed_event_outbox_status on payment_completed_event_outbox (status);
+
+create table `data_platform_send_log`
+(
+    `id` bigint PRIMARY KEY AUTO_INCREMENT,
+    `payment_id` bigint NOT NULL,
+    `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY `uk_data_platform_send_log_payment_id` (`payment_id`)
+);
