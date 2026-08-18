@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.application.payment.messaging;
 
-import kr.hhplus.be.server.application.payment.usecase.PaymentUseCase;
 import kr.hhplus.be.server.domain.payment.event.PaymentCompletedEvent;
 import kr.hhplus.be.server.domain.payment.service.PaymentOutboxService;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +21,10 @@ public class PaymentKafkaConsumer {
         groupId = PAYMENT_CONSUMER_GROUP
     )
     public void consume(PaymentCompletedEvent event) {
-        try {
-            log.info("[PAYMENT-SERVICE][PaymentKafkaConsumer] 결제 처리 KafkaListener: 결제 ID - {}", event.paymentId());
-            paymentOutboxService.updatePaymentCompletedEventOutboxStatus(event);
-            log.info("[PAYMENT-SERVICE][PaymentKafkaConsumer] 결제 처리 완료: 결제 ID - {}", event.paymentId());
-        } catch (Exception e) {
-            log.error("[PAYMENT-SERVICE][PaymentKafkaConsumer] 결제 처리 실패: {}", e.getMessage(), e);
-            // TODO: DLQ에 메시지 전송
-        }
+        log.info("[PAYMENT-SERVICE][PaymentKafkaConsumer] 결제 처리 KafkaListener: 결제 ID - {}", event.paymentId());
+        // 예외를 여기서 삼키지 않는다 — KafkaConsumerConfig의 DefaultErrorHandler가
+        // 재시도 후 실패 시 DLQ(payment-completed.DLT)로 자동 라우팅하도록 그대로 전파시킨다.
+        paymentOutboxService.updatePaymentCompletedEventOutboxStatus(event);
+        log.info("[PAYMENT-SERVICE][PaymentKafkaConsumer] 결제 처리 완료: 결제 ID - {}", event.paymentId());
     }
 }
