@@ -39,7 +39,7 @@ public class PublishingEventRetryScheduler {
             }
 
             // 1분간 상태가 변하지 않은 이벤트만 재시도
-            if (event.getCreatedAt().isAfter(thresholdTime)) {
+            if (event.getCreatedAt().isBefore(thresholdTime)) {
                 log.info("[PAYMENT-SERVICE][RETRY-PUBLISH] 1분간 상태가 변하지 않았음 → 이벤트 발행 재시도: id={}, paymentId={}", event.getId(), event.getPaymentId());
                 paymentMessageProducer.publishPaymentCompetedMessage(event.getPayload());
                 event.increaseRetryCount();

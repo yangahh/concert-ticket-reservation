@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.domain.reservation.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import kr.hhplus.be.server.domain.common.exception.DomainEntityNotFoundException;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.concert.entity.Seat;
 import kr.hhplus.be.server.domain.concert.repository.ConcertRepository;
@@ -38,12 +38,12 @@ public class ReservationService {
     }
 
     @Transactional
-    public ReservationResult makeTempReservation(Long userId, Long seatId, LocalDateTime tempReservationExpiredAt) {
+    public ReservationResult makeTempReservation(Long userId, Long seatId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new EntityNotFoundException("User not found (id = " + userId + ")"));
+            .orElseThrow(() -> new DomainEntityNotFoundException("User not found (id = " + userId + ")"));
         Seat seat = concertRepository.getReferenceSeatById(seatId);
 
-        Reservation reservation = Reservation.tempReserve(user, seat, tempReservationExpiredAt);
+        Reservation reservation = Reservation.tempReserve(user, seat, LocalDateTime.now());
         Reservation saved = reservationRepository.save(reservation);
         return ReservationResult.fromEntity(saved);
     }
@@ -51,7 +51,7 @@ public class ReservationService {
     @Transactional
     public ReservationResult confirmReservation(Long reservationId, LocalDateTime now) {
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(() -> new EntityNotFoundException("Reservation not found (id = " + reservationId + ")"));
+            .orElseThrow(() -> new DomainEntityNotFoundException("Reservation not found (id = " + reservationId + ")"));
         validateReservation(reservation, now);
 
         reservation.confirm(now);
@@ -71,7 +71,7 @@ public class ReservationService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handelExpiredReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(() -> new EntityNotFoundException("Reservation not found (id = " + reservationId + ")"));
+            .orElseThrow(() -> new DomainEntityNotFoundException("Reservation not found (id = " + reservationId + ")"));
 
         concertRepository.updateSeatToAvailableById(reservation.getSeat().getId());
         reservation.cancel();
@@ -83,7 +83,7 @@ public class ReservationService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void rollbackToTempReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(() -> new EntityNotFoundException("Reservation not found (id = " + reservationId + ")"));
+            .orElseThrow(() -> new DomainEntityNotFoundException("Reservation not found (id = " + reservationId + ")"));
         reservation.rollbackToTempReservation();
         reservationRepository.save(reservation);
     }

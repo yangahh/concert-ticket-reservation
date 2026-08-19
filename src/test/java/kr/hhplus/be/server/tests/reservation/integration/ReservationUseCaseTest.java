@@ -9,12 +9,7 @@ import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.service.ReservationService;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
 import kr.hhplus.be.server.domain.user.entity.User;
-import kr.hhplus.be.server.infrastructure.repository.concert.ConcertJpaRepository;
-import kr.hhplus.be.server.infrastructure.repository.concert.ConcertScheduleJpaRepository;
-import kr.hhplus.be.server.infrastructure.repository.concert.SeatJpaRepository;
-import kr.hhplus.be.server.infrastructure.repository.reservation.ReservationJpaRepository;
-import kr.hhplus.be.server.infrastructure.repository.user.UserJpaRepository;
-import org.junit.jupiter.api.AfterEach;
+import kr.hhplus.be.server.tests.support.InfraRepositorySupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 @SpringBootTest
-public class ReservationUseCaseTest {
+public class ReservationUseCaseTest extends InfraRepositorySupport {
     @Autowired
     private ReservationUseCase reservationUsecase;
 
@@ -37,22 +32,6 @@ public class ReservationUseCaseTest {
 
     @Autowired
     private ConcertService concertService;
-
-    @Autowired
-    private SeatJpaRepository seatJpaRepository;
-
-    @Autowired
-    private ReservationJpaRepository reservationJpaRepository;
-
-    @Autowired
-    private UserJpaRepository userJpaRepository;
-
-    @Autowired
-    private ConcertJpaRepository concertJpaRepository;
-
-    @Autowired
-    private ConcertScheduleJpaRepository concertScheduleJpaRepository;
-
 
     User user;
     Seat seat;
@@ -64,11 +43,6 @@ public class ReservationUseCaseTest {
         ConcertSchedule concertSchedule = concertScheduleJpaRepository.save(ConcertSchedule.create(concert, LocalDateTime.now().plusDays(1), 50));
         seat = seatJpaRepository.save(Seat.create(concertSchedule, "1", true, 1000, LocalDateTime.now().plusMinutes(5)));
 
-    }
-
-    @AfterEach
-    void tearDown() {
-        reservationJpaRepository.deleteAll();
     }
 
     @DisplayName("예약 요청 usecase 성공 테스트")

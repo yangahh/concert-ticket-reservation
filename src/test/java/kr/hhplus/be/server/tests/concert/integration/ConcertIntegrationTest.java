@@ -2,6 +2,7 @@ package kr.hhplus.be.server.tests.concert.integration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.hhplus.be.server.config.FixedClockConfig;
 import kr.hhplus.be.server.domain.queuetoken.entity.QueueToken;
 import kr.hhplus.be.server.domain.queuetoken.repository.QueueTokenRepository;
 import kr.hhplus.be.server.domain.queuetoken.service.QueueTokenService;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
@@ -35,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 @Sql("/sql/concert_data.sql")
+@Import(FixedClockConfig.class)
 public class ConcertIntegrationTest {
     @Autowired
     private MockMvc mockMvc;

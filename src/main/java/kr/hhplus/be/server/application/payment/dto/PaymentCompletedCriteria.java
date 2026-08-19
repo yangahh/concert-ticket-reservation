@@ -1,9 +1,9 @@
 package kr.hhplus.be.server.application.payment.dto;
 
 import kr.hhplus.be.server.domain.payment.dto.PaymentResult;
+import kr.hhplus.be.server.domain.payment.event.PaymentCompletedEvent;
 import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import lombok.Builder;
-import lombok.Getter;
 
 import java.time.LocalDateTime;
 
@@ -29,5 +29,18 @@ public record PaymentCompletedCriteria (
             .paymentAmount(reservationResult.price())
             .paymentAt(paymentResult.createdAt())
             .build();
+    }
+
+    public PaymentCompletedEvent toEvent() {
+        return PaymentCompletedEvent.builder()
+                .paymentId(paymentId)
+                .userId(userId)
+                .concertId(concertId)
+                .concertScheduleId(concertScheduleId)
+                .seatId(seatId)
+                .reservationId(reservationId)
+                .paymentAmount(paymentAmount)
+                .paymentAt(paymentAt)
+                .build();
     }
 }

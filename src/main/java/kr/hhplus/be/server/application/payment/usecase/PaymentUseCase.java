@@ -35,7 +35,7 @@ public class PaymentUseCase {
         pointService.usePoint(reservationResult.userId(), reservationResult.price(), reservationId);
         queueTokenService.deleteToken(reservationResult.concertScheduleResult().concertId(), tokenUuid);
 
-        applicationEventPublisher.publishEvent(PaymentCompletedEvent.from(PaymentCompletedCriteria.of(paymentResult, reservationResult)));
+        applicationEventPublisher.publishEvent(PaymentCompletedCriteria.of(paymentResult, reservationResult).toEvent());
         return reservationResult;
     }
 }

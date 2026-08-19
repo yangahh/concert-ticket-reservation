@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.application.reservation.usecase;
 
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
-import kr.hhplus.be.server.domain.concert.dto.ReservationSeatInfo;
 import kr.hhplus.be.server.domain.concert.service.ConcertService;
 import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.service.ReservationService;
@@ -25,7 +24,7 @@ public class ReservationUseCase {
         LocalDateTime now = timeProvider.now();
         try {
             concertService.reserveSeat(seatId, now);
-            return reservationService.makeTempReservation(userId, seatId, now.plusMinutes(5));
+            return reservationService.makeTempReservation(userId, seatId);
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new UnprocessableEntityException("Seat is already reserved (id = " + seatId + ")");
         } catch (Exception e) {

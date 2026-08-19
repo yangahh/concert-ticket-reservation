@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
+import kr.hhplus.be.server.domain.common.exception.DomainEntityNotFoundException;
 import kr.hhplus.be.server.domain.common.exception.UnprocessableEntityException;
 import kr.hhplus.be.server.domain.queuetoken.exception.InvalidToken;
 import kr.hhplus.be.server.interfaces.api.common.dto.response.ErrorResponse;
@@ -38,6 +39,13 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleUnprocessableEntityException(UnprocessableEntityException e) {
         log.warn(Arrays.toString(e.getStackTrace()));
         return ErrorResponse.of(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage());
+    }
+
+    @ExceptionHandler(DomainEntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleDomainEntityNotFoundException(DomainEntityNotFoundException e) {
+        log.warn(Arrays.toString(e.getStackTrace()));
+        return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), e.getMessage());
     }
 
     @ExceptionHandler(EntityNotFoundException.class)

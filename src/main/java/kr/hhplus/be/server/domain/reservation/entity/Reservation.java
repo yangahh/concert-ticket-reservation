@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,6 +22,8 @@ import java.time.LocalDateTime;
     @Index(name = "idx_reservation_seat_id", columnList = "seat_id"),
 })
 public class Reservation extends BaseEntity {
+    private static final Duration TEMP_RESERVATION_TTL = Duration.ofMinutes(5);
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -60,13 +63,13 @@ public class Reservation extends BaseEntity {
         this.confirmedAt = confirmedAt;
     }
 
-    public static Reservation tempReserve(User user, Seat seat, LocalDateTime tempReservationExpiredAt) {
+    public static Reservation tempReserve(User user, Seat seat, LocalDateTime now) {
         return Reservation.builder()
             .user(user)
             .seat(seat)
             .status(ReservationStatus.PENDING_PAYMENT)
             .paymentPrice(seat.getPrice())
-            .tempReservationExpiredAt(tempReservationExpiredAt)
+            .tempReservationExpiredAt(now.plus(TEMP_RESERVATION_TTL))
             .build();
     }
 

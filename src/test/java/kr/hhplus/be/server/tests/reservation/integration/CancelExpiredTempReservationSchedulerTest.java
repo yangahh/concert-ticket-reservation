@@ -9,11 +9,7 @@ import kr.hhplus.be.server.domain.reservation.entity.Reservation;
 import kr.hhplus.be.server.domain.reservation.service.ReservationService;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
 import kr.hhplus.be.server.domain.user.entity.User;
-import kr.hhplus.be.server.infrastructure.repository.concert.ConcertJpaRepository;
-import kr.hhplus.be.server.infrastructure.repository.concert.ConcertScheduleJpaRepository;
-import kr.hhplus.be.server.infrastructure.repository.concert.SeatJpaRepository;
-import kr.hhplus.be.server.infrastructure.repository.reservation.ReservationJpaRepository;
-import kr.hhplus.be.server.infrastructure.repository.user.UserJpaRepository;
+import kr.hhplus.be.server.tests.support.InfraRepositorySupport;
 import kr.hhplus.be.server.utils.time.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +22,7 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class CancelExpiredTempReservationSchedulerTest {
+public class CancelExpiredTempReservationSchedulerTest extends InfraRepositorySupport {
     @Autowired
     private CancelExpiredTempReservationScheduler scheduler;
 
@@ -38,21 +34,6 @@ public class CancelExpiredTempReservationSchedulerTest {
 
     @Autowired
     private TimeProvider timeProvider;
-
-    @Autowired
-    private SeatJpaRepository seatJpaRepository;
-
-    @Autowired
-    private ReservationJpaRepository reservationJpaRepository;
-
-    @Autowired
-    private UserJpaRepository userJpaRepository;
-
-    @Autowired
-    private ConcertScheduleJpaRepository concertScheduleJpaRepository;
-
-    @Autowired
-    private ConcertJpaRepository concertJpaRepository;
 
     Seat expiredSeat;
     Reservation expiredReservation;

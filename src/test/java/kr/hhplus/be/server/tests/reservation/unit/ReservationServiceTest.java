@@ -1,8 +1,10 @@
 package kr.hhplus.be.server.tests.reservation.unit;
 
-import jakarta.persistence.EntityNotFoundException;
+import kr.hhplus.be.server.domain.common.exception.DomainEntityNotFoundException;
 import kr.hhplus.be.server.domain.concert.dto.ReservationSeatInfo;
-import kr.hhplus.be.server.domain.concert.entity.*;
+import kr.hhplus.be.server.domain.concert.entity.Concert;
+import kr.hhplus.be.server.domain.concert.entity.ConcertSchedule;
+import kr.hhplus.be.server.domain.concert.entity.Seat;
 import kr.hhplus.be.server.domain.concert.repository.ConcertRepository;
 import kr.hhplus.be.server.domain.reservation.dto.ReservationResult;
 import kr.hhplus.be.server.domain.reservation.entity.Reservation;
@@ -11,7 +13,6 @@ import kr.hhplus.be.server.domain.reservation.service.ReservationService;
 import kr.hhplus.be.server.domain.reservation.vo.ReservationStatus;
 import kr.hhplus.be.server.domain.user.entity.User;
 import kr.hhplus.be.server.domain.user.repository.UserRepository;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,8 +57,8 @@ public class ReservationServiceTest {
         ReservationSeatInfo reservationSeatInfo = ReservationSeatInfo.fromEntity(seat);
 
         // when & then
-        assertThatThrownBy(() -> sut.makeTempReservation(1L, seat.getId(), LocalDateTime.now()))
-                .isInstanceOf(EntityNotFoundException.class)
+        assertThatThrownBy(() -> sut.makeTempReservation(1L, seat.getId()))
+                .isInstanceOf(DomainEntityNotFoundException.class)
                 .hasMessageContaining("User not found");
     }
 
@@ -106,7 +107,7 @@ public class ReservationServiceTest {
         ReservationSeatInfo seatInfo = ReservationSeatInfo.fromEntity(mockSeat);
 
         // when
-        ReservationResult reservationResult = sut.makeTempReservation(userId, seatInfo.seatId(), now);
+        ReservationResult reservationResult = sut.makeTempReservation(userId, seatInfo.seatId());
 
         // then
         assertThat(reservationResult.reservationId()).isEqualTo(reservationId);
@@ -130,7 +131,7 @@ public class ReservationServiceTest {
 
         // when & then
         assertThatThrownBy(() -> sut.confirmReservation(reservationId, now))
-                .isInstanceOf(EntityNotFoundException.class)
+                .isInstanceOf(DomainEntityNotFoundException.class)
                 .hasMessageContaining("Reservation not found");
         verify(reservationRepository).findById(reservationId);
     }
